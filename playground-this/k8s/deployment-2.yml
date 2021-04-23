@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: nginx-opa-2
+  name: nginx-opa-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-opa-2
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nginx-opa-2
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+        resources: {}
+      volumes:
+        - name: pvc
+          persistentVolumeClaim:
+            claimName: pvc-1
+status: {}
