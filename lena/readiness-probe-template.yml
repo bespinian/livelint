@@ -1,0 +1,21 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: k8s-required-readiness_probe
+  annotations:
+    description: Controls running of pods without readiness probe
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredReadinessProbe
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredreadinessprobe
+
+        violation[{"msg": msg, "details": {}}] {
+          ontainer := input.review.object.spec.containers[_]
+          not container["readinessProbe"]
+          msg := "Pods require a readiness probe"
+        }
