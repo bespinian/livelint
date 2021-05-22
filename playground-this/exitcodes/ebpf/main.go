@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/cilium/ebpf/link"
 	"golang.org/x/sys/unix"
@@ -39,4 +40,18 @@ func main() {
 	}
 	defer tp.Close()
 
+	// Read loop reporting the total amount of times the kernel
+	// function was entered, once per second.
+	ticker := time.NewTicker(1 * time.Second)
+
+	log.Println("Waiting for events..")
+
+	for {
+		select {
+		case <-ticker.C:
+			log.Printf("Tick")
+		case <-stopper:
+			return
+		}
+	}
 }
