@@ -33,7 +33,7 @@ func main() {
 	}
 	defer objs.Close()
 
-	tp, err := link.Tracepoint("syscalls", "sched_process_exit", objs.BpfProg)
+	tp, err := link.Tracepoint("sched", "sched_process_exit", objs.BpfProg)
 	if err != nil {
 		log.Fatalf("opening tracepoint: %s", err)
 	}
