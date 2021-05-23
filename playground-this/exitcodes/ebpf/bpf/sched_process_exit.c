@@ -3,9 +3,20 @@
 
 char __license[] SEC("license") = "Dual MIT/GPL";
 
+struct event_t {
+        u32 pid;
+        char str[80];
+};
+
+struct {
+        __uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
+} events SEC(".maps");
+
 SEC("tracepoint/sched/sched_process_exit")
 int bpf_prog(void *ctx) {
-  char msg[] = "Process exited";
-  bpf_trace_printk(msg, sizeof(msg));
+  struct event_t event;
+  event.pid = bpf_get_current_pid_tgid();
+  event.str = "Process exited";
+  bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
   return 0;
 }
