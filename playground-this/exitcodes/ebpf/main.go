@@ -5,9 +5,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/cilium/ebpf/link"
+	"github.com/cilium/ebpf/perf"
 	"golang.org/x/sys/unix"
 )
 
@@ -34,24 +34,39 @@ func main() {
 	}
 	defer objs.Close()
 
+	// Open a perf reader from userspace into the perf event array
+	// created earlier.
+	rd, err := perf.NewReader(objs.Events, os.Getpagesize())
+	if err != nil {
+		log.Fatalf("creating event reader: %s", err)
+	}
+	defer rd.Close()
+
+	// Close the reader when the process receives a signal, which will exit
+	// the read loop.
+	go func() {
+		<-stopper
+		rd.Close()
+	}()
+
 	tp, err := link.Tracepoint("sched", "sched_process_exit", objs.BpfProg)
 	if err != nil {
 		log.Fatalf("opening tracepoint: %s", err)
 	}
 	defer tp.Close()
 
-	// Read loop reporting the total amount of times the kernel
-	// function was entered, once per second.
-	ticker := time.NewTicker(1 * time.Second)
-
 	log.Println("Waiting for events..")
 
 	for {
-		select {
-		case <-ticker.C:
-			log.Printf("Tick")
-		case <-stopper:
-			return
+		record, err := rd.Read()
+		if err != nil {
+			if perf.IsClosed(err) {
+				log.Println("Received signal, exiting..")
+				return
+			}
+			log.Fatalf("reading from reader: %s", err)
 		}
+
+		log.Println("Record:", record)
 	}
 }
