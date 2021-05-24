@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"log"
 	"os"
 	"os/signal"
@@ -12,6 +14,10 @@ import (
 )
 
 //go:generate go run github.com/cilium/ebpf/cmd/bpf2go -cc clang-11 SchedProcessExit ./bpf/sched_process_exit.c -- -I../headers
+
+type Event struct {
+	PID uint32
+}
 
 func main() {
 	// Subscribe to signals for terminating the program.
@@ -57,6 +63,7 @@ func main() {
 
 	log.Println("Waiting for events..")
 
+	var event Event
 	for {
 		record, err := rd.Read()
 		if err != nil {
@@ -67,6 +74,12 @@ func main() {
 			log.Fatalf("reading from reader: %s", err)
 		}
 
-		log.Println("Record:", record)
+		// Parse the perf event entry into an Event structure.
+		if err := binary.Read(bytes.NewBuffer(record.RawSample), binary.LittleEndian, &event); err != nil {
+			log.Printf("parsing perf event: %s", err)
+			continue
+		}
+
+		log.Println("Record:", event.PID)
 	}
 }
