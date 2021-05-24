@@ -17,6 +17,7 @@ import (
 
 type Event struct {
 	PID uint32
+	Ec  int
 }
 
 func main() {
@@ -80,6 +81,6 @@ func main() {
 			continue
 		}
 
-		log.Println("Process exited:", event.PID)
+		log.Printf("Process exited, pid: %d, exit code: %d", event.PID, event.Ec)
 	}
 }
