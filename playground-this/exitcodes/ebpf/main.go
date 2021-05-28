@@ -80,6 +80,6 @@ func main() {
 			continue
 		}
 
-		log.Println("Record:", event.PID)
+		log.Println("Process exited:", event.PID)
 	}
 }
