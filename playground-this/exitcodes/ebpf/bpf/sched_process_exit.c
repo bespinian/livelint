@@ -15,11 +15,13 @@ struct {
 } events SEC(".maps");
 
 SEC("tracepoint/sched/sched_process_exit")
-int bpf_prog(struct context* ctx) {
+int bpf_prog(void* ctx) {
   struct event_t event;
   event.pid = bpf_get_current_pid_tgid();
-  struct task_struct *task = (typeof(task))bpf_get_current_task();
-  event.ec = task->exit_code;
+  struct task_struct *task = (struct task_struct*)bpf_get_current_task();
+  int exitcode;
+  bpf_probe_read(&exitcode, sizeof(task->exit_code), &task->exit_code);
+  event.ec = exitcode >> 8;
   bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
   return 0;
 }
