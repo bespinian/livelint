@@ -17,7 +17,7 @@ import (
 
 type Event struct {
 	PID uint32
-	Ec  int
+	Ec  int32
 }
 
 func main() {
