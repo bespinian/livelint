@@ -18,6 +18,7 @@ import (
 type Event struct {
 	PID uint32
 	Ec  int32
+	Comm [16]byte
 }
 
 func main() {
@@ -81,6 +82,6 @@ func main() {
 			continue
 		}
 
-		log.Printf("Process exited, pid: %d, exit code: %d", event.PID, event.Ec)
+		log.Printf("Process exited, pid: %d, exit code: %d, command: %s", event.PID, event.Ec, unix.ByteSliceToString(event.Comm[:]))
 	}
 }

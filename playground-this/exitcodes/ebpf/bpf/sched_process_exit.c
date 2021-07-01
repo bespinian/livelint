@@ -8,6 +8,7 @@ char __license[] SEC("license") = "Dual MIT/GPL";
 struct event_t {
         u32 pid;
         int ec;
+	char comm[16];
 };
 
 struct {
@@ -22,6 +23,7 @@ int bpf_prog(void* ctx) {
   int exitcode;
   bpf_probe_read(&exitcode, sizeof(task->exit_code), &task->exit_code);
   event.ec = exitcode >> 8;
+  bpf_get_current_comm(&event.comm, sizeof(event.comm));
   bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
   return 0;
 }
