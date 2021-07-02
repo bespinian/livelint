@@ -17,8 +17,12 @@ import (
 
 type Event struct {
 	PID uint32
+	TGID uint32
 	Ec  int32
 	Comm [16]byte
+	PPID uint32
+	PTGID uint32
+	PComm [16]byte
 }
 
 func main() {
@@ -82,6 +86,6 @@ func main() {
 			continue
 		}
 
-		log.Printf("Process exited, pid: %d, exit code: %d, command: %s", event.PID, event.Ec, unix.ByteSliceToString(event.Comm[:]))
+		log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s", event.PPID, event.PTGID, unix.ByteSliceToString(event.PComm[:]), event.PID, event.TGID, event.Ec, unix.ByteSliceToString(event.Comm[:]))
 	}
 }
