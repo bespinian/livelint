@@ -1,6 +1,10 @@
 .PHONY: build
-build:
-	go build -o bin/livelint
+all:
+	go build -o bin/livelint ./cmd/livelint
+
+.PHONY: install
+install:
+	go install ./cmd/livelint
 
 .PHONY: lint
 lint:
@@ -13,3 +17,4 @@ test:
 .PHONY: clean
 clean:
 	rm -rf bin
+
