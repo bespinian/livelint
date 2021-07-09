@@ -6,6 +6,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 // getPendingPods returns all pods of a deployment that are in status "PENDING".
@@ -15,7 +16,18 @@ func (n *livelint) getPendingPods(namespace, deploymentName string) ([]corev1.Po
 		return nil, fmt.Errorf("error getting deployment %q in namespace %q: %w", deploymentName, namespace, err)
 	}
 
-	fmt.Println(deployment.Namespace)
+	matchLabels := deployment.Spec.Selector.MatchLabels
+	options := metav1.ListOptions{
+		LabelSelector: labels.Set(matchLabels).String(),
+	}
+	pods, err := n.k8s.CoreV1().Pods(namespace).List(context.Background(), options)
 
-	return []corev1.Pod{}, nil
+	pendingPods := []corev1.Pod{}
+	for i := 0; i < len(pods.Items); i++ {
+		if pods.Items[i].Status.Phase == corev1.PodPending {
+			pendingPods = append(pendingPods, pods.Items[i])
+		}
+	}
+
+	return pendingPods, nil
 }
