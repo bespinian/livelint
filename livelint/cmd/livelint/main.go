@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -58,9 +57,6 @@ func main() {
 				Action: func(c *cli.Context) error {
 					args := c.Args()
 
-					if args.Len() != checkArgsCount {
-						return errors.New("usage: livelint check NAMESPACE DEPLOYMENT") //nolint:goerr113
-					}
 					err = ll.Check(c.String("namespace"), args.Get(0))
 					if err != nil {
 						return fmt.Errorf("error creating topo: %w", err)

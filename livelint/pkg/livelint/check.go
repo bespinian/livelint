@@ -10,7 +10,10 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 	}
 
 	if len(pendingPods) > 0 {
-		fmt.Println("There are pending pods")
+		fmt.Println("NOK: There are pending pods")
+		} else {
+		fmt.Println("OK: No pending pods")	
+	}
 	}
 
 	return nil
