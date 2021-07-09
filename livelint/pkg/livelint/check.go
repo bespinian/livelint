@@ -16,11 +16,36 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 	}
 
 	nonRunningPods, err := n.getNonRunningPods(namespace, deploymentName)
+	if err != nil {
+		return fmt.Errorf("error getting non-running pods: %w", err)
+	}
 
 	if len(nonRunningPods) > 0 {
 		fmt.Println("NOK: There are non running pods")
+
 		} else {
 		fmt.Println("OK: All pods running")	
+	}
+
+	allPods, err := n.getPods(namespace, deploymentName)
+	if err != nil {
+		return fmt.Errorf("error getting pods: %w", err)
+	}
+	for i := 0; i < len(allPods); i++ {
+		pod := allPods[i]
+		nonStartedContainerNames := n.getNonStartedContainerNames(pod)
+
+		if len(nonStartedContainerNames) > 0 {
+			fmt.Printf("NOK: There are %d containers that are not started in pod %s\n", len(nonStartedContainerNames), pod.Name)
+			fmt.Printf("Trying to print logs from the first container %s\n", nonStartedContainerNames[0])
+
+			logs, err := n.tailPodLogs(namespace, pod.Name, nonStartedContainerNames[0], 20, false)
+
+			if err != nil {
+				return fmt.Errorf("error getting logs: %w", err)
+			}
+			fmt.Println(logs)
+		}
 	}
 
 	return nil
