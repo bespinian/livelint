@@ -9,15 +9,32 @@ struct event_t {
         u32 pid;
         u32 tgid;
         int ec;
-	char comm[16];
+        char comm[16];
         u32 ppid;
         u32 ptgid;
-	char pcomm[16];
+        char pcomm[16];
+        u32 nspid;
 };
 
 struct {
         __uint(type, BPF_MAP_TYPE_PERF_EVENT_ARRAY);
 } events SEC(".maps");
+
+#define READ_KERN(ptr) ({ typeof(ptr) _val;                             \
+                          __builtin_memset(&_val, 0, sizeof(_val));     \
+                          bpf_probe_read(&_val, sizeof(_val), &ptr);    \
+                          _val;                                         \
+                        })
+
+static __always_inline u32 get_task_ns_pid(struct task_struct *task)
+{
+    struct nsproxy *namespaceproxy = READ_KERN(task->nsproxy);
+    struct pid_namespace *pid_ns_children = READ_KERN(namespaceproxy->pid_ns_for_children);
+    unsigned int level = READ_KERN(pid_ns_children->level);
+
+    struct pid *tpid = READ_KERN(task->thread_pid);
+    return READ_KERN(tpid->numbers[level].nr);
+}
 
 SEC("tracepoint/sched/sched_process_exit")
 int bpf_prog(void* ctx) {
@@ -34,6 +51,9 @@ int bpf_prog(void* ctx) {
   bpf_probe_read(&event.ppid, sizeof(parent->pid), &parent->pid);
   bpf_probe_read(&event.ptgid, sizeof(parent->tgid), &parent->tgid);
   bpf_probe_read(&event.pcomm, sizeof(parent->comm), &parent->comm);
-  bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
+  event.nspid = get_task_ns_pid(task);
+  if (event.nspid == 1) {
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &event, sizeof(event));
+  }
   return 0;
 }
