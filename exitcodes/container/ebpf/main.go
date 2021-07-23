@@ -16,13 +16,14 @@ import (
 //go:generate go run github.com/cilium/ebpf/cmd/bpf2go -cc clang-11 SchedProcessExit ./bpf/sched_process_exit.c -- -I../headers
 
 type Event struct {
-	PID uint32
-	TGID uint32
-	Ec  int32
-	Comm [16]byte
-	PPID uint32
+	PID   uint32
+	TGID  uint32
+	Ec    int32
+	Comm  [16]byte
+	PPID  uint32
 	PTGID uint32
 	PComm [16]byte
+	NSPID uint32
 }
 
 func main() {
@@ -86,6 +87,6 @@ func main() {
 			continue
 		}
 
-		log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s", event.PPID, event.PTGID, unix.ByteSliceToString(event.PComm[:]), event.PID, event.TGID, event.Ec, unix.ByteSliceToString(event.Comm[:]))
+		log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s, nspid: %d", event.PPID, event.PTGID, unix.ByteSliceToString(event.PComm[:]), event.PID, event.TGID, event.Ec, unix.ByteSliceToString(event.Comm[:]), event.NSPID)
 	}
 }
