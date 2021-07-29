@@ -4,14 +4,19 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// getNonStartedContainerNames returns all containers from a pod that are not in status "Running".
-func (n *livelint) getNonStartedContainerNames(pod corev1.Pod) ([]string) {
-	nonStartedContainers := []string{}
+// getNonStartedContainers returns all containers from a pod that are not in status "Running".
+func (n *livelint) getNonStartedContainers(pod corev1.Pod) ([]corev1.Container) {
+	nonStartedContainers := []corev1.Container{}
 	containerStatuses := pod.Status.ContainerStatuses
-	for j := 0; j < len(containerStatuses); j++ {
-		status := containerStatuses[j]
+	for i := 0; i < len(containerStatuses); i++ {
+		status := containerStatuses[i]
 		if status.State.Running == nil {
-			nonStartedContainers = append(nonStartedContainers, status.Name)
+			for _, container := range pod.Spec.Containers {
+				if (container.Name == status.Name) {
+					nonStartedContainers = append(nonStartedContainers, container)
+					break
+				}
+			}
 		}
 	}
 
