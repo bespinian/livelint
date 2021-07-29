@@ -35,6 +35,9 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 	
 	for i := 0; i < len(allPods); i++ {
 		pod := allPods[i]
+
+		n.checkPodConditions(pod)
+		
 		nonStartedContainerNames := n.getNonStartedContainerNames(pod)
 
 		if len(nonStartedContainerNames) > 0 {
@@ -42,11 +45,11 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 			fmt.Printf("Trying to print logs from the first non started container %s\n", nonStartedContainerNames[0])
 			
 			logs, err := n.checkContainerLogs(pod, nonStartedContainerNames[0])
-			if (err != nil)  {
-				fmt.Printf("error getting container logs: %s", err.Error())
-			} else {
+			if (err == nil)  {
 				fmt.Println(*logs)
 				return nil
+			} else {
+				fmt.Println("Could not get container logs")
 			}
 		}
 	}
