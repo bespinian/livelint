@@ -4,7 +4,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// getNonStartedContainerNames returns all containers from a pod that are not in status "Started".
+// getNonStartedContainerNames returns all containers from a pod that are not in status "Running".
 func (n *livelint) getNonStartedContainerNames(pod corev1.Pod) ([]string) {
 	nonStartedContainers := []string{}
 	if pod.Status.Phase == corev1.PodRunning {

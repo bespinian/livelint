@@ -5,6 +5,7 @@ import "fmt"
 // Topo lists the topology of a connection path.
 func (n *livelint) Check(namespace, deploymentName string) error {
 	pendingPods, err := n.getPendingPods(namespace, deploymentName)
+
 	if err != nil {
 		return fmt.Errorf("error getting pending pods: %w", err)
 	}
@@ -22,6 +23,7 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 
 	if len(nonRunningPods) > 0 {
 		fmt.Println("NOK: There are non running pods")
+		return nil
 
 		} else {
 		fmt.Println("OK: All pods running")	
@@ -31,6 +33,7 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 	if err != nil {
 		return fmt.Errorf("error getting pods: %w", err)
 	}
+	
 	for i := 0; i < len(allPods); i++ {
 		pod := allPods[i]
 		nonStartedContainerNames := n.getNonStartedContainerNames(pod)
@@ -42,9 +45,18 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 			logs, err := n.tailPodLogs(namespace, pod.Name, nonStartedContainerNames[0], 20, false)
 
 			if err != nil {
-				return fmt.Errorf("error getting logs: %w", err)
+				fmt.Printf("error getting logs: %s", err.Error());
+				fmt.Println("Trying logs of previous pod");
+				logs, err = n.tailPodLogs(namespace, pod.Name, nonStartedContainerNames[0], 20, true)
+				if err != nil {
+					return fmt.Errorf("error getting logs: %w", err)
+				}
 			}
-			fmt.Println(logs)
+
+			if (len(logs) > 0) {
+				fmt.Println(logs)
+				return nil
+			}
 		}
 	}
 
