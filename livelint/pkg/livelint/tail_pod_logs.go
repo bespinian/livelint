@@ -10,10 +10,6 @@ import (
 
 // tailPodLogs returns the last log messages of a pod
 func (n *livelint) tailPodLogs(namespace, podName, containerName string, messageCount int64, previous bool) (string, error) {
-	// deployment, err := n.k8s.AppsV1().Deployments(namespace).Get(context.Background(), deploymentName, metav1.GetOptions{})
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error getting deployment %q in namespace %q: %w", deploymentName, namespace, err)
-	// }
 	var logs string
 	podLogOptions := v1.PodLogOptions{
 		Container: containerName,
@@ -35,6 +31,5 @@ func (n *livelint) tailPodLogs(namespace, podName, containerName string, message
     }
     logs = buf.String()
 
-	// logs := []string{"hello", "world"}
 	return logs, nil
 }
