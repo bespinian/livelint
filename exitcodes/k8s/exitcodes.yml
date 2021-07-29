@@ -8,14 +8,14 @@ metadata:
 spec:
   shareProcessNamespace: true
   containers:
-  - image: bespinian/exitcodes:0.0.2
-    name: exitcodes
-    securityContext:
-      privileged: true
-    volumeMounts:
-      - name: sys
-        mountPath: /sys
-        readOnly: true
+    - image: bespinian/exitcodes:0.0.3
+      name: exitcodes
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: sys
+          mountPath: /sys
+          readOnly: true
   dnsPolicy: ClusterFirst
   restartPolicy: Never
   volumes:
