@@ -9,7 +9,6 @@ import (
 func (n *livelint) checkContainerLogs(pod corev1.Pod, containerName string) (*string, error) {
 	namespace := pod.Namespace
 	logs, err := n.tailPodLogs(namespace, pod.Name, containerName, 20, false)
-
 	if err != nil {
 		logs, err = n.tailPodLogs(namespace, pod.Name, containerName, 20, true)
 		if err != nil {
