@@ -5,14 +5,14 @@ import (
 )
 
 // getNonStartedContainers returns all containers from a pod that are not in status "Running".
-func (n *livelint) getNonStartedContainers(pod corev1.Pod) ([]corev1.Container) {
+func (n *livelint) getNonStartedContainers(pod corev1.Pod) []corev1.Container {
 	nonStartedContainers := []corev1.Container{}
 	containerStatuses := pod.Status.ContainerStatuses
 	for i := 0; i < len(containerStatuses); i++ {
 		status := containerStatuses[i]
 		if status.State.Running == nil {
 			for _, container := range pod.Spec.Containers {
-				if (container.Name == status.Name) {
+				if container.Name == status.Name {
 					nonStartedContainers = append(nonStartedContainers, container)
 					break
 				}
