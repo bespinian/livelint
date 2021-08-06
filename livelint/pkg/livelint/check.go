@@ -73,5 +73,6 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 		}
 	}
 
+	fmt.Println("All checks finished")
 	return nil
 }
