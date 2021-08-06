@@ -3,6 +3,7 @@ package livelint
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	corev1 "k8s.io/api/core/v1"
 )
 
@@ -24,6 +25,6 @@ func (n *livelint) checkPodConditions(pod corev1.Pod) {
 	}
 
 	if allOk {
-		fmt.Println("    Pod conditions are all ok")
+		color.Green("    Pod conditions are all ok")
 	}
 }
