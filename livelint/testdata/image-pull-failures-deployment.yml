@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-pull-failures
+  namespace: app-benchmark-test
+  labels:
+    app: image-pull-failures
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: image-pull-failures
+      labels:
+        app: image-pull-failures
+    spec:
+      containers:
+        - name: awesome-node
+          image: bespinian/awesome-node:1.0.6-nonexistent
+          env:
+            - name: "HEALTHCHECK_LEAK_MEMORY"
+              value: "TRUE"
+            - name: "HEALTHCHECK_LEAK_INCREMENT_KB"
+              value: "5000"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 120M
+            requests:
+              cpu: 100m
+              memory: 120M
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 2
+  selector:
+    matchLabels:
+      app: image-pull-failures
