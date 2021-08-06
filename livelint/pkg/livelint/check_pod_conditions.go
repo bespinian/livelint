@@ -7,13 +7,16 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (n *livelint) checkPodConditions(pod corev1.Pod) {
+func (n *livelint) checkPodConditions(pod corev1.Pod, isVerbose bool) {
 	allOk := true
-	fmt.Printf("Checking Pod conditions of pod %s\n", pod.Name)
+	if (isVerbose) {
+		fmt.Printf("Checking Pod conditions of pod %s\n", pod.Name)
+	}
 	for i := 0; i < len(pod.Status.Conditions); i++ {
 		condition := pod.Status.Conditions[i]
 		if condition.Status != corev1.ConditionTrue {
-			fmt.Printf("    %s: %s, Reason: %s, Message: %s (%s)\n",
+			fmt.Printf("Pod %s with condition: %s: %s, Reason: %s, Message: %s (%s)\n",
+				pod.Name,
 				condition.Type,
 				condition.Status,
 				condition.Reason,
@@ -24,7 +27,7 @@ func (n *livelint) checkPodConditions(pod corev1.Pod) {
 		}
 	}
 
-	if allOk {
-		color.Green("    Pod conditions are all ok")
+	if allOk && isVerbose {
+		color.Green("Conditions for pod %s are all ok", pod.Name)
 	}
 }

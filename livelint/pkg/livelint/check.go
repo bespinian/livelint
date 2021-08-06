@@ -41,7 +41,7 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 	}
 
 	for _, pod := range allPods {
-		n.checkPodConditions(pod)
+		n.checkPodConditions(pod, isVerbose)
 
 		nonStartedContainers := n.getNonStartedContainers(pod)
 
