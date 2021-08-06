@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ok
+  namespace: app-benchmark-test
+  labels:
+    app: ok
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: ok
+      labels:
+        app: ok
+    spec:
+      containers:
+        - name: awesome-node
+          image: bespinian/awesome-node:1.0.6
+          env:
+            - name: "HEALTHCHECK_LEAK_MEMORY"
+              value: "FALSE"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 120M
+            requests:
+              cpu: 100m
+              memory: 120M
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 2
+  selector:
+    matchLabels:
+      app: ok
