@@ -2,19 +2,26 @@ package livelint
 
 import (
 	"fmt"
+
+	"github.com/fatih/color"
 )
 
 // Topo lists the topology of a connection path.
-func (n *livelint) Check(namespace, deploymentName string) error {
+func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error {
+	green := color.New(color.FgGreen)
+	red := color.New(color.FgRed)
+	boldRed := red.Add(color.Bold)
+
+	fmt.Println("")
+
 	pendingPods, err := n.getPendingPods(namespace, deploymentName)
 	if err != nil {
 		return fmt.Errorf("error getting pending pods: %w", err)
 	}
-
 	if len(pendingPods) > 0 {
-		fmt.Println("NOK: There are pending pods")
-	} else {
-		fmt.Println("OK: No pending pods")
+		boldRed.Println(("NOK: There are pending pods"))
+	} else if isVerbose {
+		green.Println("OK: No pending pods")
 	}
 
 	nonRunningPods, err := n.getNonRunningPods(namespace, deploymentName)
@@ -23,9 +30,9 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 	}
 
 	if len(nonRunningPods) > 0 {
-		fmt.Println("NOK: There are non running pods")
-	} else {
-		fmt.Println("OK: All pods running")
+		boldRed.Println(("NOK: There are non running pods"))
+	} else if isVerbose {
+		green.Println("OK: All pods running")
 	}
 
 	allPods, err := n.getPods(namespace, deploymentName)
@@ -39,16 +46,17 @@ func (n *livelint) Check(namespace, deploymentName string) error {
 		nonStartedContainers := n.getNonStartedContainers(pod)
 
 		if len(nonStartedContainers) > 0 {
-			fmt.Printf("NOK: There are %d containers that are not started in pod %s\n", len(nonStartedContainers), pod.Name)
-			fmt.Printf("Trying to print logs from the first non started container %s\n", nonStartedContainers[0].Name)
+			boldRed.Printf("NOK: There are %d containers that are not started in pod %s\n", len(nonStartedContainers), pod.Name)
+			if isVerbose {
+				fmt.Printf("Trying to print logs from the first non started container %s\n", nonStartedContainers[0].Name)
+			}
 
 			logs, err := n.checkContainerLogs(pod, nonStartedContainers[0].Name)
 			if err == nil {
 				fmt.Println(*logs)
 				return nil
-			} else {
-				fmt.Println("Could not get container logs")
 			}
+			fmt.Println("Could not get container logs")
 
 			for _, container := range nonStartedContainers {
 				hasImagePullError, reason, message := n.checkImagePullErrors(pod, container.Name)

@@ -52,14 +52,20 @@ func main() {
 						Value:   "default",
 						Usage:   "the source namespace",
 					},
+					&cli.BoolFlag{
+						Name:    "verbose",
+						Aliases: []string{"v"},
+						Value:   false,
+						Usage:   "if the tool should be verbose about what it's doing",
+					},
 				},
 
 				Action: func(c *cli.Context) error {
 					args := c.Args()
 
-					err = ll.Check(c.String("namespace"), args.Get(0))
+					err = ll.Check(c.String("namespace"), args.Get(0), c.Bool("verbose"))
 					if err != nil {
-						return fmt.Errorf("error creating topo: %w", err)
+						return fmt.Errorf("error checking deployment: %w", err)
 					}
 
 					return nil
