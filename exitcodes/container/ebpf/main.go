@@ -15,7 +15,16 @@ import (
 
 //go:generate go run github.com/cilium/ebpf/cmd/bpf2go -cc clang-11 SchedProcess ./bpf/sched_process.c -- -I../headers
 
-type Event struct {
+type ExecEvent struct {
+	PID   uint32
+	TGID  uint32
+	Comm  [16]byte
+	PPID  uint32
+	PTGID uint32
+	PComm [16]byte
+	NSPID uint32
+}
+type ExitEvent struct {
 	PID   uint32
 	TGID  uint32
 	Ec    int32
@@ -41,52 +50,101 @@ func main() {
 	}
 
 	// Load pre-compiled programs and maps into the kernel.
-	objs := SchedProcessExitObjects{}
-	if err := LoadSchedProcessExitObjects(&objs, nil); err != nil {
+	objs := SchedProcessObjects{}
+	if err := LoadSchedProcessObjects(&objs, nil); err != nil {
 		log.Fatalf("loading objects: %v", err)
 	}
 	defer objs.Close()
 
-	// Open a perf reader from userspace into the perf event array
+	// Open readers from userspace into the event arrays
 	// created earlier.
-	rd, err := perf.NewReader(objs.Events, os.Getpagesize())
+	rdExec, err := perf.NewReader(objs.ExecEvents, os.Getpagesize())
 	if err != nil {
-		log.Fatalf("creating event reader: %s", err)
+		log.Fatalf("creating exec event reader: %s", err)
 	}
-	defer rd.Close()
+	defer rdExec.Close()
 
-	// Close the reader when the process receives a signal, which will exit
-	// the read loop.
+	rdExit, err := perf.NewReader(objs.ExitEvents, os.Getpagesize())
+	if err != nil {
+		log.Fatalf("creating exit event reader: %s", err)
+	}
+	defer rdExit.Close()
+
+	// Close the readers when the process receives a signal, which will exit
+	// the read loops.
 	go func() {
 		<-stopper
-		rd.Close()
+		rdExec.Close()
+		rdExit.Close()
 	}()
 
-	tp, err := link.Tracepoint("sched", "sched_process_exit", objs.BpfProg)
+	tpExec, err := link.Tracepoint("sched", "sched_process_exec", objs.BpfProcessExec)
 	if err != nil {
-		log.Fatalf("opening tracepoint: %s", err)
+		log.Fatalf("opening exec tracepoint: %s", err)
 	}
-	defer tp.Close()
+	defer tpExec.Close()
+
+	tpExit, err := link.Tracepoint("sched", "sched_process_exit", objs.BpfProcessExit)
+	if err != nil {
+		log.Fatalf("opening exit tracepoint: %s", err)
+	}
+	defer tpExit.Close()
+
+	log.Println("Setting up exec event channel..")
+	execEvents := make(chan ExecEvent)
+	go func() {
+		for {
+			record, err := rdExec.Read()
+			var execEvent ExecEvent
+			if err != nil {
+				if perf.IsClosed(err) {
+					log.Println("Received signal, exiting exec read loop ...")
+					return
+				}
+				log.Fatalf("reading from exec reader: %s", err)
+			}
+
+			// Parse the perf event entry into an ExecEvent struct.
+			if err := binary.Read(bytes.NewBuffer(record.RawSample), binary.LittleEndian, &execEvent); err != nil {
+				log.Printf("parsing exec event: %s", err)
+				continue
+			}
+			execEvents <- execEvent
+		}
+	}()
+
+	log.Println("Setting up exit event channel..")
+	exitEvents := make(chan ExitEvent)
+	go func() {
+		for {
+			record, err := rdExit.Read()
+			var exitEvent ExitEvent
+			if err != nil {
+				if perf.IsClosed(err) {
+					log.Println("Received signal, exiting exit read loop ...")
+					return
+				}
+				log.Fatalf("reading from exit reader: %s", err)
+			}
+
+			// Parse the perf event entry into an ExitEvent struct.
+			if err := binary.Read(bytes.NewBuffer(record.RawSample), binary.LittleEndian, &exitEvent); err != nil {
+				log.Printf("parsing exit event: %s", err)
+				continue
+			}
+			exitEvents <- exitEvent
+		}
+	}()
 
 	log.Println("Waiting for events..")
 
-	var event Event
 	for {
-		record, err := rd.Read()
-		if err != nil {
-			if perf.IsClosed(err) {
-				log.Println("Received signal, exiting..")
-				return
-			}
-			log.Fatalf("reading from reader: %s", err)
+		select {
+		case execEvent := <-execEvents:
+			log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, comm: %s, nspid: %d", execEvent.PPID, execEvent.PTGID, unix.ByteSliceToString(execEvent.PComm[:]), execEvent.PID, execEvent.TGID, unix.ByteSliceToString(execEvent.Comm[:]), execEvent.NSPID)
+		case exitEvent := <-exitEvents:
+			log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s, nspid: %d", exitEvent.PPID, exitEvent.PTGID, unix.ByteSliceToString(exitEvent.PComm[:]), exitEvent.PID, exitEvent.TGID, exitEvent.Ec, unix.ByteSliceToString(exitEvent.Comm[:]), exitEvent.NSPID)
 		}
-
-		// Parse the perf event entry into an Event structure.
-		if err := binary.Read(bytes.NewBuffer(record.RawSample), binary.LittleEndian, &event); err != nil {
-			log.Printf("parsing perf event: %s", err)
-			continue
-		}
-
-		log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s, nspid: %d", event.PPID, event.PTGID, unix.ByteSliceToString(event.PComm[:]), event.PID, event.TGID, event.Ec, unix.ByteSliceToString(event.Comm[:]), event.NSPID)
 	}
+
 }
