@@ -91,6 +91,7 @@ func main() {
 	defer tpExit.Close()
 
 	log.Println("Setting up exec event channel..")
+	done := make(chan struct{})
 	execEvents := make(chan ExecEvent)
 	go func() {
 		for {
@@ -99,6 +100,7 @@ func main() {
 			if err != nil {
 				if perf.IsClosed(err) {
 					log.Println("Received signal, exiting exec read loop ...")
+					done <- struct{}{}
 					return
 				}
 				log.Fatalf("reading from exec reader: %s", err)
@@ -122,6 +124,7 @@ func main() {
 			if err != nil {
 				if perf.IsClosed(err) {
 					log.Println("Received signal, exiting exit read loop ...")
+					done <- struct{}{}
 					return
 				}
 				log.Fatalf("reading from exit reader: %s", err)
@@ -141,9 +144,12 @@ func main() {
 	for {
 		select {
 		case execEvent := <-execEvents:
-			log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, comm: %s, nspid: %d", execEvent.PPID, execEvent.PTGID, unix.ByteSliceToString(execEvent.PComm[:]), execEvent.PID, execEvent.TGID, unix.ByteSliceToString(execEvent.Comm[:]), execEvent.NSPID)
+			log.Printf("Exec event: ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, comm: %s, nspid: %d", execEvent.PPID, execEvent.PTGID, unix.ByteSliceToString(execEvent.PComm[:]), execEvent.PID, execEvent.TGID, unix.ByteSliceToString(execEvent.Comm[:]), execEvent.NSPID)
 		case exitEvent := <-exitEvents:
-			log.Printf("ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s, nspid: %d", exitEvent.PPID, exitEvent.PTGID, unix.ByteSliceToString(exitEvent.PComm[:]), exitEvent.PID, exitEvent.TGID, exitEvent.Ec, unix.ByteSliceToString(exitEvent.Comm[:]), exitEvent.NSPID)
+			log.Printf("Exit event: ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s, nspid: %d", exitEvent.PPID, exitEvent.PTGID, unix.ByteSliceToString(exitEvent.PComm[:]), exitEvent.PID, exitEvent.TGID, exitEvent.Ec, unix.ByteSliceToString(exitEvent.Comm[:]), exitEvent.NSPID)
+		case <-done:
+			return
+
 		}
 	}
 
