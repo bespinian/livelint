@@ -93,6 +93,7 @@ func Run(onExec func(e ExecEvent), onExit func(e ExitEvent), onDone func()) {
 	}
 	defer tpExit.Close()
 
+	done := make(chan struct{})
 	log.Println("Setting up exec event callback..")
 	go func() {
 		for {
@@ -102,6 +103,7 @@ func Run(onExec func(e ExecEvent), onExit func(e ExitEvent), onDone func()) {
 				if perf.IsClosed(err) {
 					log.Println("Received signal, exiting exec read loop ...")
 					onDone()
+					done <- struct{}{}
 					return
 				}
 				log.Fatalf("reading from exec reader: %s", err)
@@ -125,6 +127,7 @@ func Run(onExec func(e ExecEvent), onExit func(e ExitEvent), onDone func()) {
 				if perf.IsClosed(err) {
 					log.Println("Received signal, exiting exit read loop ...")
 					onDone()
+					done <- struct{}{}
 					return
 				}
 				log.Fatalf("reading from exit reader: %s", err)
@@ -138,4 +141,11 @@ func Run(onExec func(e ExecEvent), onExit func(e ExitEvent), onDone func()) {
 			onExit(exitEvent)
 		}
 	}()
+
+	for {
+		select {
+		case <-done:
+			return
+		}
+	}
 }
