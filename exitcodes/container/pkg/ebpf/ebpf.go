@@ -15,6 +15,30 @@ import (
 
 //go:generate go run github.com/cilium/ebpf/cmd/bpf2go -cc clang-11 SchedProcess ./bpf/sched_process.c -- -I./headers
 
+type Ebpf interface {
+	ExecEvents() chan ExecEvent
+	ExitEvents() chan ExitEvent
+	DoneEvents() chan struct{}
+}
+
+type ebpfStruct struct {
+	execEvents chan ExecEvent
+	exitEvents chan ExitEvent
+	doneEvents chan struct{}
+}
+
+func (e *ebpfStruct) ExecEvents() chan ExecEvent {
+	return e.execEvents
+}
+
+func (e *ebpfStruct) ExitEvents() chan ExitEvent {
+	return e.exitEvents
+}
+
+func (e *ebpfStruct) DoneEvents() chan struct{} {
+	return e.doneEvents
+}
+
 type ExecEvent struct {
 	PID   uint32
 	TGID  uint32
@@ -35,7 +59,7 @@ type ExitEvent struct {
 	NSPID uint32
 }
 
-func main() {
+func New() Ebpf {
 	// Subscribe to signals for terminating the program.
 	stopper := make(chan os.Signal, 1)
 	signal.Notify(stopper, os.Interrupt, syscall.SIGTERM)
@@ -140,17 +164,11 @@ func main() {
 	}()
 
 	log.Println("Waiting for events..")
-
-	for {
-		select {
-		case execEvent := <-execEvents:
-			log.Printf("Exec event: ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, comm: %s, nspid: %d", execEvent.PPID, execEvent.PTGID, unix.ByteSliceToString(execEvent.PComm[:]), execEvent.PID, execEvent.TGID, unix.ByteSliceToString(execEvent.Comm[:]), execEvent.NSPID)
-		case exitEvent := <-exitEvents:
-			log.Printf("Exit event: ppid: %d, ptgid: %d, pcomm: %s, pid: %d, tgid: %d, exit code: %d, comm: %s, nspid: %d", exitEvent.PPID, exitEvent.PTGID, unix.ByteSliceToString(exitEvent.PComm[:]), exitEvent.PID, exitEvent.TGID, exitEvent.Ec, unix.ByteSliceToString(exitEvent.Comm[:]), exitEvent.NSPID)
-		case <-done:
-			return
-
-		}
+	e := &ebpfStruct{
+		execEvents: execEvents,
+		exitEvents: exitEvents,
+		doneEvents: done,
 	}
+	return e
 
 }
