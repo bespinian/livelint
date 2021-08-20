@@ -9,13 +9,15 @@ import (
 )
 
 func handleExec(execEvent ebpf.ExecEvent) {
-	podName, _ := proc.PidToPodName(execEvent.PID)
-	log.Printf("Exec event: pid: %d, comm: %s, pod name: %s", execEvent.PID, unix.ByteSliceToString(execEvent.Comm[:]), podName)
+	podUID, _ := proc.PidToPodUid(execEvent.PID)
+	containerId, _ := proc.PidToContainerId(execEvent.PID)
+	log.Printf("Exec event: pid: %d, comm: %s, pod UID: %s, container ID: %s", execEvent.PID, unix.ByteSliceToString(execEvent.Comm[:]), podUID, containerId)
 }
 
 func handleExit(exitEvent ebpf.ExitEvent) {
-	podName, _ := proc.PidToPodName(exitEvent.PID)
-	log.Printf("Exit event: pid: %d, comm: %s, pod name: %s", exitEvent.PID, unix.ByteSliceToString(exitEvent.Comm[:]), podName)
+	podUID, _ := proc.PidToPodUid(exitEvent.PID)
+	containerId, _ := proc.PidToContainerId(exitEvent.PID)
+	log.Printf("Exit event: pid: %d, comm: %s, pod UID: %s, container ID: %s", exitEvent.PID, unix.ByteSliceToString(exitEvent.Comm[:]), podUID, containerId)
 }
 
 func handleDone() {
