@@ -49,6 +49,7 @@ func Run(onExec func(e ExecEvent), onExit func(e ExitEvent), onDone func()) {
 		log.Fatalf("failed to set temporary rlimit: %v", err)
 	}
 
+	log.Println("Loading objects to kernel..")
 	// Load pre-compiled programs and maps into the kernel.
 	objs := SchedProcessObjects{}
 	if err := LoadSchedProcessObjects(&objs, nil); err != nil {
@@ -78,12 +79,14 @@ func Run(onExec func(e ExecEvent), onExit func(e ExitEvent), onDone func()) {
 		rdExit.Close()
 	}()
 
+	log.Println("Setting up exec event tracepoint..")
 	tpExec, err := link.Tracepoint("sched", "sched_process_exec", objs.BpfProcessExec)
 	if err != nil {
 		log.Fatalf("opening exec tracepoint: %s", err)
 	}
 	defer tpExec.Close()
 
+	log.Println("Setting up exit event tracepoint..")
 	tpExit, err := link.Tracepoint("sched", "sched_process_exit", objs.BpfProcessExit)
 	if err != nil {
 		log.Fatalf("opening exit tracepoint: %s", err)
