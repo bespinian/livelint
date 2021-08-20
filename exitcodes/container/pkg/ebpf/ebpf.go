@@ -15,30 +15,6 @@ import (
 
 //go:generate go run github.com/cilium/ebpf/cmd/bpf2go -cc clang-11 SchedProcess ./bpf/sched_process.c -- -I./headers
 
-type Ebpf interface {
-	ExecEvents() chan ExecEvent
-	ExitEvents() chan ExitEvent
-	DoneEvents() chan struct{}
-}
-
-type ebpfStruct struct {
-	execEvents chan ExecEvent
-	exitEvents chan ExitEvent
-	doneEvents chan struct{}
-}
-
-func (e *ebpfStruct) ExecEvents() chan ExecEvent {
-	return e.execEvents
-}
-
-func (e *ebpfStruct) ExitEvents() chan ExitEvent {
-	return e.exitEvents
-}
-
-func (e *ebpfStruct) DoneEvents() chan struct{} {
-	return e.doneEvents
-}
-
 type ExecEvent struct {
 	PID   uint32
 	TGID  uint32
@@ -59,7 +35,7 @@ type ExitEvent struct {
 	NSPID uint32
 }
 
-func New() Ebpf {
+func Run(onExec func(e ExecEvent), onExit func(e ExitEvent), onDone func()) {
 	// Subscribe to signals for terminating the program.
 	stopper := make(chan os.Signal, 1)
 	signal.Notify(stopper, os.Interrupt, syscall.SIGTERM)
@@ -114,9 +90,7 @@ func New() Ebpf {
 	}
 	defer tpExit.Close()
 
-	log.Println("Setting up exec event channel..")
-	done := make(chan struct{})
-	execEvents := make(chan ExecEvent)
+	log.Println("Setting up exec event callback..")
 	go func() {
 		for {
 			record, err := rdExec.Read()
@@ -124,7 +98,7 @@ func New() Ebpf {
 			if err != nil {
 				if perf.IsClosed(err) {
 					log.Println("Received signal, exiting exec read loop ...")
-					done <- struct{}{}
+					onDone()
 					return
 				}
 				log.Fatalf("reading from exec reader: %s", err)
@@ -135,12 +109,11 @@ func New() Ebpf {
 				log.Printf("parsing exec event: %s", err)
 				continue
 			}
-			execEvents <- execEvent
+			onExec(execEvent)
 		}
 	}()
 
-	log.Println("Setting up exit event channel..")
-	exitEvents := make(chan ExitEvent)
+	log.Println("Setting up exit event callback..")
 	go func() {
 		for {
 			record, err := rdExit.Read()
@@ -148,7 +121,7 @@ func New() Ebpf {
 			if err != nil {
 				if perf.IsClosed(err) {
 					log.Println("Received signal, exiting exit read loop ...")
-					done <- struct{}{}
+					onDone()
 					return
 				}
 				log.Fatalf("reading from exit reader: %s", err)
@@ -159,16 +132,7 @@ func New() Ebpf {
 				log.Printf("parsing exit event: %s", err)
 				continue
 			}
-			exitEvents <- exitEvent
+			onExit(exitEvent)
 		}
 	}()
-
-	log.Println("Waiting for events..")
-	e := &ebpfStruct{
-		execEvents: execEvents,
-		exitEvents: exitEvents,
-		doneEvents: done,
-	}
-	return e
-
 }
