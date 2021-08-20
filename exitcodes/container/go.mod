@@ -1,6 +1,6 @@
-module github.com/cilium/ebpf/examples
+module github.com/bespinian/k8s-app-benchmarks/exitcodes
 
-go 1.15
+go 1.17
 
 require (
 	github.com/cilium/ebpf v0.5.1-0.20210428090942-9aea0e1002a2
