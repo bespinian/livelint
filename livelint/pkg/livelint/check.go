@@ -43,12 +43,12 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 	for _, pod := range allPods {
 		n.checkPodConditions(pod, isVerbose)
 
-		nonStartedContainers := n.getNonStartedContainers(pod)
+		problematicContainers := n.getProblematicContainers(pod)
 
-		if len(nonStartedContainers) > 0 {
-			boldRed.Printf("NOK: There are %d containers that are not started in pod %s\n", len(nonStartedContainers), pod.Name)
+		if len(problematicContainers) > 0 {
+			boldRed.Printf("NOK: There are %d containers that are not started (and are not successfully terminated init containers) in pod %s\n", len(problematicContainers), pod.Name)
 
-			for _, container := range nonStartedContainers {
+			for _, container := range problematicContainers {
 				hasImagePullError, reason, message := n.checkImagePullErrors(pod, container.Name)
 				if hasImagePullError {
 					boldRed.Printf("NOK: Container %s has error pulling image (%s): %s\n",
@@ -71,11 +71,12 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 			}
 
 			if isVerbose {
-				fmt.Printf("Trying to print logs from the first non started container %s\n", nonStartedContainers[0].Name)
+				fmt.Printf("Trying to print logs from the first problematic %s\n", problematicContainers[0].Name)
 			}
 
-			logs, err := n.checkContainerLogs(pod, nonStartedContainers[0].Name)
+			logs, err := n.checkContainerLogs(pod, problematicContainers[0].Name)
 			if err == nil {
+				fmt.Printf("Printing logs of container %s\n", problematicContainers[0].Name)
 				fmt.Println(*logs)
 			} else {
 				fmt.Println("Could not get container logs")
