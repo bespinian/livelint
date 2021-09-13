@@ -32,6 +32,12 @@ func main() {
 	if err != nil {
 		log.Fatal(fmt.Errorf("error creating k8s client set: %w", err))
 	}
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	configOverrides := &clientcmd.ConfigOverrides{}
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules,
+		configOverrides)
+
+	namespace, _, err := kubeConfig.Namespace()
 
 	ll := livelint.New(k8s)
 
@@ -49,7 +55,7 @@ func main() {
 					&cli.StringFlag{
 						Name:    "namespace",
 						Aliases: []string{"n"},
-						Value:   "default",
+						Value:   namespace,
 						Usage:   "the source namespace",
 					},
 					&cli.BoolFlag{
