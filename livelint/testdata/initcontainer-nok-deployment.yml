@@ -1,21 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ok
+  name: initcontainer-nok
   namespace: app-benchmark-test
   labels:
-    app: ok
+    app: initcontainer-nok
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
-      name: ok
+      name: initcontainer-nok
       labels:
-        app: ok
+        app: initcontainer-nok
     spec:
+      initContainers:
+        - name: busybox-init
+          image: busybox
+          args:
+            - /bin/sh
+            - -c
+            - echo "hello"; exit 1
       containers:
         - name: awesome-node
           image: bespinian/awesome-node:1.0.6
+          env:
+            - name: "HEALTHCHECK_LEAK_MEMORY"
+              value: "TRUE"
+            - name: "HEALTHCHECK_LEAK_INCREMENT_KB"
+              value: "5000"
           resources:
             limits:
               cpu: 100m
@@ -39,4 +51,4 @@ spec:
             periodSeconds: 2
   selector:
     matchLabels:
-      app: ok
+      app: initcontainer-nok
