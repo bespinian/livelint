@@ -7,23 +7,35 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+// Sequentially checks pod conditions (pod scheduled, pod initialized,
+// containers ready, pod ready) and breaks and prints the first one that is not ok
 func (n *livelint) checkPodConditions(pod corev1.Pod, isVerbose bool) {
 	allOk := true
 	if (isVerbose) {
 		fmt.Printf("Checking Pod conditions of pod %s\n", pod.Name)
 	}
-	for i := 0; i < len(pod.Status.Conditions); i++ {
-		condition := pod.Status.Conditions[i]
-		if condition.Status != corev1.ConditionTrue {
-			fmt.Printf("Pod %s with condition: %s: %s, Reason: %s, Message: %s (%s)\n",
-				pod.Name,
-				condition.Type,
-				condition.Status,
-				condition.Reason,
-				condition.Message,
-				condition.LastTransitionTime.Format("2006-01-02T15:04:05Z07:00"),
-			)
-			allOk = false
+
+	sequentialConditions := [4]corev1.PodConditionType{corev1.PodScheduled,
+		corev1.PodInitialized,
+		corev1.ContainersReady,
+		corev1.PodReady}
+
+	for _, sequentialCondition := range sequentialConditions {
+		for _, podCondition := range pod.Status.Conditions {
+			if sequentialCondition == podCondition.Type && podCondition.Status != corev1.ConditionTrue {
+				fmt.Printf("Pod %s with condition: %s: %s, Reason: %s, Message: %s (%s)\n",
+					pod.Name,
+					podCondition.Type,
+					podCondition.Status,
+					podCondition.Reason,
+					podCondition.Message,
+					podCondition.LastTransitionTime.Format("2006-01-02T15:04:05Z07:00"),
+				)
+				allOk = false
+			}
+		}
+		if (!allOk) {
+			break;
 		}
 	}
 
