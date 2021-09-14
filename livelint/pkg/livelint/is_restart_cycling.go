@@ -18,20 +18,26 @@ func (n *livelint) getPodEvents(namespace string, pod corev1.Pod) *corev1.EventL
 	return podEventList
 }
 
-func (n *livelint) isRestartCycling(namespace string, pod corev1.Pod) (bool, string) {
+func (n *livelint) isRestartCycling(namespace string, pod corev1.Pod) (bool, bool, string) {
 	podEventList := n.getPodEvents(namespace, pod)
 	var lastUnhealthyEvent corev1.Event
+	var lastUnhealthyMessage string
 	unhealthyEventFound := false
+	backoffEventsFound := false
 	for _, event := range podEventList.Items {
+
+		if event.Reason == "BackOff" && event.Count > 5 {
+			backoffEventsFound = true
+		}
+
 		if event.Reason == "Unhealthy" {
 			if event.LastTimestamp.After(lastUnhealthyEvent.LastTimestamp.Time) {
 				lastUnhealthyEvent = event
+				lastUnhealthyMessage = event.Message
 				unhealthyEventFound = true
 			}
 		}
 	}
-	if unhealthyEventFound {
-		return true, lastUnhealthyEvent.Message
-	}
-	return false, ""
+
+	return backoffEventsFound, unhealthyEventFound, lastUnhealthyMessage
 }
