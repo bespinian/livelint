@@ -6,7 +6,7 @@ import (
 )
 
 func askUserYesOrNo(msg string) bool {
-	fmt.Printf("%s (y/N)\n", msg)
+	fmt.Printf("%s [y/N]\n", msg)
 
 	var input string
 	fmt.Scanln(&input)

@@ -25,7 +25,6 @@ func (n *livelint) isRestartCycling(namespace string, pod corev1.Pod) (bool, boo
 	unhealthyEventFound := false
 	backoffEventsFound := false
 	for _, event := range podEventList.Items {
-
 		if event.Reason == "BackOff" && event.Count > 5 {
 			backoffEventsFound = true
 		}
