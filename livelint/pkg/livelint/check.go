@@ -150,29 +150,83 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 		return nil
 	}
 
-	// TODO: Can you access the app?
-	// if no {
-	//	TODO: Is the port exposed by container correct and listing on 0.0.0.0?
-	//}
-	// TODO: Can you see a list of endpoints?
-	// if no {
-	//	TODO: Is the Selector matching the Pod label?
-	//	if yes {
-	//		TODO: Does the Pod have an IP address assigned?
-	//	}
-	// }
-	// TODO: Can you visit the app?
-	// if no {
-	//	TODO: Is the targetPort on the Service matching the containerPort in the Pod?
-	// }
-	// TODO: Can you see a list of Backends?
-	// if no {
-	//	TODO: Are the serviceName and servicePort matching the Service?
-	//}
-	// TODO: Can you visit the app?
-	// if yes {
-	//	TODO: The app should be working. Can you visit it from the public internet?
-	//}
+	canAccessApp := askUserYesOrNo("Can you access the app?")
+	if !canAccessApp {
+		portIsExposedCorrectly := askUserYesOrNo("Is the port exposed by container correct and listing on 0.0.0.0?")
+		if portIsExposedCorrectly {
+			bold.Println("Unknown state")
+			return nil
+		}
+
+		bold.Println("Fix the app. It should listen on 0.0.0.0. Update the container port.")
+		return nil
+	}
+
+	if isVerbose {
+		green.Println("Pods are running correctly")
+	}
+
+	canSeeEndpoints := askUserYesOrNo("Can you see a list of endpoints?")
+	if !canSeeEndpoints {
+		selectorIsMatchingPodLabel := askUserYesOrNo("Is the Selector matching the Pod label?")
+		if !selectorIsMatchingPodLabel {
+			bold.Println("Fix the Service selector. It has to match the Pod labels.")
+			return nil
+		}
+
+		podHasIPAssigned := askUserYesOrNo("Does the Pod have an IP address assigned?")
+		if !podHasIPAssigned {
+			bold.Println("There is an issue with the Controller manager.")
+			return nil
+		}
+
+		bold.Println("There is an issue with the Kubelet.")
+		return nil
+	}
+
+	canVisitServiceApp := askUserYesOrNo("Can you visit the app?")
+	if !canVisitServiceApp {
+		targetPortMatchesContainerPort := askUserYesOrNo("Is the targetPort on the Service matching the containerPort in the Pod?")
+		if !targetPortMatchesContainerPort {
+			bold.Println("Fix the Service targetPort and the containerPort.")
+			return nil
+		}
+
+		bold.Println("The issue could be with Kube Proxy.")
+		return nil
+	}
+
+	if isVerbose {
+		green.Println("The Service is running correctly.")
+	}
+
+	canSeeBackends := askUserYesOrNo("Can you see a list of Backends?")
+	if !canSeeBackends {
+		serviceNameAndPortMatchService := askUserYesOrNo("Are the serviceName and servicePort matching the Service?")
+		if !serviceNameAndPortMatchService {
+			bold.Println("Fix the Ingress serviceName and servicePort.")
+			return nil
+		}
+
+		bold.Println("The issue is specific to the Ingress Controller. Consult the docs for your Ingress.")
+		return nil
+	}
+
+	canVisitApp := askUserYesOrNo("Can you visit the app?")
+	if !canVisitApp {
+		bold.Println("The issue is specific to the Ingress Controller. Consult the docs for your Ingress.")
+		return nil
+	}
+
+	if isVerbose {
+		green.Println("The Ingress is running correctly.")
+	}
+
+	canVisitPublicApp := askUserYesOrNo("The app should be running. Can you visit it from the public internet?")
+	if !canVisitPublicApp {
+		bold.Println("The issue is likely to be with the infrastructure and how the cluster is exposed.")
+		return nil
+	}
 
 	fmt.Println("All checks finished")
 	return nil
