@@ -1,8 +1,14 @@
 linters:
   enable-all: true
   disable:
+    - cyclop
     - exhaustivestruct
     - forbidigo
+    - funlen
+    - gocognit
+    - gocyclo
+    - lll
+    - nestif
     - nlreturn
     - wsl
 

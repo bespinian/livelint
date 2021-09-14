@@ -14,7 +14,7 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 	boldRed := red.Add(color.Bold)
 
 	fmt.Println("")
-	fmt.Println(fmt.Sprintf("Checking deployment %s in namespace %s", deploymentName, namespace))
+	fmt.Printf("Checking deployment %s in namespace %s\n", deploymentName, namespace)
 	fmt.Println("")
 
 	allPods, err := n.getPods(namespace, deploymentName)
@@ -137,7 +137,6 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 
 	if isVerbose {
 		green.Println("OK: All pods RUNNING")
-
 	}
 
 	podsAreReady := askUserYesOrNo("Are the Pods READY?")

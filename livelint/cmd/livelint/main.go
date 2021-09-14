@@ -12,10 +12,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-const (
-	checkArgsCount = 2
-)
-
 func main() {
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
