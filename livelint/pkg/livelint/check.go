@@ -82,6 +82,10 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 				fmt.Println("Could not get container logs")
 			}
 		}
+		isRestartCycling, message := n.isRestartCycling(namespace, pod)
+		if isRestartCycling {
+			boldRed.Printf("NOK: Pod %s seems to be unhealthy. The last message was %s\n", pod.Name, message)
+		}
 	}
 
 	fmt.Println("All checks finished")
