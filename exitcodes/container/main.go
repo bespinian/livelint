@@ -1,29 +1,43 @@
 package main
 
 import (
-	"log"
+	"errors"
+	"flag"
+	"path/filepath"
 
 	"github.com/bespinian/k8s-app-benchmarks/exitcodes/pkg/ebpf"
-	"github.com/bespinian/k8s-app-benchmarks/exitcodes/pkg/proc"
-	"golang.org/x/sys/unix"
+	"github.com/bespinian/k8s-app-benchmarks/exitcodes/pkg/exitcodes"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
-func handleExec(execEvent ebpf.ExecEvent) {
-	podUID, _ := proc.PidToPodUid(execEvent.PID)
-	containerId, _ := proc.PidToContainerId(execEvent.PID)
-	log.Printf("Exec event: pid: %d, comm: %s, pod UID: %s, container ID: %s", execEvent.PID, unix.ByteSliceToString(execEvent.Comm[:]), podUID, containerId)
-}
-
-func handleExit(exitEvent ebpf.ExitEvent) {
-	podUID, _ := proc.PidToPodUid(exitEvent.PID)
-	containerId, _ := proc.PidToContainerId(exitEvent.PID)
-	log.Printf("Exit event: pid: %d, comm: %s, pod UID: %s, container ID: %s", exitEvent.PID, unix.ByteSliceToString(exitEvent.Comm[:]), podUID, containerId)
-}
-
-func handleDone() {
-	log.Printf(" ... exiting")
-}
-
 func main() {
-	ebpf.Run(handleExec, handleExit, handleDone)
+	// creates the in-cluster config
+	config, err := rest.InClusterConfig()
+	if errors.Is(err, rest.ErrNotInCluster) {
+		var kubeconfig *string
+		if home := homedir.HomeDir(); home != "" {
+			kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+		} else {
+			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+		}
+		flag.Parse()
+
+		// use the current context in kubeconfig
+		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		if err != nil {
+			panic(err.Error())
+		}
+	} else if err != nil {
+		panic(err.Error())
+	}
+	// creates the clientset
+	k8s, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+	e := exitcodes.New(k8s)
+	ebpf.Run(e.HandleExec, e.HandleExit, e.HandleDone)
 }
