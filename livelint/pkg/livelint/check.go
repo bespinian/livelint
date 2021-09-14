@@ -25,6 +25,7 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 	// Is there any PENDING Pod?
 	hasPendingPods := areTherePendingPods(allPods)
 	if hasPendingPods {
+		// TODO: Check Pod conditions as well? E.g. when no node is available for the pod, the pod condition (and also the events) would tell you that
 		clusterIsFull := askUserYesOrNo("Is the cluster full?")
 		if clusterIsFull {
 			bold.Println("Provision a bigger cluster")
@@ -61,8 +62,6 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 	hasOnlyRunningPods := areAllPodsRunning(allPods)
 	if !hasOnlyRunningPods {
 		for _, pod := range allPods {
-			n.checkPodConditions(pod, isVerbose)
-
 			problematicContainers := n.getProblematicContainers(pod)
 			if len(problematicContainers) > 0 {
 				boldRed.Printf("NOK: There are %d containers that are not started (and are not successfully terminated init containers) in pod %s\n", len(problematicContainers), pod.Name)
@@ -115,7 +114,7 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 					}
 
 					// Is the Pod restarting frequently? Cycling between Running and CrashLoopBackOff?
-					isBackingOff, hasUnhealthyEvents, unhealthyMessage := n.isRestartCycling(namespace, pod)
+					isBackingOff, hasUnhealthyEvents, unhealthyMessage := n.isRestartCycling(pod)
 					if isBackingOff {
 						if hasUnhealthyEvents {
 							boldRed.Printf("NOK: Pod %s seems to be unhealthy. The last message was %s\n", pod.Name, unhealthyMessage)
@@ -145,15 +144,16 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 		green.Println("OK: All pods RUNNING")
 	}
 
-	podsAreReady := askUserYesOrNo("Are the Pods READY?")
-	if !podsAreReady {
-		readinessProbeIsFailing := askUserYesOrNo("Is the Readiness Probe Failing?")
-		if readinessProbeIsFailing {
-			bold.Println("Fix the readiness probe")
-			return nil
+	nonReadyPods := n.getNonReadyPods(allPods, isVerbose)
+	if len(nonReadyPods) > 0 {
+		isReadinessProbeFailing := n.checkReadinessProbe(nonReadyPods)
+
+		if isReadinessProbeFailing {
+			boldRed.Println("Fix the readiness probe configuration or within the container")
+		} else {
+			bold.Println("Unknown state")
 		}
 
-		bold.Println("Unknown state")
 		return nil
 	}
 

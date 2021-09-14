@@ -4,10 +4,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// areTherePendingPods checks if there are PENDING pods.
+// areTherePendingPods checks if there are PENDING pods with no further container status information.
 func areTherePendingPods(allPods []corev1.Pod) bool {
-	for i := 0; i < len(allPods); i++ {
-		if allPods[i].Status.Phase == corev1.PodPending {
+	for _, pod := range allPods {
+		if pod.Status.Phase == corev1.PodPending &&
+			len(pod.Status.ContainerStatuses) < 1 {
 			return true
 		}
 	}
