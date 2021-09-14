@@ -121,11 +121,11 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 							boldRed.Printf("NOK: Pod %s seems to be unhealthy. The last message was %s\n", pod.Name, unhealthyMessage)
 							bold.Println("Fix the liveness probe")
 							return nil
-						} else {
-							boldRed.Printf("NOK: Pod %s seems to be in a crash loop backoff.", pod.Name)
-							bold.Println("Fix the liveness probe")
-							return nil
 						}
+
+						boldRed.Printf("NOK: Pod %s seems to be in a crash loop backoff.", pod.Name)
+						bold.Println("Fix the liveness probe")
+						return nil
 					}
 
 					bold.Println("Unknown state")
