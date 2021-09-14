@@ -145,7 +145,7 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 	}
 
 	nonReadyPods := n.getNonReadyPods(allPods, isVerbose)
-	// Are the Pods READY? 
+	// Are the Pods READY?
 	if len(nonReadyPods) > 0 {
 		isReadinessProbeFailing := n.checkReadinessProbe(nonReadyPods)
 
