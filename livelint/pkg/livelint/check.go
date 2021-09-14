@@ -115,11 +115,17 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 					}
 
 					// Is the Pod restarting frequently? Cycling between Running and CrashLoopBackOff?
-					isRestartCycling, message := n.isRestartCycling(namespace, pod)
-					if isRestartCycling {
-						boldRed.Printf("NOK: Pod %s seems to be unhealthy. The last message was %s\n", pod.Name, message)
-						bold.Println("Fix the liveness probe")
-						return nil
+					isBackingOff, hasUnhealthyEvents, unhealthyMessage := n.isRestartCycling(namespace, pod)
+					if isBackingOff {
+						if hasUnhealthyEvents {
+							boldRed.Printf("NOK: Pod %s seems to be unhealthy. The last message was %s\n", pod.Name, unhealthyMessage)
+							bold.Println("Fix the liveness probe")
+							return nil
+						} else {
+							boldRed.Printf("NOK: Pod %s seems to be in a crash loop backoff.", pod.Name)
+							bold.Println("Fix the liveness probe")
+							return nil
+						}
 					}
 
 					bold.Println("Unknown state")
