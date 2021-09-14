@@ -21,6 +21,9 @@ func (n *livelint) getPods(namespace, deploymentName string) ([]corev1.Pod, erro
 		LabelSelector: labels.Set(matchLabels).String(),
 	}
 	pods, err := n.k8s.CoreV1().Pods(namespace).List(context.Background(), options)
+	if err != nil {
+		return []corev1.Pod{}, fmt.Errorf("error listing pods: %w", err)
+	}
 
 	return pods.Items, nil
 }
