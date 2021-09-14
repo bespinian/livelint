@@ -14,6 +14,8 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 	boldRed := red.Add(color.Bold)
 
 	fmt.Println("")
+	fmt.Println(fmt.Sprintf("Checking deployment %s in namespace %s", deploymentName, namespace))
+	fmt.Println("")
 
 	allPods, err := n.getPods(namespace, deploymentName)
 	if err != nil {
