@@ -10,8 +10,9 @@ import (
 // Sequentially checks pod conditions (pod scheduled, pod initialized,
 // containers ready, pod ready) and breaks and prints the first one that is not ok
 func (n *livelint) checkPodConditions(pod corev1.Pod, isVerbose bool) {
-	allOk := true
-	if (isVerbose) {
+	allOK := true
+
+	if isVerbose {
 		fmt.Printf("Checking Pod conditions of pod %s\n", pod.Name)
 	}
 
@@ -31,15 +32,15 @@ func (n *livelint) checkPodConditions(pod corev1.Pod, isVerbose bool) {
 					podCondition.Message,
 					podCondition.LastTransitionTime.Format("2006-01-02T15:04:05Z07:00"),
 				)
-				allOk = false
+				allOK = false
 			}
 		}
-		if (!allOk) {
-			break;
+		if !allOK {
+			break
 		}
 	}
 
-	if allOk && isVerbose {
-		color.Green("Conditions for pod %s are all ok", pod.Name)
+	if allOK && isVerbose {
+		color.Green("Conditions for Pod %s are all OK", pod.Name)
 	}
 }

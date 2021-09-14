@@ -9,7 +9,7 @@ func (n *livelint) checkCrashLoopBackOff(pod corev1.Pod, containerName string) (
 		if cs.Name != containerName {
 			continue
 		}
-		
+
 		if cs.State.Waiting != nil &&
 			cs.State.Waiting.Reason == "CrashLoopBackOff" {
 			return true, cs.State.Waiting.Reason,
