@@ -151,10 +151,10 @@ func (n *livelint) Check(namespace, deploymentName string, isVerbose bool) error
 
 		if isReadinessProbeFailing {
 			boldRed.Println("Fix the readiness probe configuration or within the container")
-		} else {
-			bold.Println("Unknown state")
+			return nil
 		}
 
+		bold.Println("Unknown state")
 		return nil
 	}
 
