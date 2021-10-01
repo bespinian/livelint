@@ -4,7 +4,7 @@ import "k8s.io/client-go/kubernetes"
 
 // Livelint represents a livelint application.
 type Livelint interface {
-	Check(namespace, deploymentName string, isVerbose bool) error
+	RunChecks(namespace, deploymentName string, isVerbose bool) error
 }
 
 type livelint struct {

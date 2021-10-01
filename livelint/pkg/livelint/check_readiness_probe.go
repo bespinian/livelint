@@ -5,14 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (n *livelint) checkReadinessProbe(nonReadyPods []corev1.Pod) bool {
-	red := color.New(color.FgRed)
-
-	for _, pod := range nonReadyPods {
+func (n *livelint) checkReadinessProbe(pods []corev1.Pod) CheckResult {
+	failingProbesCount := 0
+	details := []string{}
+	for _, pod := range pods {
 		podEventList := n.getPodEvents(pod)
 
 		for _, event := range podEventList.Items {
@@ -20,14 +19,30 @@ func (n *livelint) checkReadinessProbe(nonReadyPods []corev1.Pod) bool {
 				strings.HasPrefix(event.Message, "Readiness probe failed:") &&
 				event.Count > 3 {
 				if event.LastTimestamp.After(time.Now().Add(time.Minute * -5)) {
-					red.Printf("Pod %s had a failing readiness probe within the last 5 minutes. Verify that the readiness probes are set correctly and that the probe within the container is working.\n", pod.Name)
-					fmt.Printf("Event message: %s\n", event.Message)
-					fmt.Println("Get more information using the following command")
-					fmt.Printf("    kubectl get events --field-selector involvedObject.kind=Pod,involvedObject.name=%s,involvedObject.namespace=%s\n", pod.Name, pod.Namespace)
-					return true
+					failingProbesCount++
+					details = append(details,
+						fmt.Sprintf("Pod %s had a failing readiness probe within the last 5 minutes. Verify that the readiness probes are set correctly and that the probe within the container is working.", pod.Name),
+						fmt.Sprintf("Event message: %s", event.Message),
+						"  → Get more information using the following command:",
+						fmt.Sprintf("    kubectl get events --field-selector involvedObject.kind=Pod,involvedObject.name=%s,involvedObject.namespace=%s", pod.Name, pod.Namespace),
+						"",
+					)
 				}
 			}
 		}
 	}
-	return false
+
+	if failingProbesCount > 0 {
+		return CheckResult{
+			HasFailed:    true,
+			Message:      fmt.Sprintf("There are %d failing ReadinessProbes", failingProbesCount),
+			Details:      details,
+			Instructions: "Fix the Readiness probe(s)",
+		}
+	}
+
+	return CheckResult{
+		Message:      "There are no failing Readiness probes",
+		Instructions: "Unknown state",
+	}
 }

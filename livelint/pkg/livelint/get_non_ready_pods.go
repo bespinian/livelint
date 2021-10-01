@@ -6,15 +6,11 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// Sequentially checks pod conditions (pod scheduled, pod initialized,
+// checkAreAllPodsReady sequentially checks pod conditions (pod scheduled, pod initialized,
 // containers ready, pod ready) and breaks and prints the first one that is not ok.
-func (n *livelint) getNonReadyPods(allPods []corev1.Pod, isVerbose bool) []corev1.Pod {
+func checkAreAllPodsReady(pods []corev1.Pod) CheckResult {
 	nonReadyPods := []corev1.Pod{}
-	for _, pod := range allPods {
-		if isVerbose {
-			fmt.Printf("Checking Pod conditions of pod %s\n", pod.Name)
-		}
-
+	for _, pod := range pods {
 		sequentialConditions := [4]corev1.PodConditionType{
 			corev1.PodScheduled,
 			corev1.PodInitialized,
@@ -22,11 +18,26 @@ func (n *livelint) getNonReadyPods(allPods []corev1.Pod, isVerbose bool) []corev
 			corev1.PodReady,
 		}
 
-		hasCondition, message := hasPodCondition(pod, sequentialConditions[:], isVerbose)
+		hasCondition, _ := hasPodCondition(pod, sequentialConditions[:])
 		if hasCondition {
-			fmt.Println(message)
 			nonReadyPods = append(nonReadyPods, pod)
 		}
 	}
-	return nonReadyPods
+
+	if len(nonReadyPods) > 0 {
+		nonReadyPodNames := make([]string, 0, len(nonReadyPods))
+		for _, pod := range nonReadyPods {
+			nonReadyPodNames = append(nonReadyPodNames, pod.ObjectMeta.Name)
+		}
+
+		return CheckResult{
+			HasFailed: true,
+			Message:   fmt.Sprintf("There are %d Pods that aren't READY", len(nonReadyPods)),
+			Details:   nonReadyPodNames,
+		}
+	}
+
+	return CheckResult{
+		Message: "All Pods are READY",
+	}
 }
