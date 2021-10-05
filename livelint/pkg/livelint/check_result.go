@@ -15,9 +15,11 @@ type CheckResult struct {
 
 func (r CheckResult) PrettyPrint(isVerbose bool) {
 	if r.HasFailed {
-		color.New(color.FgRed).Add(color.Bold).Printf("✗ %s\n", r.Message)
+		redBold := color.New(color.FgRed).Add(color.Bold)
+		redBold.Printf("✗ %s\n", r.Message)
 	} else {
-		color.New(color.FgGreen).Printf("✓ %s\n", r.Message)
+		green := color.New(color.FgGreen)
+		green.Printf("✓ %s\n", r.Message)
 	}
 
 	if isVerbose {
@@ -27,8 +29,9 @@ func (r CheckResult) PrettyPrint(isVerbose bool) {
 	}
 
 	if r.Instructions != "" {
+		bold := color.New(color.Bold)
 		fmt.Println("")
-		color.New(color.Bold).Printf("  → %s\n", r.Instructions)
+		bold.Printf("  → %s\n", r.Instructions)
 		fmt.Println("")
 	}
 }

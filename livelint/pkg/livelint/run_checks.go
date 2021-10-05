@@ -57,29 +57,52 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	result.PrettyPrint(isVerbose)
 	if result.HasFailed {
 		for _, pod := range allPods {
-			problematicContainers := n.getProblematicContainers(pod)
-			if len(problematicContainers) > 0 {
-				logs, err := n.checkContainerLogs(pod, problematicContainers[0].Name)
-				if err == nil {
-					fmt.Println("App Logs:")
-					fmt.Println("")
-					fmt.Println(*logs)
-					fmt.Println("")
-					fmt.Println("Fix the issue in the application")
+			nonRunningContainers := getNonRunningContainers(pod)
+			if len(nonRunningContainers) > 0 {
+
+				// Can you see the logs for the app?
+				result = n.checkContainerLogs(pod, nonRunningContainers[0].Name)
+				result.PrettyPrint(isVerbose)
+				if !result.HasFailed {
 					return nil
 				}
 
-				for _, container := range problematicContainers {
-					hasImagePullError, _, message := n.checkImagePullErrors(pod, container.Name)
-					if hasImagePullError {
-						fmt.Println(message)
-						fmt.Println("Verify that the image name, tag and registry are correct and that credentials are correct.")
+				// Is the Pod status ImagePullBackOff?
+				result = checkImagePullErrors(pod, nonRunningContainers[0].Name)
+				result.PrettyPrint(isVerbose)
+				if result.HasFailed {
+
+					// Is the name of the image correct?
+					result = checkIsImageNameCorrect()
+					result.PrettyPrint(isVerbose)
+					if result.HasFailed {
+						return nil
 					}
 
-					isInCrashLoopBackOff, _, message := n.checkCrashLoopBackOff(pod, container.Name)
+					// Is the image tag valid? Does it exist?
+					result = checkIsImageTagValid()
+					result.PrettyPrint(isVerbose)
+					if result.HasFailed {
+						return nil
+					}
 
-					if isInCrashLoopBackOff {
-						fmt.Println(message)
+					// Are you pulling images from a private registry?
+					result = checkIsPullingFromPrivateRegistry()
+					result.PrettyPrint(isVerbose)
+
+					return nil
+				}
+
+				// Is the Pod status CrashLoopBackOff?
+				result = checkCrashLoopBackOff(pod, nonRunningContainers[0].Name)
+				result.PrettyPrint(isVerbose)
+				if result.HasFailed {
+
+					// Did you inspect the logs and fix the crashing app?
+					result = checkDidInspectLogsAndFix()
+					result.PrettyPrint(isVerbose)
+					if result.HasFailed {
+						return nil
 					}
 
 					// Did you forget the CMD instruction in the Dockerfile?
@@ -89,22 +112,25 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					}
 
 					// Is the Pod restarting frequently? Cycling between Running and CrashLoopBackOff?
-					isBackingOff, hasUnhealthyEvents, _ := n.isRestartCycling(pod)
-					if isBackingOff {
-						if hasUnhealthyEvents {
-							return nil
-						}
-
-						return nil
-					}
+					result = n.checkIsRestartCycling(pod)
+					result.PrettyPrint(isVerbose)
 
 					return nil
 				}
 
 				// Is the pod status RunContainerError?
-				if pod.Status.Phase == "RunContainerError" {
+				result = checkRunContainerError(pod)
+				result.PrettyPrint(isVerbose)
+				if result.HasFailed {
+
+					// Is there any container running?
+					result = checkAreThereRunningContainers()
+					result.PrettyPrint(isVerbose)
+
 					return nil
 				}
+
+				return nil
 			}
 		}
 	}
@@ -115,7 +141,7 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Is the Readiness probe failing?
-		result := n.checkReadinessProbe(allPods)
+		result = n.checkReadinessProbe(allPods)
 		result.PrettyPrint(isVerbose)
 
 		return nil

@@ -4,10 +4,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// getProblematicContainers returns all containers from a pod that
-// are not in status "Running" and that are also not init containers
+// getNonRunningContainers returns all containers from a pod that
+// are not in status RUNNING and that are also not init containers
 // that terminated successfully.
-func (n *livelint) getProblematicContainers(pod corev1.Pod) []corev1.Container {
+func getNonRunningContainers(pod corev1.Pod) []corev1.Container {
 	nonStartedContainers := []corev1.Container{}
 
 	for _, status := range pod.Status.InitContainerStatuses {

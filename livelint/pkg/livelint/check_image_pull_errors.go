@@ -1,10 +1,12 @@
 package livelint
 
 import (
+	"fmt"
+
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (n *livelint) checkImagePullErrors(pod corev1.Pod, containerName string) (bool, string, string) {
+func checkImagePullErrors(pod corev1.Pod, containerName string) CheckResult {
 	for _, containerStatus := range pod.Status.ContainerStatuses {
 		if containerStatus.Name != containerName {
 			continue
@@ -13,9 +15,15 @@ func (n *livelint) checkImagePullErrors(pod corev1.Pod, containerName string) (b
 		if containerStatus.State.Waiting != nil &&
 			containerStatus.State.Waiting.Reason == "ErrImagePull" ||
 			containerStatus.State.Waiting.Reason == "ImagePullBackOff" {
-			return true, containerStatus.State.Waiting.Reason,
-				containerStatus.State.Waiting.Message
+			return CheckResult{
+				HasFailed: true,
+				Message:   fmt.Sprintf("The Pod is in status %s", containerStatus.State.Waiting.Reason),
+				Details:   []string{containerStatus.State.Waiting.Message},
+			}
 		}
 	}
-	return false, "", ""
+
+	return CheckResult{
+		Message: "The Pod is not in status ImagePullBackOff",
+	}
 }

@@ -24,5 +24,6 @@ func hasPodCondition(pod corev1.Pod, conditionsToCheck []corev1.PodConditionType
 			}
 		}
 	}
+
 	return false, ""
 }
