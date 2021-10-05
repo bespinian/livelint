@@ -30,6 +30,6 @@ func checkAreTherePendingPods(allPods []corev1.Pod) CheckResult {
 	}
 
 	return CheckResult{
-		Message: "There are no PENDING Pods",
+		Message: "No Pods are PENDING",
 	}
 }
