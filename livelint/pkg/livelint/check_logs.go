@@ -1,22 +1,37 @@
 package livelint
 
 import (
-	"fmt"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 )
 
 const tailLineCount = 20
 
-func (n *livelint) checkContainerLogs(pod corev1.Pod, containerName string) (*string, error) {
+func (n *livelint) checkContainerLogs(pod corev1.Pod, containerName string) CheckResult {
 	namespace := pod.Namespace
+
 	logs, err := n.tailPodLogs(namespace, pod.Name, containerName, tailLineCount, false)
 	if err != nil {
 		logs, err = n.tailPodLogs(namespace, pod.Name, containerName, tailLineCount, true)
 		if err != nil {
-			return nil, fmt.Errorf("error getting logs: %w", err)
+			return CheckResult{
+				HasFailed: true,
+				Message:   "You cannot see the logs for the app",
+			}
 		}
 	}
 
-	return &logs, nil
+	if logs == "" {
+		return CheckResult{
+			HasFailed: true,
+			Message:   "You cannot see the logs for the app",
+		}
+	}
+
+	return CheckResult{
+		Message:      "You can see the logs for the app",
+		Details:      strings.Split(logs, "\n"),
+		Instructions: "Fix the issue in the application",
+	}
 }

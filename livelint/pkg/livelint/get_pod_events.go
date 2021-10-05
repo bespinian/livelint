@@ -15,5 +15,6 @@ func (n *livelint) getPodEvents(pod corev1.Pod) *corev1.EventList {
 	if err != nil {
 		log.Fatal(fmt.Errorf("error when querying events for pod %s in namespace %s: %w", pod.Name, pod.Namespace, err))
 	}
+
 	return podEventList
 }

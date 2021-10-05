@@ -28,7 +28,7 @@ func checkAreAllPodsRunning(allPods []corev1.Pod) CheckResult {
 
 		return CheckResult{
 			HasFailed: true,
-			Message:   fmt.Sprintf("%d Pods are not RUNNING", len(nonRunningPods)),
+			Message:   fmt.Sprintf("There are %d Pods that are not RUNNING", len(nonRunningPods)),
 			Details:   nonRunningPodNames,
 		}
 	}
