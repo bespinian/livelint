@@ -25,7 +25,7 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Is the cluster full?
-		result = checkIsClusterFull()
+		result = n.checkIsClusterFull(allPods)
 		result.PrettyPrint(isVerbose)
 		if result.HasFailed {
 			return nil
