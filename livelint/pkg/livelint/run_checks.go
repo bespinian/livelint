@@ -52,6 +52,13 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		return nil
 	}
 
+	// Are any Pods restart cycling
+	result = n.checkAreThereRestartCyclingPods(allPods)
+	result.PrettyPrint(isVerbose)
+	if result.HasFailed {
+		return nil
+	}
+
 	// Are the Pods RUNNING?
 	result = checkAreAllPodsRunning(allPods)
 	result.PrettyPrint(isVerbose)
@@ -59,13 +66,6 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		for _, pod := range allPods {
 			nonRunningContainers := getNonRunningContainers(pod)
 			if len(nonRunningContainers) > 0 {
-
-				// Can you see the logs for the app?
-				result = n.checkContainerLogs(pod, nonRunningContainers[0].Name)
-				result.PrettyPrint(isVerbose)
-				if !result.HasFailed {
-					return nil
-				}
 
 				// Is the Pod status ImagePullBackOff?
 				result = checkImagePullErrors(pod, nonRunningContainers[0].Name)
@@ -111,10 +111,6 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 						return nil
 					}
 
-					// Is the Pod restarting frequently? Cycling between Running and CrashLoopBackOff?
-					result = n.checkIsRestartCycling(pod)
-					result.PrettyPrint(isVerbose)
-
 					return nil
 				}
 
@@ -127,6 +123,13 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					result = checkAreThereRunningContainers()
 					result.PrettyPrint(isVerbose)
 
+					return nil
+				}
+
+				// Can you see the logs for the app?
+				result = n.checkContainerLogs(pod, nonRunningContainers[0].Name)
+				result.PrettyPrint(isVerbose)
+				if !result.HasFailed {
 					return nil
 				}
 

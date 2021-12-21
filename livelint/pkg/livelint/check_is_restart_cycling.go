@@ -35,8 +35,6 @@ func (n *livelint) checkIsRestartCycling(pod corev1.Pod) CheckResult {
 	}
 
 	return CheckResult{
-		Message:      "The Pod is not restarting frequently, cycling between Running and CrashLoopBackOff",
-		Details:      []string{lastUnhealthyMessage},
-		Instructions: "Unknown state",
+		Message: "The Pod is not restarting frequently, cycling between Running and CrashLoopBackOff",
 	}
 }
