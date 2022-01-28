@@ -19,20 +19,20 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		return fmt.Errorf("error getting Pods: %w", err)
 	}
 
+	// Are you hitting the ResourceQuota limits ?
+	result := n.checkAreResourceQuotasHit(namespace, deploymentName)
+	result.PrettyPrint(isVerbose)
+	if result.HasFailed {
+		return nil
+	}
+
 	// Is there any PENDING Pod?
-	result := checkAreTherePendingPods(allPods)
+	result = checkAreTherePendingPods(allPods)
 	result.PrettyPrint(isVerbose)
 	if result.HasFailed {
 
 		// Is the cluster full?
 		result = n.checkIsClusterFull(allPods)
-		result.PrettyPrint(isVerbose)
-		if result.HasFailed {
-			return nil
-		}
-
-		// Are you hitting the ResourceQuota limits ?
-		result = checkAreResourceQuotasHit()
 		result.PrettyPrint(isVerbose)
 		if result.HasFailed {
 			return nil
