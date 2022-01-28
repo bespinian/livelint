@@ -133,6 +133,9 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					return nil
 				}
 
+				result = n.checkFailedMount(pod)
+				result.PrettyPrint(isVerbose)
+
 				return nil
 			}
 		}
