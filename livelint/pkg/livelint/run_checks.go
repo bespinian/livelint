@@ -39,7 +39,7 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		}
 
 		// Are you mounting a PENDING PersistentVolumeClaim?
-		result = checkIsMountingPendingPVC()
+		result = n.checkIsMountingPendingPVC(allPods, namespace)
 		result.PrettyPrint(isVerbose)
 		if result.HasFailed {
 			return nil
