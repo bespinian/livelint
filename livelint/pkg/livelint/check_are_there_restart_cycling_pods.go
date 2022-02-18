@@ -22,9 +22,10 @@ func (n *livelint) checkAreThereRestartCyclingPods(allPods []corev1.Pod) CheckRe
 			}
 		}
 		return CheckResult{
-			HasFailed: true,
-			Message:   fmt.Sprintf("There are %d Pods which are cycling between running an crashing", len(failedChecks)),
-			Details:   cyclingPodReasons,
+			HasFailed:    true,
+			Message:      fmt.Sprintf("There are %d Pods which are cycling between running an crashing", len(failedChecks)),
+			Details:      cyclingPodReasons,
+			Instructions: "Fix the liveness probes",
 		}
 
 	}
