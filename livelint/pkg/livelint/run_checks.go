@@ -154,7 +154,8 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	}
 
 	// Can you access the app?
-	result = checkCanAccessApp()
+	result = n.checkCanAccessApp(allPods)
+	result.PrettyPrint(isVerbose)
 	if result.HasFailed {
 
 		// Is the port exposed by container correct and listing on 0.0.0.0?
