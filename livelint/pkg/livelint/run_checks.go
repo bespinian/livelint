@@ -169,8 +169,9 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	greenBold.Println("Pods are running correctly")
 	fmt.Println("")
 
+	serviceName := askUserForServiceName()
 	// Can you see a list of endpoints?
-	result = checkCanSeeEndpoints()
+	result = n.checkCanSeeEndpoints(serviceName, namespace)
 	result.PrettyPrint(isVerbose)
 	if result.HasFailed {
 
