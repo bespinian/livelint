@@ -35,7 +35,7 @@ func main() {
 
 	namespace, _, err := kubeConfig.Namespace()
 
-	ll := livelint.New(k8s)
+	ll := livelint.New(k8s, config)
 
 	app := &cli.App{
 		Name:  "livelint",
