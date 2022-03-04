@@ -183,7 +183,7 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		}
 
 		// Does the Pod have an IP address assigned?
-		result = checkPodHasIPAddressAssigned()
+		result = checkPodHasIPAddressAssigned(allPods)
 		result.PrettyPrint(isVerbose)
 
 		return nil
