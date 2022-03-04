@@ -175,7 +175,7 @@ func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Is the Selector matching the Pod label?
-		result = checkIsSelectorMatchingPodLabel()
+		result = n.checkIsSelectorMatchingPodLabel(allPods, serviceName, namespace)
 		result.PrettyPrint(isVerbose)
 		if result.HasFailed {
 			return nil
