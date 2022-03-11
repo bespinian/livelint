@@ -14,7 +14,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	fmt.Printf("Checking deployment %s in namespace %s...\n", deploymentName, namespace)
 	fmt.Println("")
 
-	allPods, err := n.getPods(namespace, deploymentName)
+	allPods, err := n.getPodsForDeployment(namespace, deploymentName)
 	if err != nil {
 		return fmt.Errorf("error getting Pods: %w", err)
 	}
@@ -169,14 +169,15 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	greenBold.Println("Pods are running correctly")
 	fmt.Println("")
 
-	serviceName := askUserForServiceName()
+	exactlyMatchingServices, partlyMatchingServices, _ := n.getServices(namespace, deploymentName)
+	service := askUserForServiceName(exactlyMatchingServices, partlyMatchingServices)
 	// Can you see a list of endpoints?
-	result = n.checkCanSeeEndpoints(serviceName, namespace)
+	result = n.checkCanSeeEndpoints(service.Name, namespace)
 	result.PrettyPrint(isVerbose)
 	if result.HasFailed {
 
 		// Is the Selector matching the Pod label?
-		result = n.checkIsSelectorMatchingPodLabel(allPods, serviceName, namespace)
+		result = n.checkIsSelectorMatchingPodLabel(allPods, service.Name, namespace)
 		result.PrettyPrint(isVerbose)
 		if result.HasFailed {
 			return nil
@@ -190,7 +191,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	}
 
 	// Can you visit the app?
-	result = checkCanVisitServiceApp()
+	result = n.checkCanVisitServiceApp(service)
 	result.PrettyPrint(isVerbose)
 	if result.HasFailed {
 
