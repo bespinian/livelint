@@ -1,16 +1,33 @@
 package livelint
 
-func checkCanVisitServiceApp() CheckResult {
-	yes := askUserYesOrNo("Run 'kubectl port-forward service/<service-name> 8080:<service-port>'.\nCan you visit the app?")
+import (
+	"fmt"
 
-	if !yes {
-		return CheckResult{
-			HasFailed: true,
-			Message:   "You cannot visit the app from the Service",
+	v1 "k8s.io/api/core/v1"
+)
+
+func (n *Livelint) checkCanVisitServiceApp(service v1.Service) CheckResult {
+	failureDetails := []string{}
+	pods, _ := n.getPodsForService(service)
+	for _, port := range service.Spec.Ports {
+		for _, pod := range pods {
+			if !n.portForwardAndCheck(pod, port.TargetPort.IntVal) {
+				failureDetail := fmt.Sprintf("Pod %s has refused connection on port %d, forwarded from port %d", pod.Name, port.TargetPort.IntVal, port.Port)
+				failureDetails = append(failureDetails, failureDetail)
+			}
 		}
 	}
 
-	return CheckResult{
-		Message: "You can visit the app from the Service",
+	checkResult := CheckResult{
+		Message: "You can access the service",
 	}
+	if len(failureDetails) > 0 {
+		checkResult = CheckResult{
+			Message:   "One or more ports were not acessible",
+			HasFailed: true,
+			Details:   failureDetails,
+		}
+	}
+
+	return checkResult
 }
