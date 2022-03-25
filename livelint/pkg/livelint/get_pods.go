@@ -10,7 +10,7 @@ import (
 )
 
 // getPods returns all pods of a deployment.
-func (n *livelint) getPods(namespace, deploymentName string) ([]corev1.Pod, error) {
+func (n *Livelint) getPods(namespace, deploymentName string) ([]corev1.Pod, error) {
 	deployment, err := n.k8s.AppsV1().Deployments(namespace).Get(context.Background(), deploymentName, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting deployment %q in namespace %q: %w", deploymentName, namespace, err)

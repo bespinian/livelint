@@ -4,7 +4,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (n *livelint) checkFailedMount(pod corev1.Pod) CheckResult {
+func (n *Livelint) checkFailedMount(pod corev1.Pod) CheckResult {
 	events := n.getPodEvents(pod)
 	for _, event := range events.Items {
 		if event.Reason == "FailedMount" {

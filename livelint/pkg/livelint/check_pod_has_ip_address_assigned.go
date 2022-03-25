@@ -8,7 +8,7 @@ import (
 
 func checkPodHasIPAddressAssigned(allPods []corev1.Pod) CheckResult {
 	for _, pod := range allPods {
-		if len(pod.Status.PodIP) <= 0 {
+		if len(pod.Status.PodIP) == 0 {
 			return CheckResult{
 				HasFailed:    true,
 				Message:      fmt.Sprintf("The Pod %s has no IP address assigned", pod.Name),

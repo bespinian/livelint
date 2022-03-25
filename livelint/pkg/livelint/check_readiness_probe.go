@@ -8,7 +8,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (n *livelint) checkReadinessProbe(pods []corev1.Pod) CheckResult {
+func (n *Livelint) checkReadinessProbe(pods []corev1.Pod) CheckResult {
 	failingProbesCount := 0
 	details := []string{}
 	for _, pod := range pods {

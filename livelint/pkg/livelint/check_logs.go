@@ -8,7 +8,7 @@ import (
 
 const tailLineCount = 20
 
-func (n *livelint) checkContainerLogs(pod corev1.Pod, containerName string) CheckResult {
+func (n *Livelint) checkContainerLogs(pod corev1.Pod, containerName string) CheckResult {
 	namespace := pod.Namespace
 
 	logs, err := n.tailPodLogs(namespace, pod.Name, containerName, tailLineCount, false)
