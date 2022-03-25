@@ -196,7 +196,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Is the targetPort on the Service matching the containerPort in the Pod?
-		result = checkTargetPortMatchesContainerPort()
+		result = n.checkTargetPortMatchesContainerPort(allPods, serviceName, namespace)
 		result.PrettyPrint(isVerbose)
 
 		return nil
