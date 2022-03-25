@@ -4,7 +4,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func (n *livelint) checkIsRestartCycling(pod corev1.Pod) CheckResult {
+func (n *Livelint) checkIsRestartCycling(pod corev1.Pod) CheckResult {
 	podEvents := n.getPodEvents(pod)
 
 	var lastUnhealthyEvent corev1.Event

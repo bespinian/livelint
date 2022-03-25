@@ -17,7 +17,7 @@ import (
 
 const connectionTimeoutSeconds = 2
 
-func (n *livelint) checkCanAccessApp(pods []corev1.Pod) CheckResult {
+func (n *Livelint) checkCanAccessApp(pods []corev1.Pod) CheckResult {
 	failureDetails := []string{}
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
@@ -44,7 +44,7 @@ func (n *livelint) checkCanAccessApp(pods []corev1.Pod) CheckResult {
 	return checkResult
 }
 
-func (n *livelint) portForwardAndCheck(pod corev1.Pod, port int32) bool {
+func (n *Livelint) portForwardAndCheck(pod corev1.Pod, port int32) bool {
 	connectionSuccessful := true
 
 	// set up error handling used by port forwarding
@@ -80,7 +80,10 @@ func (n *livelint) portForwardAndCheck(pod corev1.Pod, port int32) bool {
 
 	// send some traffic via the port forwarding
 	forwardedPorts, _ := forwarder.GetPorts()
-	net.Dial("tcp", fmt.Sprintf("localhost:%d", forwardedPorts[0].Local))
+	_, err = net.Dial("tcp", fmt.Sprintf("localhost:%d", forwardedPorts[0].Local))
+	if err != nil {
+		return false
+	}
 
 	// wait for a certain time to see whether port forwarding error handling is called
 	time.Sleep(connectionTimeoutSeconds * time.Second)

@@ -10,7 +10,7 @@ import (
 )
 
 // tailPodLogs returns the last log messages of a pod.
-func (n *livelint) tailPodLogs(namespace, podName, containerName string, tailLines int64, previous bool) (string, error) {
+func (n *Livelint) tailPodLogs(namespace, podName, containerName string, tailLines int64, previous bool) (string, error) {
 	var logs string
 	podLogOptions := v1.PodLogOptions{
 		Container: containerName,

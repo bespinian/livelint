@@ -2,6 +2,11 @@ linters:
   enable-all: true
   disable:
     - cyclop
+    - golint
+    - scopelint
+    - maligned
+    - interfacer
+    - varnamelen
     - exhaustivestruct
     - forbidigo
     - funlen

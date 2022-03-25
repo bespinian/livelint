@@ -7,7 +7,7 @@ import (
 )
 
 // RunChecks checks for potential issues with the deployment.
-func (n *livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
+func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
 	greenBold := color.New(color.FgGreen).Add(color.Bold)
 
 	fmt.Println("")
