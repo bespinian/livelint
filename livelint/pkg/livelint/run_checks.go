@@ -196,7 +196,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Is the targetPort on the Service matching the containerPort in the Pod?
-		result = n.checkTargetPortMatchesContainerPort(allPods, serviceName, namespace)
+		result = n.checkTargetPortMatchesContainerPort(allPods, service.Name, namespace)
 		result.PrettyPrint(isVerbose)
 
 		return nil
@@ -206,8 +206,10 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	greenBold.Println("The Service is running correctly")
 	fmt.Println("")
 
+	ingressName := askUserForInput("Which ingress should expose this deployment?")
+
 	// Can you see a list of Backends?
-	result = checkCanSeeBackends()
+	result = n.checkCanSeeBackends(ingressName, namespace)
 	result.PrettyPrint(isVerbose)
 	if result.HasFailed {
 
