@@ -1,7 +1,7 @@
 package livelint
 
-func checkAreThereRunningContainers() CheckResult {
-	yes := askUserYesOrNo("Is there any container RUNNING?")
+func (n *Livelint) checkAreThereRunningContainers() CheckResult {
+	yes := n.askUserYesOrNo("Is there any container RUNNING?")
 
 	if !yes {
 		return CheckResult{

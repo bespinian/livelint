@@ -1,21 +1,11 @@
 package livelint
 
-import (
-	"fmt"
-	"strings"
-)
-
-func askUserYesOrNo(msg string) bool {
-	fmt.Println("")
-	fmt.Printf("%s [y/N]\n", msg)
-
-	var input string
-	fmt.Scanln(&input)
-
-	normalizedInput := strings.ToLower(input)
-	if normalizedInput == "y" || normalizedInput == "yes" {
+func (n *Livelint) askUserYesOrNo(msg string) bool {
+	yesNoResponse := make(chan int)
+	n.tea.Send(yesNoInputMsg{question: msg, value: yesNoResponse})
+	input := <-yesNoResponse
+	if input == 0 {
 		return true
 	}
-
 	return false
 }

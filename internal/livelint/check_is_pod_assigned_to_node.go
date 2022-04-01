@@ -1,7 +1,7 @@
 package livelint
 
-func checkIsPodAssignedToNode() CheckResult {
-	yes := askUserYesOrNo("Run 'kubectl get pods -o wide'.\nIs the Pod assigned to the Node?")
+func (n *Livelint) checkIsPodAssignedToNode() CheckResult {
+	yes := n.askUserYesOrNo("Run 'kubectl get pods -o wide'.\nIs the Pod assigned to the Node?")
 
 	if !yes {
 		return CheckResult{

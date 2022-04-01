@@ -1,7 +1,7 @@
 package livelint
 
-func checkIsPullingFromPrivateRegistry() CheckResult {
-	yes := askUserYesOrNo("Are you pulling from a private image registry?")
+func (n *Livelint) checkIsPullingFromPrivateRegistry() CheckResult {
+	yes := n.askUserYesOrNo("Are you pulling from a private image registry?")
 
 	if !yes {
 		return CheckResult{

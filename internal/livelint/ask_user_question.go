@@ -1,15 +1,10 @@
 package livelint
 
-import (
-	"fmt"
-)
+func (n *Livelint) askUserQuestion(question string) string {
+	textResponse := make(chan string)
+	n.tea.Send(textInputMsg{question: question, value: textResponse})
 
-func askUserQuestion(question string) string {
-	fmt.Println("")
-	fmt.Println(question)
+	input := <-textResponse
 
-	var response string
-	fmt.Scanln(&response)
-
-	return response
+	return input
 }
