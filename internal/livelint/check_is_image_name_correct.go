@@ -1,7 +1,7 @@
 package livelint
 
-func checkIsImageNameCorrect() CheckResult {
-	yes := askUserYesOrNo("Is the name of the image correct?")
+func (n *Livelint) checkIsImageNameCorrect() CheckResult {
+	yes := n.askUserYesOrNo("Is the name of the image correct?")
 
 	if !yes {
 		return CheckResult{

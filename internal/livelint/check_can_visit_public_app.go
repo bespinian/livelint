@@ -1,7 +1,7 @@
 package livelint
 
-func checkCanVisitPublicApp() CheckResult {
-	yes := askUserYesOrNo("The app should be working. Can you visit it from the public internet?")
+func (n *Livelint) checkCanVisitPublicApp() CheckResult {
+	yes := n.askUserYesOrNo("The app should be working. Can you visit it from the public internet?")
 
 	if !yes {
 		return CheckResult{
