@@ -1,0 +1,29 @@
+linters:
+  enable-all: true
+  disable:
+    - cyclop
+    - exhaustivestruct
+    - forbidigo
+    - funlen
+    - gocognit
+    - gocyclo
+    - golint
+    - ifshort
+    - interfacer
+    - lll
+    - maintidx
+    - maligned
+    - nestif
+    - nlreturn
+    - scopelint
+    - varnamelen
+    - whitespace
+    - wsl
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  maligned:
+    suggest-new: true
+  misspell:
+    locale: US

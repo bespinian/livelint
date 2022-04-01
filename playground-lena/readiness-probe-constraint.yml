@@ -1,9 +1,0 @@
-apiVersion: constraints.gatekeeper.sh/v1beta1
-kind: K8sRequiredReadinessProbe
-metadata:
-  name: pods-must-have-readiness-probe
-spec:
-  match:
-    kinds:
-      - apiGroups: [""]
-        kinds: ["Pod"]
