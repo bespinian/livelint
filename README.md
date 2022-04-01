@@ -1,3 +1,3 @@
-# k8s-app-benchmarks
+# Livelint
 
-The amazing k8s app benchmarks
+A linting tool for live Kubernetes deployments

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: port-mismatch
+  namespace: app-benchmark-test
+spec:
+  ports:
+    - port: 80
+      name: http
+      protocol: TCP
+      targetPort: 8080
+    - port: 1234
+      name: blah
+      protocol: TCP
+      targetPort: 12345
+  selector:
+    app: ok
