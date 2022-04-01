@@ -1,7 +1,7 @@
 package livelint
 
-func checkIsPortExposedCorrectly() CheckResult {
-	yes := askUserYesOrNo("Is the port exposed by container correct and listing on 0.0.0.0?")
+func (n *Livelint) checkIsPortExposedCorrectly() CheckResult {
+	yes := n.askUserYesOrNo("Is the port exposed by container correct and listing on 0.0.0.0?")
 
 	if yes {
 		return CheckResult{

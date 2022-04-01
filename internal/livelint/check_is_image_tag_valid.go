@@ -1,7 +1,7 @@
 package livelint
 
-func checkIsImageTagValid() CheckResult {
-	yes := askUserYesOrNo("Is the image tag valid? Does it exist?")
+func (n *Livelint) checkIsImageTagValid() CheckResult {
+	yes := n.askUserYesOrNo("Is the image tag valid? Does it exist?")
 
 	if !yes {
 		return CheckResult{

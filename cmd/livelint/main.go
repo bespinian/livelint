@@ -34,6 +34,9 @@ func main() {
 		configOverrides)
 
 	namespace, _, err := kubeConfig.Namespace()
+	if err != nil {
+		log.Fatal(fmt.Errorf("error creating getting namespace from k8s config: %w", err))
+	}
 
 	ll := livelint.New(k8s, config)
 
@@ -64,12 +67,13 @@ func main() {
 
 				Action: func(c *cli.Context) error {
 					args := c.Args()
-
-					err = ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
-					if err != nil {
-						return fmt.Errorf("error checking deployment: %w", err)
-					}
-
+					go func() {
+						runChecksErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
+						if runChecksErr != nil {
+							log.Fatal(fmt.Errorf("error running checks: %w", runChecksErr))
+						}
+					}()
+					ll.Start()
 					return nil
 				},
 			},

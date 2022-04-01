@@ -1,7 +1,7 @@
 package livelint
 
-func checkServiceNameAndPortMatchService() CheckResult {
-	yes := askUserYesOrNo("Are the serviceName and servicePort matching the Service?")
+func (n *Livelint) checkServiceNameAndPortMatchService() CheckResult {
+	yes := n.askUserYesOrNo("Are the serviceName and servicePort matching the Service?")
 
 	if !yes {
 		return CheckResult{
