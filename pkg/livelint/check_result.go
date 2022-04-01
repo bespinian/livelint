@@ -16,10 +16,10 @@ type CheckResult struct {
 func (r CheckResult) PrettyPrint(isVerbose bool) {
 	if r.HasFailed {
 		redBold := color.New(color.FgRed).Add(color.Bold)
-		redBold.Printf("✗ %s\n", r.Message)
+		redBold.Printf("✖ %s\n", r.Message)
 	} else {
 		green := color.New(color.FgGreen)
-		green.Printf("✓ %s\n", r.Message)
+		green.Printf("✔ %s\n", r.Message)
 	}
 
 	if isVerbose {
