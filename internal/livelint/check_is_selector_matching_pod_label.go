@@ -9,14 +9,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkIsSelectorMatchingPodLabel(allPods []apiv1.Pod, serviceName string, namespace string) CheckResult {
+func (n *Livelint) checkIsSelectorMatchingPodLabel(pods []apiv1.Pod, serviceName string, namespace string) CheckResult {
 	service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error getting service %s in namespace %s: %w", serviceName, namespace, err))
 	}
 
 	hasMatchingPod := false
-	for _, pod := range allPods {
+	for _, pod := range pods {
 		labelsMatch := true
 		for svcLabelKey, svcLabelValue := range service.Spec.Selector {
 			podLabelValue, hasLabel := pod.ObjectMeta.Labels[svcLabelKey]

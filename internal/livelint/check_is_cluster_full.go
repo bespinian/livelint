@@ -10,9 +10,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkIsClusterFull(allPods []apiv1.Pod) CheckResult {
+func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 	var podWithInsufficientResources *apiv1.Pod
-	for i, pod := range allPods {
+	for i, pod := range pods {
 		if pod.Status.Phase == apiv1.PodPending &&
 			len(pod.Status.ContainerStatuses) < 1 {
 			for _, condition := range pod.Status.Conditions {
@@ -22,7 +22,7 @@ func (n *Livelint) checkIsClusterFull(allPods []apiv1.Pod) CheckResult {
 					strings.Contains(condition.Message, "nodes are available") &&
 					(strings.Contains(condition.Message, "Insufficient cpu") ||
 						strings.Contains(condition.Message, "Insufficient memory")) {
-					podWithInsufficientResources = &allPods[i]
+					podWithInsufficientResources = &pods[i]
 					break
 				}
 			}

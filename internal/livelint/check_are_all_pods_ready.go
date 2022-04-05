@@ -30,9 +30,14 @@ func checkAreAllPodsReady(pods []apiv1.Pod) CheckResult {
 			nonReadyPodNames = append(nonReadyPodNames, pod.ObjectMeta.Name)
 		}
 
+		msgTemplate := "There are %v Pods that aren't READY"
+		if len(nonReadyPods) == 1 {
+			msgTemplate = "There is %v Pod that isn't READY"
+		}
+
 		return CheckResult{
 			HasFailed: true,
-			Message:   fmt.Sprintf("There are %d Pods that aren't READY", len(nonReadyPods)),
+			Message:   fmt.Sprintf(msgTemplate, len(nonReadyPods)),
 			Details:   nonReadyPodNames,
 		}
 	}

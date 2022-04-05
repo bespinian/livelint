@@ -11,7 +11,7 @@ import (
 func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResult {
 	ingress, err := n.k8s.NetworkingV1().Ingresses(namespace).Get(context.Background(), ingressName, metav1.GetOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error getting backends for ingress %s in namespace %s: %w", ingressName, namespace, err))
+		log.Fatal(fmt.Errorf("error getting backends for Ingress %s in namespace %s: %w", ingressName, namespace, err))
 	}
 
 	hasResourceBackends := false
@@ -25,7 +25,7 @@ func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResul
 			case path.Backend.Service != nil:
 				service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})
 				if err != nil {
-					log.Fatal(fmt.Errorf("error getting backends for ingress %s in namespace %s: %w", ingressName, namespace, err))
+					log.Fatal(fmt.Errorf("error getting backends for Ingress %s in namespace %s: %w", ingressName, namespace, err))
 				}
 
 				hasPortMatch := false
@@ -39,7 +39,7 @@ func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResul
 				if !hasPortMatch {
 					return CheckResult{
 						HasFailed: true,
-						Message:   fmt.Sprintf("No backends available for ingress path %s", path.Path),
+						Message:   fmt.Sprintf("No backends available for Ingress path %s", path.Path),
 					}
 				}
 
@@ -51,7 +51,7 @@ func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResul
 				if len(endpoint.Subsets) < 1 {
 					return CheckResult{
 						HasFailed: true,
-						Message:   fmt.Sprintf("No backends available for ingress path %s, because service %s has no endpoints", path.Path, path.Backend.Service.Name),
+						Message:   fmt.Sprintf("No backends available for Ingress path %s, because service %s has no endpoints", path.Path, path.Backend.Service.Name),
 					}
 				}
 			case path.Backend.Resource != nil:
@@ -68,12 +68,12 @@ func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResul
 
 	if hasResourceBackends {
 		return CheckResult{
-			Message: "There are Backends available for this ingress",
-			Details: []string{"Some paths have a resource backend instead of a service. Ensure this backend is setup correctly."},
+			Message: "There are Backends available for this Ingress",
+			Details: []string{"Some paths have a resource backend instead of a service. Ensure this backend is set up correctly."},
 		}
 	}
 
 	return CheckResult{
-		Message: "There are Backends available for this ingress",
+		Message: "There are Backends available for this Ingress",
 	}
 }

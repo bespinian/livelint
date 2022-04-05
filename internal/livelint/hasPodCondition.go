@@ -6,7 +6,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-// Sequentially checks the given pod conditions.
+// hasPodCondition sequentially checks the given pod conditions.
 // It breaks and returns the first one that is not ok.
 func hasPodCondition(pod apiv1.Pod, conditionsToCheck []apiv1.PodConditionType) (bool, string) {
 	for _, conditionToCheck := range conditionsToCheck {
