@@ -10,14 +10,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkTargetPortMatchesContainerPort(allPods []apiv1.Pod, serviceName string, namespace string) CheckResult {
+func (n *Livelint) checkTargetPortMatchesContainerPort(pods []apiv1.Pod, serviceName string, namespace string) CheckResult {
 	service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error getting service %s in namespace %s: %w", serviceName, namespace, err))
 	}
 
 	unexposedPorts := []string{}
-	firstPod := allPods[0]
+	firstPod := pods[0]
 	for _, servicePort := range service.Spec.Ports {
 		portIsExposed := false
 		for _, container := range firstPod.Spec.Containers {

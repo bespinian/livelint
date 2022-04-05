@@ -6,30 +6,59 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-func (n *Livelint) checkAreThereRestartCyclingPods(allPods []apiv1.Pod) CheckResult {
-	failedChecks := []CheckResult{}
-	for _, pod := range allPods {
-		result := n.checkIsRestartCycling(pod)
-		if result.HasFailed {
-			failedChecks = append(failedChecks, result)
+func (n *Livelint) checkAreThereRestartCyclingPods(pods []apiv1.Pod) CheckResult {
+	reasonsToFail := []string{}
+	for _, pod := range pods {
+		isCycling, reason := n.isRestartCycling(pod)
+		if isCycling {
+			reasonsToFail = append(reasonsToFail, reason)
 		}
 	}
-	if len(failedChecks) > 0 {
-		cyclingPodReasons := make([]string, 0, len(failedChecks))
-		for _, result := range failedChecks {
-			for _, reason := range result.Details {
-				cyclingPodReasons = append(cyclingPodReasons, reason)
-			}
+
+	if len(reasonsToFail) > 0 {
+		msgTemplate := "There are %v Pods cycling between running an crashing"
+		if len(reasonsToFail) == 1 {
+			msgTemplate = "There is %v Pod cycling between running an crashing"
 		}
+
 		return CheckResult{
 			HasFailed:    true,
-			Message:      fmt.Sprintf("There are %d Pods which are cycling between running an crashing", len(failedChecks)),
-			Details:      cyclingPodReasons,
+			Message:      fmt.Sprintf(msgTemplate, len(reasonsToFail)),
+			Details:      reasonsToFail,
 			Instructions: "Fix the liveness probes",
 		}
 
 	}
+
 	return CheckResult{
 		Message: "No Pods are restart cycling",
 	}
+}
+
+func (n *Livelint) isRestartCycling(pod apiv1.Pod) (bool, string) {
+	events := n.getPodEvents(pod)
+
+	var lastUnhealthyEvent apiv1.Event
+	var lastUnhealthyMessage string
+	unhealthyEventFound := false
+	backoffEventsFound := false
+	for _, event := range events {
+		if event.Reason == "BackOff" && event.Count > 5 {
+			backoffEventsFound = true
+		}
+
+		if event.Reason == "Unhealthy" {
+			if event.LastTimestamp.After(lastUnhealthyEvent.LastTimestamp.Time) {
+				lastUnhealthyEvent = event
+				lastUnhealthyMessage = event.Message
+				unhealthyEventFound = true
+			}
+		}
+	}
+
+	if backoffEventsFound && unhealthyEventFound {
+		return true, lastUnhealthyMessage
+	}
+
+	return false, ""
 }

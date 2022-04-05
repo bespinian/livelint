@@ -12,9 +12,9 @@ func (n *Livelint) checkReadinessProbe(pods []apiv1.Pod) CheckResult {
 	failingProbesCount := 0
 	details := []string{}
 	for _, pod := range pods {
-		podEventList := n.getPodEvents(pod)
+		events := n.getPodEvents(pod)
 
-		for _, event := range podEventList.Items {
+		for _, event := range events {
 			if event.Reason == "Unhealthy" &&
 				strings.HasPrefix(event.Message, "Readiness probe failed:") &&
 				event.Count > 3 {

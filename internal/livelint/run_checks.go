@@ -14,7 +14,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	fmt.Printf("Checking deployment %s in namespace %s...\n", deploymentName, namespace)
 	fmt.Println("")
 
-	allPods, err := n.getPodsForDeployment(namespace, deploymentName)
+	allPods, err := n.getDeploymentPods(namespace, deploymentName)
 	if err != nil {
 		return fmt.Errorf("error getting Pods: %w", err)
 	}
@@ -206,7 +206,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	greenBold.Println("The Service is running correctly")
 	fmt.Println("")
 
-	ingressName := askUserForInput("Which ingress should expose this deployment?")
+	ingressName := askUserQuestion("Which ingress should expose this deployment?")
 
 	// Can you see a list of Backends?
 	result = n.checkCanSeeBackends(ingressName, namespace)
