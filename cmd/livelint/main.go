@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bespinian/livelint/pkg/livelint"
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/urfave/cli/v2"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
