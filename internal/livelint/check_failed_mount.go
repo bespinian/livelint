@@ -6,7 +6,8 @@ import (
 
 func (n *Livelint) checkFailedMount(pod apiv1.Pod) CheckResult {
 	events := n.getPodEvents(pod)
-	for _, event := range events.Items {
+
+	for _, event := range events {
 		if event.Reason == "FailedMount" {
 			return CheckResult{
 				HasFailed:    true,

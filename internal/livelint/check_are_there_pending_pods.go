@@ -7,9 +7,9 @@ import (
 )
 
 // checkAreTherePendingPods checks if there are PENDING pods with no further container status information.
-func checkAreTherePendingPods(allPods []apiv1.Pod) CheckResult {
+func checkAreTherePendingPods(pods []apiv1.Pod) CheckResult {
 	pendingPods := []apiv1.Pod{}
-	for _, pod := range allPods {
+	for _, pod := range pods {
 		if pod.Status.Phase == apiv1.PodPending &&
 			len(pod.Status.ContainerStatuses) < 1 {
 			pendingPods = append(pendingPods, pod)
@@ -22,9 +22,14 @@ func checkAreTherePendingPods(allPods []apiv1.Pod) CheckResult {
 			pendingPodNames = append(pendingPodNames, pod.ObjectMeta.Name)
 		}
 
+		msgTemplate := "There are %v PENDING Pods"
+		if len(pendingPods) == 1 {
+			msgTemplate = "There is %v PENDING Pod"
+		}
+
 		return CheckResult{
 			HasFailed: true,
-			Message:   fmt.Sprintf("There are %d PENDING Pods", len(pendingPods)),
+			Message:   fmt.Sprintf(msgTemplate, len(pendingPods)),
 			Details:   pendingPodNames,
 		}
 	}

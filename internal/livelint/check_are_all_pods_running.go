@@ -7,14 +7,14 @@ import (
 )
 
 // checkAreAllPodsRunning checks if all Pods are in phase RUNNING and all their containers are in state RUNNING.
-func checkAreAllPodsRunning(allPods []apiv1.Pod) CheckResult {
+func checkAreAllPodsRunning(pods []apiv1.Pod) CheckResult {
 	nonRunningPods := []apiv1.Pod{}
-	for _, pod := range allPods {
+	for _, pod := range pods {
 		if pod.Status.Phase != apiv1.PodRunning {
 			nonRunningPods = append(nonRunningPods, pod)
 		}
-		for _, containerStatus := range pod.Status.ContainerStatuses {
-			if containerStatus.State.Running == nil {
+		for _, cs := range pod.Status.ContainerStatuses {
+			if cs.State.Running == nil {
 				nonRunningPods = append(nonRunningPods, pod)
 			}
 		}
@@ -26,9 +26,14 @@ func checkAreAllPodsRunning(allPods []apiv1.Pod) CheckResult {
 			nonRunningPodNames = append(nonRunningPodNames, pod.ObjectMeta.Name)
 		}
 
+		msgTemplate := "There are %v Pods that are not RUNNING"
+		if len(nonRunningPods) == 1 {
+			msgTemplate = "There is %v Pod that isn't RUNNING"
+		}
+
 		return CheckResult{
 			HasFailed: true,
-			Message:   fmt.Sprintf("There are %d Pods that are not RUNNING", len(nonRunningPods)),
+			Message:   fmt.Sprintf(msgTemplate, len(nonRunningPods)),
 			Details:   nonRunningPodNames,
 		}
 	}

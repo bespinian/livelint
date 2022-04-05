@@ -13,13 +13,15 @@ import (
 func (n *Livelint) checkAreResourceQuotasHit(namespace string, deploymentName string) CheckResult {
 	replicaSets, err := n.k8s.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error when querying replica set for deployment %s in namespace %s: %w", deploymentName, namespace, err))
+		log.Fatal(fmt.Errorf("error querying replica set for deployment %s in namespace %s: %w", deploymentName, namespace, err))
 	}
+
 	for _, rs := range replicaSets.Items {
 		isPartOfDeployment := false
 		for _, ownerRef := range rs.ObjectMeta.OwnerReferences {
 			if ownerRef.Kind == "Deployment" && ownerRef.Name == deploymentName {
 				isPartOfDeployment = true
+				break
 			}
 		}
 		if !isPartOfDeployment {

@@ -6,8 +6,8 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-func checkPodHasIPAddressAssigned(allPods []apiv1.Pod) CheckResult {
-	for _, pod := range allPods {
+func checkPodHasIPAddressAssigned(pods []apiv1.Pod) CheckResult {
+	for _, pod := range pods {
 		if len(pod.Status.PodIP) == 0 {
 			return CheckResult{
 				HasFailed:    true,

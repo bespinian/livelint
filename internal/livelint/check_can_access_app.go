@@ -18,33 +18,32 @@ import (
 const connectionTimeoutSeconds = 2
 
 func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
-	failureDetails := []string{}
+	reasonsToFail := []string{}
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
 			for _, port := range container.Ports {
-				if !n.portForwardAndCheck(pod, port.ContainerPort) {
-					failureDetail := fmt.Sprintf("Pod %s, container %s has refused connection on port %d", pod.Name, container.Name, port.ContainerPort)
-					failureDetails = append(failureDetails, failureDetail)
+				if !n.canPortForward(pod, port.ContainerPort) {
+					reason := fmt.Sprintf("container %s of Pod %s has refused connection on port %v", container.Name, pod.Name, port.ContainerPort)
+					reasonsToFail = append(reasonsToFail, reason)
 				}
 			}
 		}
 	}
 
-	checkResult := CheckResult{
-		Message: "You can access the app",
-	}
-	if len(failureDetails) > 0 {
-		checkResult = CheckResult{
-			Message:   "One or more ports were not acessible",
+	if len(reasonsToFail) > 0 {
+		return CheckResult{
 			HasFailed: true,
-			Details:   failureDetails,
+			Message:   "One or more ports were not accessible",
+			Details:   reasonsToFail,
 		}
 	}
 
-	return checkResult
+	return CheckResult{
+		Message: "You can access the app",
+	}
 }
 
-func (n *Livelint) portForwardAndCheck(pod apiv1.Pod, port int32) bool {
+func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 	connectionSuccessful := true
 
 	// set up error handling used by port forwarding
