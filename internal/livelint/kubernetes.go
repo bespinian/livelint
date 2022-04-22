@@ -18,6 +18,9 @@ type apiv1EventInterface = apiv1.EventInterface
 //go:generate moq -out mock_apiv1_pvc.go -pkg livelint . apiv1PVCInterface
 type apiv1PVCInterface = apiv1.PersistentVolumeClaimInterface
 
+//go:generate moq -out mock_apiv1_service.go -pkg livelint . apiv1ServiceInterface
+type apiv1ServiceInterface = apiv1.ServiceInterface
+
 //go:generate moq -out mock_appsv1.go -pkg livelint . appsv1Interface
 type appsv1Interface = appsv1.AppsV1Interface
 
