@@ -211,7 +211,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Are the serviceName and servicePort matching the Service?
-		result = n.checkServiceNameAndPortMatchService()
+		result = n.checkServiceNameAndPortMatchService(ingressName, namespace, service)
 		n.tea.Send(stepMsg(result))
 
 		return nil
