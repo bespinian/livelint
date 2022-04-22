@@ -104,7 +104,12 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					result = n.checkDidInspectLogsAndFix()
 					n.tea.Send(stepMsg(result))
 					if result.HasFailed {
-						return nil
+						// Can you see the logs for the app?
+						result = n.checkContainerLogs(pod, nonRunningContainers[0].Name)
+						n.tea.Send(stepMsg(result))
+						if !result.HasFailed {
+							return nil
+						}
 					}
 
 					// Did you forget the CMD instruction in the Dockerfile?
@@ -117,25 +122,20 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 				}
 
 				// Is the pod status RunContainerError?
-				result = checkRunContainerError(pod)
+				result = n.checkIsContainerCreating(pod)
 				n.tea.Send(stepMsg(result))
 				if result.HasFailed {
-
 					// Is there any container running?
 					result = n.checkAreThereRunningContainers()
 					n.tea.Send(stepMsg(result))
-
-					return nil
-				}
-
-				// Can you see the logs for the app?
-				result = n.checkContainerLogs(pod, nonRunningContainers[0].Name)
-				n.tea.Send(stepMsg(result))
-				if !result.HasFailed {
 					return nil
 				}
 
 				result = n.checkFailedMount(pod)
+				n.tea.Send(stepMsg(result))
+
+				// Is there any container running?
+				result = n.checkAreThereRunningContainers()
 				n.tea.Send(stepMsg(result))
 
 				return nil
