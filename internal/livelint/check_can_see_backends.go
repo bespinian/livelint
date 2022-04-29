@@ -5,15 +5,11 @@ import (
 	"fmt"
 	"log"
 
+	netv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResult {
-	ingress, err := n.k8s.NetworkingV1().Ingresses(namespace).Get(context.Background(), ingressName, metav1.GetOptions{})
-	if err != nil {
-		log.Fatal(fmt.Errorf("error getting backends for Ingress %s in namespace %s: %w", ingressName, namespace, err))
-	}
-
+func (n *Livelint) checkCanSeeBackends(ingress netv1.Ingress, namespace string) CheckResult {
 	hasResourceBackends := false
 
 	for _, rules := range ingress.Spec.Rules {
@@ -25,7 +21,7 @@ func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResul
 			case path.Backend.Service != nil:
 				service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})
 				if err != nil {
-					log.Fatal(fmt.Errorf("error getting backends for Ingress %s in namespace %s: %w", ingressName, namespace, err))
+					log.Fatal(fmt.Errorf("error getting backends for Ingress %s in namespace %s: %w", ingress.Name, namespace, err))
 				}
 
 				hasPortMatch := false
@@ -68,12 +64,12 @@ func (n *Livelint) checkCanSeeBackends(ingressName, namespace string) CheckResul
 
 	if hasResourceBackends {
 		return CheckResult{
-			Message: "There are Backends available for this Ingress",
+			Message: fmt.Sprintf("There are Backends available for Ingress %s", ingress.Name),
 			Details: []string{"Some paths have a resource backend instead of a service. Ensure this backend is set up correctly."},
 		}
 	}
 
 	return CheckResult{
-		Message: "There are Backends available for this Ingress",
+		Message: fmt.Sprintf("There are Backends available for Ingress %s", ingress.Name),
 	}
 }
