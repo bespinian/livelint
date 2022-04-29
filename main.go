@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/urfave/cli/v2"
@@ -68,12 +69,13 @@ func main() {
 				Action: func(c *cli.Context) error {
 					args := c.Args()
 					go func() {
-						runChecksErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
-						if runChecksErr != nil {
-							log.Fatal(fmt.Errorf("error running checks: %w", runChecksErr))
-						}
+						ll.Start()
 					}()
-					ll.Start()
+					runChecksErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
+					if runChecksErr != nil {
+						log.Fatal(fmt.Errorf("error running checks: %w", runChecksErr))
+					}
+					time.Sleep(1 * time.Second)
 					return nil
 				},
 			},
