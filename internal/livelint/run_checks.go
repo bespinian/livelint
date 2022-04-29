@@ -14,7 +14,12 @@ func (n *Livelint) Start() {
 
 // RunChecks checks for potential issues with the deployment.
 func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
-	n.tea.Send(contextMsg(fmt.Sprintf("Checking deployment %s in namespace %s", deploymentName, namespace)))
+	// nolint:govet
+	statusMsg := initalizeStatus(fmt.Sprintf("Checking deployment %s in namespace %s", deploymentName, namespace))
+	n.tea.Send(statusMsg)
+
+	statusMsg.StartCheck("Checking that pods are running correctly")
+	n.tea.Send(statusMsg)
 
 	allPods, err := n.getDeploymentPods(namespace, deploymentName)
 	if err != nil {
@@ -23,47 +28,58 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	// Are you hitting the ResourceQuota limits ?
 	result := n.checkAreResourceQuotasHit(namespace, deploymentName)
-	n.tea.Send(stepMsg(result))
+
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
+
 	if result.HasFailed {
 		return nil
 	}
 
 	// Is there any PENDING Pod?
 	result = checkAreTherePendingPods(allPods)
-	n.tea.Send(stepMsg(result))
+
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
+
 	if result.HasFailed {
 
 		// Is the cluster full?
 		result = n.checkIsClusterFull(allPods)
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 		if result.HasFailed {
 			return nil
 		}
 
 		// Are you mounting a PENDING PersistentVolumeClaim?
 		result = n.checkIsMountingPendingPVC(allPods, namespace)
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 		if result.HasFailed {
 			return nil
 		}
 
 		// Is the Pod assigned to the Node?
 		result = checkIsPodAssignedToNode(allPods)
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 
 		return nil
 	}
 
 	// Are any Pods restart cycling
 	result = n.checkAreThereRestartCyclingPods(allPods)
-	n.tea.Send(stepMsg(result))
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
 	if result.HasFailed {
 		return nil
 	}
 
 	// Are the Pods RUNNING?
 	result = checkAreAllPodsRunning(allPods)
-	n.tea.Send(stepMsg(result))
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
 	if result.HasFailed {
 		for _, pod := range allPods {
 			nonRunningContainers := getNonRunningContainers(pod)
@@ -71,42 +87,49 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 				// Is the Pod status ImagePullBackOff?
 				result = checkImagePullErrors(pod, nonRunningContainers[0].Name)
-				n.tea.Send(stepMsg(result))
+				statusMsg.AddCheckResult(result)
+				n.tea.Send(statusMsg)
 				if result.HasFailed {
 
 					// Is the name of the image correct?
 					result = n.checkIsImageNameCorrect()
-					n.tea.Send(stepMsg(result))
+					statusMsg.AddCheckResult(result)
+					n.tea.Send(statusMsg)
 					if result.HasFailed {
 						return nil
 					}
 
 					// Is the image tag valid? Does it exist?
 					result = n.checkIsImageTagValid()
-					n.tea.Send(stepMsg(result))
+					statusMsg.AddCheckResult(result)
+					n.tea.Send(statusMsg)
 					if result.HasFailed {
 						return nil
 					}
 
 					// Are you pulling images from a private registry?
 					result = n.checkIsPullingFromPrivateRegistry()
-					n.tea.Send(stepMsg(result))
+					statusMsg.AddCheckResult(result)
+					n.tea.Send(statusMsg)
 
 					return nil
 				}
 
 				// Is the Pod status CrashLoopBackOff?
 				result = checkCrashLoopBackOff(pod, nonRunningContainers[0].Name)
-				n.tea.Send(stepMsg(result))
+				statusMsg.AddCheckResult(result)
+				n.tea.Send(statusMsg)
 				if result.HasFailed {
 
 					// Did you inspect the logs and fix the crashing app?
 					result = n.checkDidInspectLogsAndFix()
-					n.tea.Send(stepMsg(result))
+					statusMsg.AddCheckResult(result)
+					n.tea.Send(statusMsg)
 					if result.HasFailed {
 						// Can you see the logs for the app?
 						result = n.checkContainerLogs(pod, nonRunningContainers[0].Name)
-						n.tea.Send(stepMsg(result))
+						statusMsg.AddCheckResult(result)
+						n.tea.Send(statusMsg)
 						if !result.HasFailed {
 							return nil
 						}
@@ -123,20 +146,24 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 				// Is the pod status RunContainerError?
 				result = checkIsContainerCreating(pod)
-				n.tea.Send(stepMsg(result))
+				statusMsg.AddCheckResult(result)
+				n.tea.Send(statusMsg)
 				if result.HasFailed {
 					// Is there any container running?
 					result = checkAreThereRunningContainers(pod)
-					n.tea.Send(stepMsg(result))
+					statusMsg.AddCheckResult(result)
+					n.tea.Send(statusMsg)
 					return nil
 				}
 
 				result = n.checkFailedMount(pod)
-				n.tea.Send(stepMsg(result))
+				statusMsg.AddCheckResult(result)
+				n.tea.Send(statusMsg)
 
 				// Is there any container running?
 				result = checkAreThereRunningContainers(pod)
-				n.tea.Send(stepMsg(result))
+				statusMsg.AddCheckResult(result)
+				n.tea.Send(statusMsg)
 
 				return nil
 			}
@@ -145,29 +172,37 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	// Are the Pods READY?
 	result = checkAreAllPodsReady(allPods)
-	n.tea.Send(stepMsg(result))
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
 	if result.HasFailed {
 
 		// Is the Readiness probe failing?
 		result = n.checkReadinessProbe(allPods)
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 
 		return nil
 	}
 
 	// Can you access the app?
 	result = n.checkCanAccessApp(allPods)
-	n.tea.Send(stepMsg(result))
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
 	if result.HasFailed {
 
 		// Is the port exposed by container correct and listing on 0.0.0.0?
 		result = n.checkIsPortExposedCorrectly()
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 
 		return nil
 	}
 
-	n.tea.Send(summaryMsg("Pods are running correctly"))
+	statusMsg.CompleteCheck(summaryMsg{text: "Pods are running correctly", kind: success})
+	n.tea.Send(statusMsg)
+
+	statusMsg.StartCheck("Checking service")
+	n.tea.Send(statusMsg)
 
 	allServices, partlyMatchingServices, err := n.getServices(namespace, deploymentName)
 	if err != nil {
@@ -181,7 +216,8 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 			HasFailed: true,
 			Message:   "No services match the deployment's matchSelector.",
 		}
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 		return nil
 	}
 
@@ -189,30 +225,37 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 		// Can you see a list of endpoints?
 		result = n.checkCanSeeEndpoints(service.Name, namespace)
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 		if result.HasFailed {
 			// Does the Pod have an IP address assigned?
 			result = checkPodHasIPAddressAssigned(allPods)
-			n.tea.Send(stepMsg(result))
+			statusMsg.AddCheckResult(result)
+			n.tea.Send(statusMsg)
 
 			return nil
 		}
 
 		// Can you visit the app?
 		result = n.checkCanVisitServiceApp(service)
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 		if result.HasFailed {
 
 			// Is the targetPort on the Service matching the containerPort in the Pod?
 			result = n.checkTargetPortMatchesContainerPort(allPods, service.Name, namespace)
-			n.tea.Send(stepMsg(result))
+			statusMsg.AddCheckResult(result)
+			n.tea.Send(statusMsg)
 
 			return nil
 		}
 
-		n.tea.Send(summaryMsg(fmt.Sprintf("The Service %s is running correctly", service.Name)))
+		statusMsg.CompleteCheck(summaryMsg{text: fmt.Sprintf("The Service %s is running correctly", service.Name), kind: success})
+		n.tea.Send(statusMsg)
 	}
 
+	statusMsg.StartCheck("Checking ingress")
+	n.tea.Send(statusMsg)
 	ingresses, err := n.getIngressesFromServices(namespace, allServices)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error getting ingresses in namespace %s: %w", namespace, err))
@@ -223,36 +266,42 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 			HasFailed: true,
 			Message:   "No ingresses match any of the previously detected services names and ports.",
 		}
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 		return nil
 	}
 
 	for _, ingress := range ingresses {
 		// Can you see a list of Backends?
 		result = n.checkCanSeeBackends(ingress, namespace)
-		n.tea.Send(stepMsg(result))
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
 		if result.HasFailed {
 			return nil
 		}
 
-		n.tea.Send((summaryMsg(fmt.Sprintf("The Ingress %s is set up correctly", ingress.Name))))
+		statusMsg.CompleteCheck(summaryMsg{text: fmt.Sprintf("The Ingress %s is set up correctly", ingress.Name), kind: success})
+		n.tea.Send(statusMsg)
 	}
 
 	// Can you visit the app?
+	statusMsg.StartCheck("Checking app connectivity")
+	n.tea.Send(statusMsg)
 	result = n.checkCanVisitIngressApp()
-	n.tea.Send(stepMsg(result))
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
 	if result.HasFailed {
 		return nil
 	}
-
-	n.tea.Send(summaryMsg("The Ingresses are running correctly"))
 
 	// The app should be running. Can you visit it from the public internet?
 	result = n.checkCanVisitPublicApp()
-	n.tea.Send(stepMsg(result))
+	statusMsg.AddCheckResult(result)
+	n.tea.Send(statusMsg)
 	if result.HasFailed {
 		return nil
 	}
-	n.tea.Send(summaryMsg("All checks finished"))
+	statusMsg.CompleteCheck(summaryMsg{text: "The Ingresses are running correctly", kind: success})
+	n.tea.Send(statusMsg)
 	return nil
 }
