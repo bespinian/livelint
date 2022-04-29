@@ -4,14 +4,22 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
+const (
+	width               = 120
+	paddingTopBottom    = 2
+	listHeight          = 8
+	listPaddingTop      = 1
+	headerMarginTop     = 1
+	listItemPaddingLeft = 2
+)
+
 type model struct {
-	context           string
-	messages          []string
 	error             error
 	choice            chan int
 	list              list.Model
@@ -22,17 +30,21 @@ type model struct {
 	yesNoInputVisible bool
 	yesNoInput        list.Model
 	YesNoResponse     chan int
+	spinnerVisible    bool
+	spinner           spinner.Model
+	status            statusMsg
 }
 
 func initialModel() model {
 	return model{
-		messages:          []string{},
 		list:              list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0),
 		textInput:         textinput.New(),
 		yesNoInput:        list.New([]list.Item{listItem{title: "yes"}, listItem{title: "no"}}, list.NewDefaultDelegate(), 0, 0),
 		listVisible:       false,
 		textInputVisible:  false,
 		yesNoInputVisible: false,
+		spinnerVisible:    false,
+		spinner:           spinner.New(),
 	}
 }
 
@@ -41,51 +53,20 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) View() string {
-	const width = 72
-	const paddingTopBottom = 2
-
-	titleStyle := lipgloss.NewStyle().
-		Width(width).
-		MarginTop(1).
-		Align(lipgloss.Center).
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("#485fc7")).
-		BorderTop(true).
-		BorderLeft(true).
-		BorderRight(true).
-		Padding(1, 0).
-		Bold(true)
-
-	contextStyle := lipgloss.NewStyle().
-		Width(width).
-		BorderTop(true).
-		BorderLeft(true).
-		BorderRight(true).
-		BorderBottom(true).
-		BorderForeground(lipgloss.Color("#485fc7")).
-		BorderStyle(lipgloss.NormalBorder()).
-		Padding(1, 1).
-		Foreground(lipgloss.Color("202"))
-
 	listStyle := lipgloss.NewStyle().
 		Width(width).
 		Margin(1, paddingTopBottom)
 
+	m.spinner.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("#3273DC"))
+	m.spinner.Spinner = spinner.Pulse
+
 	doc := strings.Builder{}
-	header := titleStyle.Render("livelint")
 
-	if len(m.context) > 0 {
-		context := contextStyle.Render(m.context)
-		header = lipgloss.JoinVertical(lipgloss.Center, header, context)
+	if len(m.status.context) > 0 {
+		doc.WriteString(m.assembleHeaderBar())
 	}
-	doc.WriteString(header + "\n")
 
-	stepStyle := lipgloss.NewStyle().Width(width).Padding(0, paddingTopBottom)
-
-	for _, msg := range m.messages {
-		step := stepStyle.Render(msg)
-		doc.WriteString(step + "\n")
-	}
+	doc.WriteString(m.assembleLists() + "\n")
 
 	if m.listVisible {
 		listStr := listStyle.Render(m.list.View())
@@ -98,6 +79,10 @@ func (m model) View() string {
 	if m.yesNoInputVisible {
 		listStr := listStyle.Render(m.yesNoInput.View())
 		doc.WriteString(listStr + "\n")
+	}
+	if m.spinnerVisible {
+		spinnerStr := listStyle.Render(m.spinner.View())
+		doc.WriteString(spinnerStr + "\n")
 	}
 	return doc.String()
 }
@@ -132,17 +117,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-	case stepMsg:
-		m.messages = append(m.messages, msg.Message)
-		return m, nil
-
-	case contextMsg:
-		m.context = string(msg)
-		return m, nil
-
-	case summaryMsg:
-		m.messages = append(m.messages, string(msg))
-		return m, nil
+	case statusMsg:
+		m.status = msg
 
 	case listChoiceMsg:
 		m.list = list.New(getListItems(msg.items), list.NewDefaultDelegate(), 0, 0)
@@ -170,21 +146,35 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.error = msg.err
 		return m, tea.Quit
+
+	case showSpinnerMsg:
+		if msg.showing {
+			m.spinnerVisible = true
+			return m, m.spinner.Tick
+		}
+		m.spinnerVisible = false
+		return m, nil
+
 	}
 
 	var cmd tea.Cmd
 	m.list, _ = m.list.Update(msg)
 	m.yesNoInput, _ = m.yesNoInput.Update(msg)
-	m.textInput, cmd = m.textInput.Update(msg)
-
+	m.textInput, _ = m.textInput.Update(msg)
+	m.spinner, cmd = m.spinner.Update(msg)
 	return m, cmd
 }
 
-type contextMsg string
+type summaryType int
 
-type stepMsg CheckResult
+const (
+	success summaryType = iota
+)
 
-type summaryMsg string
+type summaryMsg struct {
+	text string
+	kind summaryType
+}
 
 type listChoiceMsg struct {
 	title  string
@@ -206,6 +196,37 @@ type errMsg struct {
 	err error
 }
 
+type statusMsg struct {
+	context string
+	checks  []check
+}
+
+type check struct {
+	title        string
+	checkResults []CheckResult
+	outcome      summaryMsg
+}
+
+func initalizeStatus(context string) statusMsg {
+	return statusMsg{context: context, checks: []check{}}
+}
+
+func (s *statusMsg) StartCheck(title string) {
+	s.checks = append(s.checks, check{title: title, checkResults: []CheckResult{}})
+}
+
+func (s *statusMsg) AddCheckResult(checkResult CheckResult) {
+	s.checks[len(s.checks)-1].checkResults = append(s.checks[len(s.checks)-1].checkResults, checkResult)
+}
+
+func (s *statusMsg) CompleteCheck(outcome summaryMsg) {
+	s.checks[len(s.checks)-1].outcome = outcome
+}
+
+type showSpinnerMsg struct {
+	showing bool
+}
+
 type listItem struct {
 	title string
 }
@@ -220,4 +241,103 @@ func getListItems(items []string) []list.Item {
 		result = append(result, listItem{title: itemString})
 	}
 	return result
+}
+
+func mapStrings[T interface{}](items []T, f func(item T) string) []string {
+	result := []string{}
+	for _, item := range items {
+		result = append(result, f(item))
+	}
+	return result
+}
+
+func (m model) assembleLists() string {
+	var (
+		subtle = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
+		list   = lipgloss.NewStyle().
+			BorderForeground(subtle).
+			Height(listHeight).
+			Width(width).
+			PaddingTop(listPaddingTop)
+
+		listHeader = lipgloss.NewStyle().
+				BorderStyle(lipgloss.NormalBorder()).
+				BorderBottom(true).
+				BorderForeground(subtle).
+				PaddingTop(listPaddingTop).
+				Render
+		good      = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
+		checkMark = lipgloss.NewStyle().SetString("✔").
+				Foreground(good).
+				PaddingRight(1).
+				String()
+
+		bad   = lipgloss.AdaptiveColor{Light: "#EA9999", Dark: "#E06666"}
+		cross = lipgloss.NewStyle().SetString("✘").
+			Foreground(bad).
+			PaddingRight(1).
+			String()
+
+		listItem        = lipgloss.NewStyle().PaddingLeft(listItemPaddingLeft)
+		listItemSuccess = func(s string) string {
+			return checkMark + listItem.Copy().Render(s)
+		}
+		listItemError = func(s string) string { return cross + listItem.Copy().Render(s) }
+	)
+
+	summary := []string{}
+	for _, check := range m.status.checks {
+
+		summary = append(summary, listHeader(check.title))
+		summary = append(summary, mapStrings(check.checkResults, func(c CheckResult) string {
+			if c.HasFailed {
+				return listItemError(c.Message)
+			}
+			return listItemSuccess(c.Message)
+		})...)
+	}
+
+	return list.Render(
+		lipgloss.JoinVertical(lipgloss.Left,
+			summary...,
+		),
+	)
+}
+
+func (m model) assembleHeaderBar() string {
+	var (
+		statusNugget = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#FFFDF5")).
+				Padding(0, 1)
+
+		statusBarStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
+				Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"})
+
+		statusStyle = lipgloss.NewStyle().
+				Inherit(statusBarStyle).
+				Foreground(lipgloss.Color("#FFFDF5")).
+				Background(lipgloss.Color("#3273DC")).
+				Padding(0, 1).
+				MarginRight(1)
+
+		modeStyle = statusNugget.Copy().
+				Background(lipgloss.Color("#3273DC")).
+				Align(lipgloss.Right)
+
+		statusText = lipgloss.NewStyle().Inherit(statusBarStyle)
+	)
+
+	w := lipgloss.Width
+	statusKey := statusStyle.Render("livelint")
+	encoding := modeStyle.Render("verbose")
+	statusVal := statusText.Copy().
+		Width(width - w(statusKey) - w(encoding)).
+		Render(m.status.context)
+
+	return statusBarStyle.Width(width).MarginTop(headerMarginTop).Render(lipgloss.JoinHorizontal(lipgloss.Top,
+		statusKey,
+		statusVal,
+		encoding,
+	))
 }

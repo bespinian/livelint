@@ -18,7 +18,7 @@ func TestChecksModelInit(t *testing.T) {
 		is.Equal(m.listVisible, false)
 		is.Equal(m.textInputVisible, false)
 		is.Equal(m.yesNoInputVisible, false)
-		is.Equal(len(m.messages), 0)
+		is.Equal(m.status.context, "")
 	})
 }
 
@@ -42,34 +42,12 @@ func TestChecksModelUpdate(t *testing.T) {
 		{
 			it:         "updates each step's correctly",
 			inputModel: initialModel(),
-			inputMsg:   stepMsg{Message: "test message"},
+			inputMsg:   statusMsg{context: "Test context", checks: []check{{title: "Test check 1", checkResults: []CheckResult{{Message: "Msg 1", HasFailed: true}}}}},
 			expectedModel: (func() model {
 				m := initialModel()
-				m.messages = []string{"test message"}
+				m.status = statusMsg{context: "Test context", checks: []check{{title: "Test check 1", checkResults: []CheckResult{{Message: "Msg 1", HasFailed: true}}}}}
 				return m
 			})(),
-		},
-		{
-			it:         "updates context message correctly",
-			inputModel: initialModel(),
-			inputMsg:   contextMsg("test context message"),
-			expectedModel: (func() model {
-				m := initialModel()
-				m.context = "test context message"
-				return m
-			})(),
-			expectedCmd: nil,
-		},
-		{
-			it:         "updates summary message correctly",
-			inputModel: initialModel(),
-			inputMsg:   summaryMsg("test summary message"),
-			expectedModel: (func() model {
-				m := initialModel()
-				m.messages = []string{"test summary message"}
-				return m
-			})(),
-			expectedCmd: nil,
 		},
 		{
 			it:         "sets list choices correctly",
@@ -136,10 +114,14 @@ func TestChecksModelUpdate(t *testing.T) {
 			if resultModel.yesNoInputVisible {
 				is.Equal(resultModel.yesNoInput.Title, tc.expectedModel.yesNoInput.Title) // yes / no input title matches
 			}
-			is.Equal(resultModel.context, tc.expectedModel.context)                     // context text matches
-			is.Equal(resultModel.error, tc.expectedModel.error)                         // error object matches
-			is.True(stringSubsequence(resultModel.messages, tc.expectedModel.messages)) // all expected messages present
-			is.True(stringSubsequence(tc.expectedModel.messages, resultModel.messages)) // only expected messages present
+			is.Equal(resultModel.status.context, tc.expectedModel.status.context)                                                                                       // context text matches
+			is.Equal(resultModel.error, tc.expectedModel.error)                                                                                                         // error object matches
+			is.True(stringSubsequence(extractStrings(resultModel.status.checks, getCheckTitle, is), extractStrings(tc.expectedModel.status.checks, getCheckTitle, is))) // all expected checks present
+			is.True(stringSubsequence(extractStrings(tc.expectedModel.status.checks, getCheckTitle, is), extractStrings(resultModel.status.checks, getCheckTitle, is))) // only expected checks present
+			for i, check := range resultModel.status.checks {
+				is.True(stringSubsequence(extractStrings(check.checkResults, getCheckResultTitle, is), extractStrings(tc.expectedModel.status.checks[i].checkResults, getCheckResultTitle, is))) // all expected checks have all expected results
+				is.True(stringSubsequence(extractStrings(tc.expectedModel.status.checks[i].checkResults, getCheckResultTitle, is), extractStrings(check.checkResults, getCheckResultTitle, is))) // all expected checks have only the expected results
+			}
 		})
 	}
 }
@@ -177,4 +159,12 @@ func getListItemTitle(item list.Item) (string, bool) {
 		return "", ok
 	}
 	return li.Title(), ok
+}
+
+func getCheckTitle(check check) (string, bool) {
+	return check.title, true
+}
+
+func getCheckResultTitle(result CheckResult) (string, bool) {
+	return result.Message, true
 }
