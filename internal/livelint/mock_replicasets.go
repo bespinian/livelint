@@ -5,8 +5,6 @@ package livelint
 
 import (
 	"context"
-	"sync"
-
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/autoscaling/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/watch"
 	configappsv1 "k8s.io/client-go/applyconfigurations/apps/v1"
 	autoscalingv1 "k8s.io/client-go/applyconfigurations/autoscaling/v1"
+	"sync"
 )
 
 // Ensure, that replicaSetInterfaceMock does implement replicaSetInterface.
@@ -26,13 +25,13 @@ var _ replicaSetInterface = &replicaSetInterfaceMock{}
 //
 // 		// make and configure a mocked replicaSetInterface
 // 		mockedreplicaSetInterface := &replicaSetInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, replicaSet *appsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
+// 			ApplyFunc: func(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
 // 				panic("mock out the Apply method")
 // 			},
 // 			ApplyScaleFunc: func(ctx context.Context, replicaSetName string, scale *autoscalingv1.ScaleApplyConfiguration, opts metav1.ApplyOptions) (*v1.Scale, error) {
 // 				panic("mock out the ApplyScale method")
 // 			},
-// 			ApplyStatusFunc: func(ctx context.Context, replicaSet *appsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
+// 			ApplyStatusFunc: func(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
 // 				panic("mock out the ApplyStatus method")
 // 			},
 // 			CreateFunc: func(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.CreateOptions) (*appsv1.ReplicaSet, error) {
