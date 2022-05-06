@@ -126,7 +126,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 				n.tea.Send(stepMsg(result))
 				if result.HasFailed {
 					// Is there any container running?
-					result = n.checkAreThereRunningContainers()
+					result = checkAreThereRunningContainers(pod)
 					n.tea.Send(stepMsg(result))
 					return nil
 				}
@@ -135,7 +135,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 				n.tea.Send(stepMsg(result))
 
 				// Is there any container running?
-				result = n.checkAreThereRunningContainers()
+				result = checkAreThereRunningContainers(pod)
 				n.tea.Send(stepMsg(result))
 
 				return nil
