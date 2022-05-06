@@ -12,11 +12,11 @@ import (
 func (n *Livelint) checkCanSeeBackends(ingress netv1.Ingress, namespace string) CheckResult {
 	hasResourceBackends := false
 
-	for _, rules := range ingress.Spec.Rules {
-		if rules.HTTP == nil {
+	for _, rule := range ingress.Spec.Rules {
+		if rule.HTTP == nil {
 			continue
 		}
-		for _, path := range rules.HTTP.Paths {
+		for _, path := range rule.HTTP.Paths {
 			switch {
 			case path.Backend.Service != nil:
 				service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})

@@ -23,3 +23,9 @@ type appsv1Interface = appsv1.AppsV1Interface
 
 //go:generate moq -out mock_replicasets.go -pkg livelint . replicaSetInterface
 type replicaSetInterface = appsv1.ReplicaSetInterface
+
+//go:generate moq -out mock_apiv1_service.go -pkg livelint . apiv1ServiceInterface
+type apiv1ServiceInterface = apiv1.ServiceInterface
+
+//go:generate moq -out mock_apiv1_endpoints.go -pkg livelint . apiv1EndpointsInterface
+type apiv1EndpointsInterface = apiv1.EndpointsInterface
