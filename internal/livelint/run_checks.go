@@ -122,7 +122,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 				}
 
 				// Is the pod status RunContainerError?
-				result = n.checkIsContainerCreating(pod)
+				result = checkIsContainerCreating(pod)
 				n.tea.Send(stepMsg(result))
 				if result.HasFailed {
 					// Is there any container running?
