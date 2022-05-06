@@ -1,18 +1,22 @@
 package livelint
 
-func (n *Livelint) checkAreThereRunningContainers() CheckResult {
-	yes := n.askUserYesOrNo("Is there any container RUNNING?")
+import (
+	apiv1 "k8s.io/api/core/v1"
+)
 
-	if !yes {
-		return CheckResult{
-			HasFailed:    true,
-			Message:      "There are no containers RUNNING",
-			Instructions: "Consult StackOverflow",
+func checkAreThereRunningContainers(pod apiv1.Pod) CheckResult {
+	for _, pod := range append(pod.Status.ContainerStatuses, pod.Status.InitContainerStatuses...) {
+		if pod.State.Running != nil {
+			return CheckResult{
+				Message:      "There are containers RUNNING",
+				Instructions: "The issue is with the node-lifecycle controller",
+			}
 		}
 	}
 
 	return CheckResult{
-		Message:      "There are containers RUNNING",
-		Instructions: "The issue is with the node-lifecycle controller",
+		HasFailed:    true,
+		Message:      "There are no containers RUNNING",
+		Instructions: "Consult StackOverflow",
 	}
 }
