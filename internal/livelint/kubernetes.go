@@ -29,3 +29,9 @@ type apiv1ServiceInterface = apiv1.ServiceInterface
 
 //go:generate moq -out mock_apiv1_endpoints.go -pkg livelint . apiv1EndpointsInterface
 type apiv1EndpointsInterface = apiv1.EndpointsInterface
+
+//go:generate moq -out mock_apiv1_pod.go -pkg livelint . apiv1PodInterface
+type apiv1PodInterface = apiv1.PodInterface
+
+//go:generate moq -out mock_apiv1_node.go -pkg livelint . apiv1NodeInterface
+type apiv1NodeInterface = apiv1.NodeInterface
