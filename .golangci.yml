@@ -16,6 +16,7 @@ linters:
     - maligned
     - nestif
     - nlreturn
+    - nolintlint
     - scopelint
     - varnamelen
     - whitespace
