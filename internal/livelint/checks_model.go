@@ -10,7 +10,6 @@ import (
 )
 
 type model struct {
-	isVerbose         bool
 	context           string
 	messages          []string
 	error             error

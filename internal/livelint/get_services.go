@@ -50,11 +50,3 @@ func (n *Livelint) getServices(namespace, deploymentName string) ([]apiv1.Servic
 	}
 	return exactlyMatchingServices, supersetMatchingServices, nil
 }
-
-func getServiceNames(services []apiv1.Service) []string {
-	result := []string{}
-	for _, service := range services {
-		result = append(result, service.Name)
-	}
-	return result
-}
