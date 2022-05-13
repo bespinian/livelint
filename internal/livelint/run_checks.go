@@ -179,7 +179,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if len(allServices) < 1 {
 		result = CheckResult{
 			HasFailed: true,
-			Message:   fmt.Sprintf("No services match the deployment's matchSelector."),
+			Message:   "No services match the deployment's matchSelector.",
 		}
 		n.tea.Send(stepMsg(result))
 		return nil
@@ -221,7 +221,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if len(ingresses) < 1 {
 		result = CheckResult{
 			HasFailed: true,
-			Message:   fmt.Sprintf("No ingresses match any of the previously detected services names and ports."),
+			Message:   "No ingresses match any of the previously detected services names and ports.",
 		}
 		n.tea.Send(stepMsg(result))
 		return nil
