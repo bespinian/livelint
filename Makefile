@@ -1,10 +1,10 @@
 .PHONY: build
 all:
-	go build -o bin/livelint ./cmd/livelint
+	go build -o bin/livelint
 
 .PHONY: install
 install:
-	go install ./cmd/livelint
+	go install
 
 .PHONY: lint
 lint:
