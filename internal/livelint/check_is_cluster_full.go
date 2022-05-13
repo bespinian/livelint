@@ -62,7 +62,7 @@ func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 		if err != nil {
 			return CheckResult{
 				HasFailed: true,
-				Message:   "Pod may have insufficient cpu or memory. Node resource check failed. Verify and resize pod requested resources or provisiona bigger cluster",
+				Message:   "Pod may have insufficient cpu or memory. Node resource check failed. Verify and resize pod requested resources or provision a bigger cluster",
 				Details:   []string{err.Error()},
 			}
 		}
