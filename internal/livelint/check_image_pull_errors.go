@@ -13,8 +13,8 @@ func checkImagePullErrors(pod apiv1.Pod, containerName string) CheckResult {
 		}
 
 		if containerStatus.State.Waiting != nil &&
-			containerStatus.State.Waiting.Reason == "ErrImagePull" ||
-			containerStatus.State.Waiting.Reason == "ImagePullBackOff" {
+			(containerStatus.State.Waiting.Reason == "ErrImagePull" ||
+				containerStatus.State.Waiting.Reason == "ImagePullBackOff") {
 			return CheckResult{
 				HasFailed: true,
 				Message:   fmt.Sprintf("The Pod is in status %s", containerStatus.State.Waiting.Reason),
