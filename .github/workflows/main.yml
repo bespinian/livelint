@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   verify:
+    name: Verify
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
