@@ -2,7 +2,7 @@ package livelint
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -14,7 +14,7 @@ import (
 	fake "k8s.io/client-go/rest/fake"
 )
 
-type LogResponse struct {
+type logResponse struct {
 	returnErr  bool
 	statusCode int
 	logLines   []string
@@ -26,8 +26,8 @@ func TestCheckContainerLogs(t *testing.T) {
 	cases := []struct {
 		it                    string
 		pod                   apiv1.Pod
-		logResponse           LogResponse
-		previousLogResponse   LogResponse
+		logResponse           logResponse
+		previousLogResponse   logResponse
 		expectRequestPrevious bool
 		expectedToFail        bool
 		expectedMessage       string
@@ -35,7 +35,7 @@ func TestCheckContainerLogs(t *testing.T) {
 		{
 			it:  "succeeds if it can pull logs for a running container",
 			pod: apiv1.Pod{},
-			logResponse: LogResponse{
+			logResponse: logResponse{
 				returnErr:  false,
 				statusCode: 200,
 				logLines:   []string{"hello", "world"},
@@ -47,12 +47,12 @@ func TestCheckContainerLogs(t *testing.T) {
 		{
 			it:  "succeeds if it can pull logs for a previously running container",
 			pod: apiv1.Pod{},
-			logResponse: LogResponse{
+			logResponse: logResponse{
 				returnErr:  true,
 				statusCode: 200,
 				logLines:   []string{},
 			},
-			previousLogResponse: LogResponse{
+			previousLogResponse: logResponse{
 				returnErr:  false,
 				statusCode: 200,
 				logLines:   []string{"hello", "world"},
@@ -64,7 +64,7 @@ func TestCheckContainerLogs(t *testing.T) {
 		{
 			it:  "fails if the logs are empty",
 			pod: apiv1.Pod{},
-			logResponse: LogResponse{
+			logResponse: logResponse{
 				returnErr:  false,
 				statusCode: 200,
 				logLines:   []string{""},
@@ -76,12 +76,12 @@ func TestCheckContainerLogs(t *testing.T) {
 		{
 			it:  "fails if the logs cannot be retrieved from a running or previously running container",
 			pod: apiv1.Pod{},
-			logResponse: LogResponse{
+			logResponse: logResponse{
 				returnErr:  true,
 				statusCode: 200,
 				logLines:   []string{""},
 			},
-			previousLogResponse: LogResponse{
+			previousLogResponse: logResponse{
 				returnErr:  true,
 				statusCode: 200,
 				logLines:   []string{""},
@@ -108,20 +108,20 @@ func TestCheckContainerLogs(t *testing.T) {
 								GetLogsFunc: func(name string, opts *apiv1.PodLogOptions) *restclient.Request {
 									header := http.Header{}
 									header.Set("Content-Type", "text/plain")
-									logResponse := tc.logResponse
+									lr := tc.logResponse
 									if opts.Previous {
 										requestedPrevious = true
-										logResponse = tc.previousLogResponse
+										lr = tc.previousLogResponse
 									}
 
 									client := fake.CreateHTTPClient(func(r *http.Request) (*http.Response, error) {
-										if logResponse.returnErr {
+										if lr.returnErr {
 											return nil, http.ErrServerClosed
 										}
 										return &http.Response{
-											StatusCode: logResponse.statusCode,
+											StatusCode: lr.statusCode,
 											Header:     header,
-											Body:       ioutil.NopCloser(bytes.NewReader([]byte(strings.Join(logResponse.logLines, "\n")))),
+											Body:       io.NopCloser(bytes.NewReader([]byte(strings.Join(lr.logLines, "\n")))),
 										}, nil
 									})
 									req := restclient.RESTClient{
@@ -142,14 +142,14 @@ func TestCheckContainerLogs(t *testing.T) {
 			is.Equal(requestedPrevious, tc.expectRequestPrevious)
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 			if !result.HasFailed /* && !tc.expectedToFail && requestedPrevious == tc.expectRequestPrevious */ {
-				var logResponse LogResponse
+				var lr logResponse
 				if tc.expectRequestPrevious {
-					logResponse = tc.previousLogResponse
+					lr = tc.previousLogResponse
 				} else {
-					logResponse = tc.logResponse
+					lr = tc.logResponse
 				}
-				is.Equal(len(result.Details), len(logResponse.logLines))
-				for i, line := range logResponse.logLines {
+				is.Equal(len(result.Details), len(lr.logLines))
+				for i, line := range lr.logLines {
 					is.Equal(result.Details[i], line)
 				}
 			}
