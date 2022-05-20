@@ -48,7 +48,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		}
 
 		// Is the Pod assigned to the Node?
-		result = n.checkIsPodAssignedToNode()
+		result = checkIsPodAssignedToNode(allPods)
 		n.tea.Send(stepMsg(result))
 
 		return nil
