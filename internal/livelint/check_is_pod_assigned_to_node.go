@@ -7,7 +7,6 @@ import (
 )
 
 func checkIsPodAssignedToNode(allPods []apiv1.Pod) CheckResult {
-
 	for _, pod := range allPods {
 		if len(pod.Spec.NodeName) == 0 {
 			return CheckResult{
