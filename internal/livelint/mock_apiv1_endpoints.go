@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/applyconfigurations/core/v1"
+	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
 	"sync"
 )
 
@@ -23,7 +23,7 @@ var _ apiv1EndpointsInterface = &apiv1EndpointsInterfaceMock{}
 //
 // 		// make and configure a mocked apiv1EndpointsInterface
 // 		mockedapiv1EndpointsInterface := &apiv1EndpointsInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, endpoints *v1.EndpointsApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Endpoints, error) {
+// 			ApplyFunc: func(ctx context.Context, endpoints *corev1.EndpointsApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Endpoints, error) {
 // 				panic("mock out the Apply method")
 // 			},
 // 			CreateFunc: func(ctx context.Context, endpoints *apiv1.Endpoints, opts metav1.CreateOptions) (*apiv1.Endpoints, error) {
@@ -58,7 +58,7 @@ var _ apiv1EndpointsInterface = &apiv1EndpointsInterfaceMock{}
 // 	}
 type apiv1EndpointsInterfaceMock struct {
 	// ApplyFunc mocks the Apply method.
-	ApplyFunc func(ctx context.Context, endpoints *v1.EndpointsApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Endpoints, error)
+	ApplyFunc func(ctx context.Context, endpoints *corev1.EndpointsApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Endpoints, error)
 
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, endpoints *apiv1.Endpoints, opts metav1.CreateOptions) (*apiv1.Endpoints, error)
@@ -91,7 +91,7 @@ type apiv1EndpointsInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Endpoints is the endpoints argument value.
-			Endpoints *v1.EndpointsApplyConfiguration
+			Endpoints *corev1.EndpointsApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -182,13 +182,13 @@ type apiv1EndpointsInterfaceMock struct {
 }
 
 // Apply calls ApplyFunc.
-func (mock *apiv1EndpointsInterfaceMock) Apply(ctx context.Context, endpoints *v1.EndpointsApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Endpoints, error) {
+func (mock *apiv1EndpointsInterfaceMock) Apply(ctx context.Context, endpoints *corev1.EndpointsApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Endpoints, error) {
 	if mock.ApplyFunc == nil {
 		panic("apiv1EndpointsInterfaceMock.ApplyFunc: method is nil but apiv1EndpointsInterface.Apply was just called")
 	}
 	callInfo := struct {
 		Ctx       context.Context
-		Endpoints *v1.EndpointsApplyConfiguration
+		Endpoints *corev1.EndpointsApplyConfiguration
 		Opts      metav1.ApplyOptions
 	}{
 		Ctx:       ctx,
@@ -206,12 +206,12 @@ func (mock *apiv1EndpointsInterfaceMock) Apply(ctx context.Context, endpoints *v
 //     len(mockedapiv1EndpointsInterface.ApplyCalls())
 func (mock *apiv1EndpointsInterfaceMock) ApplyCalls() []struct {
 	Ctx       context.Context
-	Endpoints *v1.EndpointsApplyConfiguration
+	Endpoints *corev1.EndpointsApplyConfiguration
 	Opts      metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx       context.Context
-		Endpoints *v1.EndpointsApplyConfiguration
+		Endpoints *corev1.EndpointsApplyConfiguration
 		Opts      metav1.ApplyOptions
 	}
 	mock.lockApply.RLock()
