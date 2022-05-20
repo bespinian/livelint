@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/applyconfigurations/core/v1"
+	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
 	"sync"
 )
 
@@ -23,10 +23,10 @@ var _ apiv1PVCInterface = &apiv1PVCInterfaceMock{}
 //
 // 		// make and configure a mocked apiv1PVCInterface
 // 		mockedapiv1PVCInterface := &apiv1PVCInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, persistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
+// 			ApplyFunc: func(ctx context.Context, persistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
 // 				panic("mock out the Apply method")
 // 			},
-// 			ApplyStatusFunc: func(ctx context.Context, persistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
+// 			ApplyStatusFunc: func(ctx context.Context, persistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
 // 				panic("mock out the ApplyStatus method")
 // 			},
 // 			CreateFunc: func(ctx context.Context, persistentVolumeClaim *apiv1.PersistentVolumeClaim, opts metav1.CreateOptions) (*apiv1.PersistentVolumeClaim, error) {
@@ -64,10 +64,10 @@ var _ apiv1PVCInterface = &apiv1PVCInterfaceMock{}
 // 	}
 type apiv1PVCInterfaceMock struct {
 	// ApplyFunc mocks the Apply method.
-	ApplyFunc func(ctx context.Context, persistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error)
+	ApplyFunc func(ctx context.Context, persistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error)
 
 	// ApplyStatusFunc mocks the ApplyStatus method.
-	ApplyStatusFunc func(ctx context.Context, persistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error)
+	ApplyStatusFunc func(ctx context.Context, persistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error)
 
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, persistentVolumeClaim *apiv1.PersistentVolumeClaim, opts metav1.CreateOptions) (*apiv1.PersistentVolumeClaim, error)
@@ -103,7 +103,7 @@ type apiv1PVCInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// PersistentVolumeClaim is the persistentVolumeClaim argument value.
-			PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+			PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -112,7 +112,7 @@ type apiv1PVCInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// PersistentVolumeClaim is the persistentVolumeClaim argument value.
-			PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+			PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -214,13 +214,13 @@ type apiv1PVCInterfaceMock struct {
 }
 
 // Apply calls ApplyFunc.
-func (mock *apiv1PVCInterfaceMock) Apply(ctx context.Context, persistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
+func (mock *apiv1PVCInterfaceMock) Apply(ctx context.Context, persistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
 	if mock.ApplyFunc == nil {
 		panic("apiv1PVCInterfaceMock.ApplyFunc: method is nil but apiv1PVCInterface.Apply was just called")
 	}
 	callInfo := struct {
 		Ctx                   context.Context
-		PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+		PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 		Opts                  metav1.ApplyOptions
 	}{
 		Ctx:                   ctx,
@@ -238,12 +238,12 @@ func (mock *apiv1PVCInterfaceMock) Apply(ctx context.Context, persistentVolumeCl
 //     len(mockedapiv1PVCInterface.ApplyCalls())
 func (mock *apiv1PVCInterfaceMock) ApplyCalls() []struct {
 	Ctx                   context.Context
-	PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+	PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 	Opts                  metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx                   context.Context
-		PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+		PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 		Opts                  metav1.ApplyOptions
 	}
 	mock.lockApply.RLock()
@@ -253,13 +253,13 @@ func (mock *apiv1PVCInterfaceMock) ApplyCalls() []struct {
 }
 
 // ApplyStatus calls ApplyStatusFunc.
-func (mock *apiv1PVCInterfaceMock) ApplyStatus(ctx context.Context, persistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
+func (mock *apiv1PVCInterfaceMock) ApplyStatus(ctx context.Context, persistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.PersistentVolumeClaim, error) {
 	if mock.ApplyStatusFunc == nil {
 		panic("apiv1PVCInterfaceMock.ApplyStatusFunc: method is nil but apiv1PVCInterface.ApplyStatus was just called")
 	}
 	callInfo := struct {
 		Ctx                   context.Context
-		PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+		PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 		Opts                  metav1.ApplyOptions
 	}{
 		Ctx:                   ctx,
@@ -277,12 +277,12 @@ func (mock *apiv1PVCInterfaceMock) ApplyStatus(ctx context.Context, persistentVo
 //     len(mockedapiv1PVCInterface.ApplyStatusCalls())
 func (mock *apiv1PVCInterfaceMock) ApplyStatusCalls() []struct {
 	Ctx                   context.Context
-	PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+	PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 	Opts                  metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx                   context.Context
-		PersistentVolumeClaim *v1.PersistentVolumeClaimApplyConfiguration
+		PersistentVolumeClaim *corev1.PersistentVolumeClaimApplyConfiguration
 		Opts                  metav1.ApplyOptions
 	}
 	mock.lockApplyStatus.RLock()
