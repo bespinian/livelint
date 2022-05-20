@@ -1,13 +1,20 @@
 package livelint
 
-func (n *Livelint) checkIsPodAssignedToNode() CheckResult {
-	yes := n.askUserYesOrNo("Run 'kubectl get pods -o wide'.\nIs the Pod assigned to the Node?")
+import (
+	"fmt"
 
-	if !yes {
-		return CheckResult{
-			HasFailed:    true,
-			Message:      "The Pod is not assigned to the Node",
-			Instructions: "There is an issue with the Scheduler",
+	apiv1 "k8s.io/api/core/v1"
+)
+
+func checkIsPodAssignedToNode(allPods []apiv1.Pod) CheckResult {
+
+	for _, pod := range allPods {
+		if len(pod.Spec.NodeName) == 0 {
+			return CheckResult{
+				HasFailed:    true,
+				Message:      fmt.Sprintf("The Pod %s is not assigned to node", pod.Name),
+				Instructions: "There is an issue with the Scheduler",
+			}
 		}
 	}
 
