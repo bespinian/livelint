@@ -8,7 +8,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/fatih/color v1.13.0
 	github.com/matryer/is v1.4.0
-	github.com/urfave/cli/v2 v2.7.1
+	github.com/urfave/cli/v2 v2.8.0
 	k8s.io/api v0.24.0
 	k8s.io/apimachinery v0.24.0
 	k8s.io/client-go v0.24.0
