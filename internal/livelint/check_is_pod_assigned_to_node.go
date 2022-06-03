@@ -11,7 +11,7 @@ func checkIsPodAssignedToNode(allPods []apiv1.Pod) CheckResult {
 		if len(pod.Spec.NodeName) == 0 {
 			return CheckResult{
 				HasFailed:    true,
-				Message:      fmt.Sprintf("The Pod %s is not assigned to node", pod.Name),
+				Message:      fmt.Sprintf("The Pod %s is not assigned to any node", pod.Name),
 				Instructions: "There is an issue with the Scheduler",
 			}
 		}
