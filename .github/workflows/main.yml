@@ -22,7 +22,7 @@ jobs:
         run: make test
       - name: Get Hash
         id: githash
-        run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_HASH
+        run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_HASH
       - name: Check Hash
         run: echo "${{ env.githash }}"
       - name: Get Tag
