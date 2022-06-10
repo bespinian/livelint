@@ -293,9 +293,28 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		return nil
 	}
 
+	ingressClasses, err := n.getIngressClasses()
+	if err != nil {
+		return fmt.Errorf("error getting ingress classes: %w", err)
+	}
+
 	for _, ingress := range ingresses {
 		// Can you see a list of Backends?
 		result = n.checkCanSeeBackends(ingress, namespace)
+		statusMsg.AddCheckResult(result)
+		n.ui.Send(statusMsg)
+		if result.HasFailed {
+			return nil
+		}
+
+		result = checkHasValidIngressClass(ingress, ingressClasses)
+		statusMsg.AddCheckResult(result)
+		n.ui.Send(statusMsg)
+		if result.HasFailed {
+			return nil
+		}
+
+		result = n.checkCanAccessAppFromIngressController(ingress, ingressClasses)
 		statusMsg.AddCheckResult(result)
 		n.ui.Send(statusMsg)
 		if result.HasFailed {
@@ -309,13 +328,6 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	// Can you visit the app?
 	statusMsg.StartCheck("Checking App Connectivity")
 	n.ui.Send(statusMsg)
-
-	result = n.checkCanVisitIngressApp()
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
-	if result.HasFailed {
-		return nil
-	}
 
 	// The app should be running. Can you visit it from the public internet?
 	result = n.checkCanVisitPublicApp()
