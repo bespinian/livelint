@@ -269,7 +269,7 @@ func TestCheckIsClusterFull(t *testing.T) {
 				nodePods []apiv1.Pod
 			}{
 				{
-					node: makeNodeWithResources("1000m", "1Gi"),
+					node: makeNodeWithResources("500m", "500Mi"),
 					nodePods: []apiv1.Pod{
 						{
 							Spec: apiv1.PodSpec{

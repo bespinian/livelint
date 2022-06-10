@@ -64,6 +64,12 @@ func main() {
 						Value:   false,
 						Usage:   "if the tool should be verbose about what it's doing",
 					},
+					&cli.StringFlag{
+						Name:    "url",
+						Aliases: []string{"u"},
+						Value:   "",
+						Usage:   "enables ingress checks using the provided url",
+					},
 				},
 
 				Action: func(c *cli.Context) error {
@@ -71,7 +77,7 @@ func main() {
 					go func() {
 						ll.Start()
 					}()
-					runChecksErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
+					runChecksErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.String("url"), c.Bool("verbose"))
 					if runChecksErr != nil {
 						log.Fatal(fmt.Errorf("error running checks: %w", runChecksErr))
 					}

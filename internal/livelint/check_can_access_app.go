@@ -22,7 +22,7 @@ func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
 			for _, port := range container.Ports {
-				if !n.canPortForward(pod, port.ContainerPort) {
+				if !n.canPortForward(pod, port.ContainerPort, checkTCPConnection) {
 					reason := fmt.Sprintf("container %s of Pod %s has refused connection on port %v", container.Name, pod.Name, port.ContainerPort)
 					reasonsToFail = append(reasonsToFail, reason)
 				}
@@ -43,7 +43,7 @@ func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
 	}
 }
 
-func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
+func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, check func(uint16) bool) bool {
 	connectionSuccessful := true
 
 	// set up error handling used by port forwarding
@@ -78,10 +78,10 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 	}
 
 	n.tea.Send(showSpinnerMsg{showing: true})
-	// send some traffic via the port forwarding
+
+	// perform the check function against the forwarded port
 	forwardedPorts, _ := forwarder.GetPorts()
-	_, err = net.Dial("tcp", fmt.Sprintf("localhost:%d", forwardedPorts[0].Local))
-	if err != nil {
+	if !check(forwardedPorts[0].Local) {
 		return false
 	}
 
@@ -90,4 +90,9 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 	n.tea.Send(showSpinnerMsg{showing: false})
 
 	return connectionSuccessful
+}
+
+func checkTCPConnection(port uint16) bool {
+	_, err := net.Dial("tcp", fmt.Sprintf("localhost:%d", port))
+	return err != nil
 }

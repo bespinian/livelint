@@ -13,7 +13,7 @@ func (n *Livelint) Start() {
 }
 
 // RunChecks checks for potential issues with the deployment.
-func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
+func (n *Livelint) RunChecks(namespace, deploymentName, ingressURL string, isVerbose bool) error {
 	// nolint:govet
 	statusMsg := initalizeStatus(fmt.Sprintf("Checking deployment %s in namespace %s", deploymentName, namespace))
 	n.tea.Send(statusMsg)
@@ -271,9 +271,32 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		return nil
 	}
 
+	ingressClasses, err := n.getIngressClasses()
+	if err != nil {
+		return fmt.Errorf("error getting ingress classes: %w", err)
+	}
+
 	for _, ingress := range ingresses {
 		// Can you see a list of Backends?
 		result = n.checkCanSeeBackends(ingress, namespace)
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
+		if result.HasFailed {
+			return nil
+		}
+
+		result = checkHasValidIngressClass(ingress, ingressClasses)
+		statusMsg.AddCheckResult(result)
+		n.tea.Send(statusMsg)
+		if result.HasFailed {
+			return nil
+		}
+
+		result, err = n.checkCanAccessAppFromIngressController(namespace, ingress, ingressClasses)
+		if err != nil {
+			return fmt.Errorf("error checking acess from ingress controller: %w", err)
+		}
+
 		statusMsg.AddCheckResult(result)
 		n.tea.Send(statusMsg)
 		if result.HasFailed {
