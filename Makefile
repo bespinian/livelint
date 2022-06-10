@@ -1,8 +1,7 @@
 .PHONY: build
 all:
-	chmod +x ./scripts/run.sh
-	./scripts/run.sh
-	
+	go build -o bin/livelint
+
 .PHONY: install
 install:
 	go install

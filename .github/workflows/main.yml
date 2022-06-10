@@ -20,20 +20,13 @@ jobs:
           args: --timeout=5m
       - name: Run tests
         run: make test
-      - name: Get Hash
-        id: githash
-        run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_HASH
-      - name: Check Hash
-        run: echo "${{ env.githash }}"
-      - name: Get Tag
-        id: gittag
-        run: echo "git_hash=$(git tag --points-at HEAD")" >> $GITHUB_TAG
-      - name: Check Hash
-        run: echo "${{ env.gittag }}"
-      - name: Build date
-        run: echo "date=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_BUILD_DATE
       - name: Build application
-        run: go build -o bin/livelint -ldflags "-X main.githash="$GITHUB_SHA" -X main.date=$GITHUB_BUILD_DATE -X main.gittag=$GITHUB_TAG"
+        run: |
+          export GIT_COMMIT=$(git rev-list -1 HEAD) && \
+          export BUILD_DATE=$(date +'%Y-%m-%dT%H:%M:%S') && \
+          export GITHUB_TAG=$(git tag --points-at HEAD) && \
+          go build -ldflags "-X main.githash=$GIT_COMMIT -X main.date=$BUILD_DATE -X main.gittag=$GITHUB_TAG"
+          echo -e "Git Tag: \t$(GITHUB_TAG)\nGit Commit: \t$(GIT_COMMIT) \nBuild Date: \t$(BUILD_DATE)"
   release:
     name: Release
     needs: verify
