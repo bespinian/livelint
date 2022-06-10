@@ -20,8 +20,6 @@ func isSubmap(sourceMatchLabels, targetMatchLabels map[string]string) bool {
 	return result
 }
 
-// getServices gets a list of all services which select the same pods as the target deployment. It also returns
-// a list of all services which potential match a superset of pods. This is useful for warning the user.
 func (n *Livelint) getServices(namespace, deploymentName string) ([]apiv1.Service, []apiv1.Service, error) {
 	deployment, err := n.getDeployment(namespace, deploymentName)
 	if err != nil {
@@ -29,7 +27,17 @@ func (n *Livelint) getServices(namespace, deploymentName string) ([]apiv1.Servic
 	}
 
 	deploymentMatchLabels := deployment.Spec.Selector.MatchLabels
+	return n.getServicesForSelector(namespace, deploymentMatchLabels)
+}
 
+func (n *Livelint) getServicesForPod(namespace string, pod apiv1.Pod) ([]apiv1.Service, []apiv1.Service, error) {
+	podMatchLabels := pod.Labels
+	return n.getServicesForSelector(namespace, podMatchLabels)
+}
+
+// getServicesForSelector gets a list of all services which select pods with a given set of labels. It also returns
+// a list of all services which potentially match a superset of pods. This is useful for warning the user.
+func (n *Livelint) getServicesForSelector(namespace string, matchLabels map[string]string) ([]apiv1.Service, []apiv1.Service, error) {
 	allServices, err := n.k8s.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, nil, fmt.Errorf("error listing services in namespace %q: %w", namespace, err)
@@ -40,8 +48,8 @@ func (n *Livelint) getServices(namespace, deploymentName string) ([]apiv1.Servic
 	deploymentLabelsSubsetServiceLabels := false
 	for _, service := range allServices.Items {
 		serviceMatchLabels := service.Spec.Selector
-		deploymentLabelsSubsetServiceLabels = isSubmap(serviceMatchLabels, deploymentMatchLabels)
-		serviceLabelsSubsetDeploymentLabels = isSubmap(deploymentMatchLabels, serviceMatchLabels)
+		deploymentLabelsSubsetServiceLabels = isSubmap(matchLabels, serviceMatchLabels)
+		serviceLabelsSubsetDeploymentLabels = isSubmap(serviceMatchLabels, matchLabels)
 		if serviceLabelsSubsetDeploymentLabels && !deploymentLabelsSubsetServiceLabels {
 			supersetMatchingServices = append(supersetMatchingServices, service)
 		} else if serviceLabelsSubsetDeploymentLabels && deploymentLabelsSubsetServiceLabels {
