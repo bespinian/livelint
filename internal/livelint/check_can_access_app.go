@@ -22,8 +22,9 @@ func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
 			for _, port := range container.Ports {
-				if !n.canPortForward(pod, port.ContainerPort) {
-					reason := fmt.Sprintf("container %s of Pod %s has refused connection on port %v", container.Name, pod.Name, port.ContainerPort)
+				portForwardOk, connectionCheckMsg := n.canPortForward(pod, port.ContainerPort, checkTCPConnection)
+				if !portForwardOk {
+					reason := fmt.Sprintf("container %s of Pod %s has refused connection on port %v: %s", container.Name, pod.Name, port.ContainerPort, connectionCheckMsg)
 					reasonsToFail = append(reasonsToFail, reason)
 				}
 			}
@@ -43,14 +44,15 @@ func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
 	}
 }
 
-func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
+func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, checkFunc func(uint16) (bool, string)) (bool, string) {
 	connectionSuccessful := true
 
 	// set up error handling used by port forwarding
 	handleConnectionError := func(err error) {
 		connectionSuccessful = false
 	}
-	runtime.ErrorHandlers = []func(error){handleConnectionError}
+	// nolint:reassign
+	runtime.ErrorHandlers = append(runtime.ErrorHandlers, handleConnectionError)
 
 	// prepare the port forwarding
 	roundTripper, upgrader, err := spdy.RoundTripperFor(n.config)
@@ -82,14 +84,22 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 
 	// send some traffic via the port forwarding
 	forwardedPorts, _ := forwarder.GetPorts()
-	_, err = net.Dial("tcp", fmt.Sprintf("localhost:%d", forwardedPorts[0].Local))
-	if err != nil {
-		return false
+	checkOk, message := checkFunc(forwardedPorts[0].Local)
+	if !checkOk {
+		return false, message
 	}
 
 	// wait for a certain time to see whether port forwarding error handling is called
 	time.Sleep(connectionTimeoutSeconds * time.Second)
 	n.ui.Send(showSpinnerMsg{showing: false})
 
-	return connectionSuccessful
+	return connectionSuccessful, message
+}
+
+func checkTCPConnection(port uint16) (bool, string) {
+	_, err := net.Dial("tcp", fmt.Sprintf("localhost:%d", port))
+	if err != nil {
+		return false, fmt.Sprintf("TCP connection error: %s", err)
+	}
+	return true, "TCP connection successful"
 }
