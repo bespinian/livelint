@@ -14,10 +14,7 @@ import (
 )
 
 func main() {
-
-	var (
-		gittag, date, githash string
-	)
+	var gittag, date, githash string
 
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
