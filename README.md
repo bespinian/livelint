@@ -16,7 +16,7 @@ $ livelint check my-deployment
 
 ## Development
 
-We are very happy to receive feedback, issues and pull requests from the community.
+We are thrilled to receive feedback, issues and pull requests from the community.
 
 ### Build
 
