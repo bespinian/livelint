@@ -8,10 +8,10 @@ require (
 	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/fatih/color v1.13.0
 	github.com/matryer/is v1.4.0
-	github.com/urfave/cli/v2 v2.8.1
-	k8s.io/api v0.24.1
-	k8s.io/apimachinery v0.24.1
-	k8s.io/client-go v0.24.1
+	github.com/urfave/cli/v2 v2.10.0
+	k8s.io/api v0.24.2
+	k8s.io/apimachinery v0.24.2
+	k8s.io/client-go v0.24.2
 )
 
 require (
@@ -50,7 +50,7 @@ require (
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	golang.org/x/net v0.0.0-20220615171555-694bf12d69de // indirect
+	golang.org/x/net v0.0.0-20220617184016-355a448f1bc9 // indirect
 	golang.org/x/oauth2 v0.0.0-20220608161450-d0670ef3b1eb // indirect
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
