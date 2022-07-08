@@ -21,12 +21,7 @@ jobs:
       - name: Run tests
         run: make test
       - name: Build application
-        run: |
-          export GIT_COMMIT=$(git rev-list -1 HEAD) && \
-          export BUILD_DATE=$(date +'%Y-%m-%dT%H:%M:%S') && \
-          export GITHUB_TAG=$(git tag --points-at HEAD) && \
-          go build -ldflags "-X main.githash=$GIT_COMMIT -X main.date=$BUILD_DATE -X main.gittag=$GITHUB_TAG"
-          echo -e "Git Tag: \t$(GITHUB_TAG)\nGit Commit: \t$(GIT_COMMIT) \nBuild Date: \t$(BUILD_DATE)"
+        run: make build
   release:
     name: Release
     needs: verify

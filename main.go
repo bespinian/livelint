@@ -13,8 +13,9 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+var version, date, githash string
+
 func main() {
-	var gittag, date, githash string
 
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
@@ -44,8 +45,9 @@ func main() {
 	ll := livelint.New(k8s, config)
 
 	app := &cli.App{
-		Name:  "livelint",
-		Usage: "debug k8s workload",
+		Name:    "livelint",
+		Usage:   "debug k8s workload",
+		Version: version,
 
 		Commands: []*cli.Command{
 			{
@@ -82,6 +84,11 @@ func main() {
 				},
 			},
 		},
+		Metadata: map[string]interface{}{
+			"version": version,
+			"date":    date,
+			"hash":    githash,
+		},
 	}
 
 	err = app.Run(os.Args)
@@ -89,9 +96,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Git Tag:    %s\n", gittag)
-	fmt.Printf("Date: %s\n", date)
-	fmt.Printf("Version:    %s\n", githash)
 }
 
 func homeDir() string {
