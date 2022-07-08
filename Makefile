@@ -1,9 +1,9 @@
 BUILDDIR = bin/livelint
-VERSION := $(shell git describe --abbrev=0 --tags)
-DATE := $(shell date +%Y-%m-%d\ %H:%M)
+BUILDVERSION := $(shell git describe --abbrev=0 --tags)
+BUILDDATE := $(shell date +%Y-%m-%d\ %H:%M)
 GITHASH := $(shell git rev-list -1 HEAD)
 
-LDFLAGS=-ldflags="-w -s -X 'main.version=${VERSION}' -X 'main.date=${DATE}' -X 'main.githash=${GITHASH}'"
+LDFLAGS=-ldflags="-w -s -X 'main.buildversion=${BUILDVERSION}' -X 'main.builddate=${BUILDDATE}' -X 'main.githash=${GITHASH}'"
 
 .PHONY: build
 all:

@@ -13,7 +13,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var version, date, githash string
+var buildversion, builddate, githash string
 
 func main() {
 
@@ -47,7 +47,7 @@ func main() {
 	app := &cli.App{
 		Name:    "livelint",
 		Usage:   "debug k8s workload",
-		Version: version,
+		Version: buildversion,
 
 		Commands: []*cli.Command{
 			{
@@ -85,8 +85,8 @@ func main() {
 			},
 		},
 		Metadata: map[string]interface{}{
-			"version": version,
-			"date":    date,
+			"version": buildversion,
+			"date":    builddate,
 			"hash":    githash,
 		},
 	}
