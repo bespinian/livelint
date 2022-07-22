@@ -6,6 +6,7 @@ linters:
     - exhaustruct
     - forbidigo
     - funlen
+    - gochecknoglobals
     - gocognit
     - gocyclo
     - golint
