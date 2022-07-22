@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-
 	var buildversion, builddate, githash string
 
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
@@ -95,7 +94,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 func homeDir() string {
