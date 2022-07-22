@@ -3,6 +3,7 @@ package livelint
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -44,10 +45,12 @@ func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
 }
 
 func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, check func(uint16) bool) bool {
+	log.Print("Checking port forwarding")
 	connectionSuccessful := true
 
 	// set up error handling used by port forwarding
 	handleConnectionError := func(err error) {
+		log.Printf("Connection error %s", err)
 		connectionSuccessful = false
 	}
 	runtime.ErrorHandlers = []func(error){handleConnectionError}
@@ -65,10 +68,14 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, check func(uint16) 
 	out, errOut := new(bytes.Buffer), new(bytes.Buffer)
 	ports := []string{fmt.Sprintf(":%d", port)}
 	forwarder, err := portforward.New(dialer, ports, stopChan, readyChan, out, errOut)
+	if err != nil {
+		log.Printf("Error crating port forwarder %s", err)
+	}
 
 	// start the port forwarding
 	go func() {
 		if err = forwarder.ForwardPorts(); err != nil {
+			log.Printf("Error forwarding port %s", err)
 			connectionSuccessful = false
 		}
 	}()
@@ -94,5 +101,6 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, check func(uint16) 
 
 func checkTCPConnection(port uint16) bool {
 	_, err := net.Dial("tcp", fmt.Sprintf("localhost:%d", port))
+	log.Print(fmt.Errorf("Error sending tcp packet on port %d %w", port, err))
 	return err != nil
 }

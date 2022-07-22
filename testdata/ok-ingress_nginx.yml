@@ -2,7 +2,8 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    traefik.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    kubernetes.io/ingress.class: nginx
   labels:
     app: ok
   name: ok
@@ -16,5 +17,5 @@ spec:
                 name: ok
                 port:
                   number: 80
-            path: /ok
+            path: /
             pathType: Prefix

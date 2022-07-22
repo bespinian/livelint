@@ -294,7 +294,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName, ingressURL string, isVer
 
 		result, err = n.checkCanAccessAppFromIngressController(namespace, ingress, ingressClasses)
 		if err != nil {
-			return fmt.Errorf("error checking acess from ingress controller: %w", err)
+			return fmt.Errorf("error checking access from ingress controller: %w", err)
 		}
 
 		statusMsg.AddCheckResult(result)

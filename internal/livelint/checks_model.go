@@ -1,6 +1,8 @@
 package livelint
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -11,12 +13,13 @@ import (
 )
 
 const (
-	width               = 120
-	paddingTopBottom    = 2
-	listHeight          = 8
-	listPaddingTop      = 1
-	headerMarginTop     = 1
-	listItemPaddingLeft = 2
+	width                 = 120
+	paddingTopBottom      = 2
+	listHeight            = 8
+	listPaddingTop        = 1
+	headerMarginTop       = 1
+	listItemPaddingLeft   = 2
+	detailItemPaddingLeft = 4
 )
 
 type model struct {
@@ -36,6 +39,11 @@ type model struct {
 }
 
 func initialModel() model {
+	_, err := tea.LogToFile("livelint.log", "debug")
+	if err != nil {
+		fmt.Println("fatal:", err)
+		os.Exit(1)
+	}
 	return model{
 		list:              list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0),
 		textInput:         textinput.New(),
@@ -243,10 +251,10 @@ func getListItems(items []string) []list.Item {
 	return result
 }
 
-func mapStrings[T interface{}](items []T, f func(item T) string) []string {
+func mapStrings[T interface{}](items []T, f func(item T) []string) []string {
 	result := []string{}
 	for _, item := range items {
-		result = append(result, f(item))
+		result = append(result, f(item)...)
 	}
 	return result
 }
@@ -279,21 +287,28 @@ func (m model) assembleLists() string {
 			String()
 
 		listItem        = lipgloss.NewStyle().PaddingLeft(listItemPaddingLeft)
+		listItemDetail  = lipgloss.NewStyle().PaddingLeft(detailItemPaddingLeft)
 		listItemSuccess = func(s string) string {
 			return checkMark + listItem.Copy().Render(s)
 		}
-		listItemError = func(s string) string { return cross + listItem.Copy().Render(s) }
+		listItemError       = func(s string) string { return cross + listItem.Copy().Render(s) }
+		listItemErrorDetail = func(s string) string { return cross + listItemDetail.Copy().Render(s) }
 	)
 
 	summary := []string{}
 	for _, check := range m.status.checks {
 
 		summary = append(summary, listHeader(check.title))
-		summary = append(summary, mapStrings(check.checkResults, func(c CheckResult) string {
+		summary = append(summary, mapStrings(check.checkResults, func(c CheckResult) []string {
 			if c.HasFailed {
-				return listItemError(c.Message)
+				messages := []string{}
+				messages = append(messages, listItemError(c.Message))
+				for _, detailMessage := range c.Details {
+					messages = append(messages, listItemErrorDetail(detailMessage))
+				}
+				return messages
 			}
-			return listItemSuccess(c.Message)
+			return []string{listItemSuccess(c.Message)}
 		})...)
 	}
 
