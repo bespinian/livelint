@@ -1,5 +1,5 @@
 BUILDDIR = bin/livelint
-BUILDVERSION := $(shell git describe --abbrev=0 --tags)
+BUILDVERSION := $(or $(shell git describe --abbrev=0 --tags),$(development))
 BUILDDATE := $(shell date +%Y-%m-%d\ %H:%M)
 GITHASH := $(shell git rev-list -1 HEAD)
 
