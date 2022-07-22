@@ -8,12 +8,15 @@ import (
 	"time"
 
 	"github.com/bespinian/livelint/internal/livelint"
+	"github.com/ropes/go-linker-vars-example/src/version"
 	"github.com/urfave/cli/v2"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 func main() {
+	var buildversion, builddate, githash string
+
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
 		home := homeDir()
@@ -42,8 +45,9 @@ func main() {
 	ll := livelint.New(k8s, config)
 
 	app := &cli.App{
-		Name:  "livelint",
-		Usage: "debug k8s workload",
+		Name:    "livelint",
+		Usage:   "debug k8s workload",
+		Version: buildversion,
 
 		Commands: []*cli.Command{
 			{
@@ -80,12 +84,21 @@ func main() {
 				},
 			},
 		},
+		Metadata: map[string]interface{}{
+			"version": buildversion,
+			"date":    builddate,
+			"hash":    githash,
+		},
 	}
 
 	err = app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Printf("Git Tag:    %s\n", version.GitTag)
+	fmt.Printf("Date: %s\n", version.Date)
+	fmt.Printf("Version:    %s\n", version.Version)
 }
 
 func homeDir() string {
