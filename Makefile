@@ -1,6 +1,17 @@
+BUILDDIR = bin/livelint
+BUILDVERSION := $(shell git describe --abbrev=0 --tags)
+BUILDDATE := $(shell date +%Y-%m-%d\ %H:%M)
+GITHASH := $(shell git rev-list -1 HEAD)
+
+LDFLAGS=-ldflags="-w -s -X 'main.buildversion=${BUILDVERSION}' -X 'main.builddate=${BUILDDATE}' -X 'main.githash=${GITHASH}'"
+
 .PHONY: build
 all:
-	go build -o bin/livelint
+	go build -o ${BUILDDIR}
+
+.PHONY: build_ldflags
+build:
+	go build ${LDFLAGS} -o ${BUILDDIR}
 
 .PHONY: install
 install:
