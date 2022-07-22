@@ -13,9 +13,9 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var buildversion, builddate, githash string
-
 func main() {
+
+	var buildversion, builddate, githash string
 
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
