@@ -8,15 +8,14 @@ import (
 	"time"
 
 	"github.com/bespinian/livelint/internal/livelint"
-	"github.com/ropes/go-linker-vars-example/src/version"
 	"github.com/urfave/cli/v2"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func main() {
-	var buildversion, builddate, githash string
+var buildversion, builddate, githash string
 
+func main() {
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
 		home := homeDir()
@@ -95,10 +94,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("Git Tag:    %s\n", version.GitTag)
-	fmt.Printf("Date: %s\n", version.Date)
-	fmt.Printf("Version:    %s\n", version.Version)
 }
 
 func homeDir() string {
