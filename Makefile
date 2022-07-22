@@ -7,10 +7,6 @@ LDFLAGS=-ldflags="-w -s -X 'main.buildversion=${BUILDVERSION}' -X 'main.builddat
 
 .PHONY: build
 all:
-	go build -o ${BUILDDIR}
-
-.PHONY: build_ldflags
-build:
 	go build ${LDFLAGS} -o ${BUILDDIR}
 
 .PHONY: install
