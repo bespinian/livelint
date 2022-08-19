@@ -228,11 +228,16 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		statusMsg.AddCheckResult(result)
 		n.tea.Send(statusMsg)
 		if result.HasFailed {
-			// Does the Pod have an IP address assigned?
-			result = checkPodHasIPAddressAssigned(allPods)
+			// Is the selector matching the right pod label?
+			result = n.checkIsSelectorMatchPodLabel(namespace, service.Name, allPods)
 			statusMsg.AddCheckResult(result)
 			n.tea.Send(statusMsg)
-
+			if result.HasFailed {
+				// Does the Pod have an IP address assigned?
+				result = checkPodHasIPAddressAssigned(allPods)
+				statusMsg.AddCheckResult(result)
+				n.tea.Send(statusMsg)
+			}
 			return nil
 		}
 
