@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// check if service's selector is matching at least one pod's label
+// Check if service's selector is matching at least one pod's label.
 func (n *Livelint) checkIsSelectorMatchPodLabel(namespace, serviceName string, pods []apiv1.Pod) CheckResult {
 	service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
 	if err != nil {
