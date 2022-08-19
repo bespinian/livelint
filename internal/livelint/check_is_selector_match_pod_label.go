@@ -32,7 +32,7 @@ func (n *Livelint) checkIsSelectorMatchPodLabel(namespace, serviceName string, p
 	if len(matchingPods) != len(pods) {
 		return CheckResult{
 			HasFailed:    true,
-			Message:      fmt.Sprintf("Not all pods in the deployment has label that matches service's selector."),
+			Message:      "Not all pods in the deployment has label that matches service's selector.",
 			Instructions: "Fix pods labels",
 		}
 	}
