@@ -1,7 +1,7 @@
 package livelint
 
 func (n *Livelint) checkCanVisitIngressApp() CheckResult {
-	yes := n.askUserYesOrNo("Run 'kubectl port-forward <ingress-pod-name> 8080:<ingress-port>'.\nCan you visit the app?")
+	yes := n.askUserYesOrNo("Run 'kubectl port-forward <ingress-controller-pod-name> 8080:<ingress-port>'.\nCan you visit the app?")
 
 	if !yes {
 		return CheckResult{
