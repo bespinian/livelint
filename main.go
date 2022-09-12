@@ -5,12 +5,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/urfave/cli/v2"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 var buildversion, builddate, githash string
@@ -18,7 +18,10 @@ var buildversion, builddate, githash string
 func main() {
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
-		home := homeDir()
+		home := homedir.HomeDir()
+		if home == "" {
+			log.Fatal("error finding your HOME directory")
+		}
 		kubeconfig = filepath.Join(home, clientcmd.RecommendedHomeDir, clientcmd.RecommendedFileName)
 	}
 
@@ -33,19 +36,18 @@ func main() {
 	}
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	configOverrides := &clientcmd.ConfigOverrides{}
-	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules,
-		configOverrides)
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 
 	namespace, _, err := kubeConfig.Namespace()
 	if err != nil {
-		log.Fatal(fmt.Errorf("error creating getting namespace from k8s config: %w", err))
+		log.Fatal(fmt.Errorf("error getting namespace from k8s config: %w", err))
 	}
 
 	ll := livelint.New(k8s, config)
 
 	app := &cli.App{
 		Name:    "livelint",
-		Usage:   "debug k8s workload",
+		Usage:   "debug k8s workloads",
 		Version: buildversion,
 
 		Commands: []*cli.Command{
@@ -65,28 +67,31 @@ func main() {
 						Name:    "verbose",
 						Aliases: []string{"v"},
 						Value:   false,
-						Usage:   "if the tool should be verbose about what it's doing",
+						Usage:   "if livelint should be verbose about what it's doing",
 					},
 				},
 
 				Action: func(c *cli.Context) error {
 					args := c.Args()
+
 					go func() {
-						ll.Start()
+						err = ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
+						if err != nil {
+							log.Fatal(fmt.Errorf("error running checks: %w", err))
+						}
+						defer ll.Quit()
 					}()
-					runChecksErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
-					if runChecksErr != nil {
-						log.Fatal(fmt.Errorf("error running checks: %w", runChecksErr))
-					}
-					time.Sleep(1 * time.Second)
+
+					ll.Start()
+
 					return nil
 				},
 			},
 		},
+
 		Metadata: map[string]interface{}{
-			"version": buildversion,
-			"date":    builddate,
-			"hash":    githash,
+			"build-date": builddate,
+			"git-hash":   githash,
 		},
 	}
 
@@ -94,12 +99,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func homeDir() string {
-	h := os.Getenv("HOME")
-	if h == "" {
-		h = os.Getenv("USERPROFILE") // windows
-	}
-	return h
 }
