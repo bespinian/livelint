@@ -11,14 +11,14 @@ func checkIsPodAssignedToNode(allPods []apiv1.Pod) CheckResult {
 		if len(pod.Spec.NodeName) == 0 {
 			return CheckResult{
 				HasFailed:    true,
-				Message:      fmt.Sprintf("The Pod %s is not assigned to any node", pod.Name),
+				Message:      fmt.Sprintf("The Pod %s is not assigned to any Node", pod.Name),
 				Instructions: "There is an issue with the Scheduler",
 			}
 		}
 	}
 
 	return CheckResult{
-		Message:      "The Pod is assigned to the Node",
+		Message:      "The Pod is assigned to a Node",
 		Instructions: "There is an issue with the Kubelet",
 	}
 }

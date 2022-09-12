@@ -28,7 +28,7 @@ func checkAreAllPodsRunning(pods []apiv1.Pod) CheckResult {
 
 		msgTemplate := "There are %v Pods that are not RUNNING"
 		if len(nonRunningPods) == 1 {
-			msgTemplate = "There is %v Pod that isn't RUNNING"
+			msgTemplate = "There is %v Pod that is not RUNNING"
 		}
 
 		return CheckResult{

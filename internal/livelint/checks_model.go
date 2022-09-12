@@ -33,13 +33,19 @@ type model struct {
 	spinnerVisible    bool
 	spinner           spinner.Model
 	status            statusMsg
+	verbose           bool
 }
 
 func initialModel() model {
+	yesNoItems := []list.Item{
+		listItem{title: "Yes"},
+		listItem{title: "No"},
+	}
+
 	return model{
 		list:              list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0),
 		textInput:         textinput.New(),
-		yesNoInput:        list.New([]list.Item{listItem{title: "yes"}, listItem{title: "no"}}, list.NewDefaultDelegate(), 0, 0),
+		yesNoInput:        list.New(yesNoItems, list.NewDefaultDelegate(), len(yesNoItems)*width, len(yesNoItems)*listHeight),
 		listVisible:       false,
 		textInputVisible:  false,
 		yesNoInputVisible: false,
@@ -116,6 +122,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		}
+
+	case verboseMsg:
+		m.verbose = msg.verbose
 
 	case statusMsg:
 		m.status = msg
@@ -196,6 +205,10 @@ type errMsg struct {
 	err error
 }
 
+type verboseMsg struct {
+	verbose bool
+}
+
 type statusMsg struct {
 	context string
 	checks  []check
@@ -205,6 +218,10 @@ type check struct {
 	title        string
 	checkResults []CheckResult
 	outcome      summaryMsg
+}
+
+func initalizeVerbose(verbose bool) verboseMsg {
+	return verboseMsg{verbose: verbose}
 }
 
 func initalizeStatus(context string) statusMsg {
@@ -253,6 +270,8 @@ func mapStrings[T interface{}](items []T, f func(item T) string) []string {
 
 func (m model) assembleLists() string {
 	var (
+		gray = lipgloss.AdaptiveColor{Light: "#B2BEB5", Dark: "#818589"}
+
 		subtle = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
 		list   = lipgloss.NewStyle().
 			BorderForeground(subtle).
@@ -266,41 +285,64 @@ func (m model) assembleLists() string {
 				BorderForeground(subtle).
 				PaddingTop(listPaddingTop).
 				Render
+
 		good      = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 		checkMark = lipgloss.NewStyle().SetString("✔").
 				Foreground(good).
-				PaddingRight(1).
+				PaddingRight(listItemPaddingLeft).
 				String()
 
 		bad   = lipgloss.AdaptiveColor{Light: "#EA9999", Dark: "#E06666"}
 		cross = lipgloss.NewStyle().SetString("✘").
 			Foreground(bad).
-			PaddingRight(1).
+			PaddingRight(listItemPaddingLeft).
 			String()
 
+		action     = lipgloss.AdaptiveColor{Light: "#FFBF00", Dark: "#FFEA00"}
+		arrowRight = lipgloss.NewStyle().SetString("⮕").
+				Foreground(action).
+				PaddingLeft(listItemPaddingLeft).
+				PaddingRight(listItemPaddingLeft).
+				String()
+
 		listItem        = lipgloss.NewStyle().PaddingLeft(listItemPaddingLeft)
-		listItemSuccess = func(s string) string {
-			return checkMark + listItem.Copy().Render(s)
+		listItemDetails = func(c CheckResult) string {
+			details := ""
+			if m.verbose && len(c.Details) > 0 {
+				details = "\n     " + lipgloss.NewStyle().SetString(strings.Join(c.Details, "\n     ")).
+					Foreground(gray).
+					String()
+			}
+			return details
 		}
-		listItemError = func(s string) string { return cross + listItem.Copy().Render(s) }
+		listItemSuccess = func(c CheckResult) string {
+			return listItem.Copy().Render(checkMark+c.Message) +
+				listItemDetails(c)
+		}
+		listItemError = func(c CheckResult) string {
+			instructions := lipgloss.NewStyle().SetString(c.Instructions).Bold(true).String()
+
+			return listItem.Copy().Render(cross+c.Message) +
+				listItemDetails(c) +
+				"\n\n" +
+				listItem.Copy().Render(arrowRight+instructions)
+		}
 	)
 
 	summary := []string{}
 	for _, check := range m.status.checks {
-
 		summary = append(summary, listHeader(check.title))
 		summary = append(summary, mapStrings(check.checkResults, func(c CheckResult) string {
 			if c.HasFailed {
-				return listItemError(c.Message)
+				return listItemError(c)
 			}
-			return listItemSuccess(c.Message)
+			return listItemSuccess(c)
 		})...)
+		summary = append(summary, "")
 	}
 
 	return list.Render(
-		lipgloss.JoinVertical(lipgloss.Left,
-			summary...,
-		),
+		lipgloss.JoinVertical(lipgloss.Left, summary...),
 	)
 }
 
@@ -330,7 +372,11 @@ func (m model) assembleHeaderBar() string {
 
 	w := lipgloss.Width
 	statusKey := statusStyle.Render("livelint")
-	encoding := modeStyle.Render("verbose")
+	verbose := ""
+	if m.verbose {
+		verbose = "verbose"
+	}
+	encoding := modeStyle.Render(verbose)
 	statusVal := statusText.Copy().
 		Width(width - w(statusKey) - w(encoding)).
 		Render(m.status.context)

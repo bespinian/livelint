@@ -59,7 +59,7 @@ func TestCheckIsClusterFull(t *testing.T) {
 			},
 			expectedToFail:  false,
 			expectedMessage: "The cluster is not full",
-			expectedDetails: "Did not detect any pod with insufficient CPU or memory.",
+			expectedDetails: "Did not detect any Pod with insufficient CPU or memory.",
 		},
 		{
 			it: "succeeds if a pod is unschedulable with a message that there are insufficient compute resources, but a node with sufficient resources could be found",
@@ -103,7 +103,7 @@ func TestCheckIsClusterFull(t *testing.T) {
 			},
 			expectedToFail:  false,
 			expectedMessage: "The cluster is not full",
-			expectedDetails: "Found node NODENAME with sufficient CPU and memory. (There may be other constraints on these nodes that prohibit a pod from being scheduled here.)",
+			expectedDetails: "Found Node NODENAME with sufficient CPU and memory. (There may be other constraints on that Node that prohibit Pods from being scheduled here.)",
 		},
 		{
 			it: "fails if a pod is unschedulable with a message that there are insufficient compute resources and it tries to schedule too much cpu using a single container",

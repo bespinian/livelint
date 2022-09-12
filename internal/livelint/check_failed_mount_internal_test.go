@@ -30,7 +30,7 @@ func TestCheckFailedMount(t *testing.T) {
 			},
 			podEvents:       []apiv1.Event{},
 			expectedToFail:  false,
-			expectedMessage: "There appear to be no issues mounting volumes.",
+			expectedMessage: "There are no issues mounting volumes",
 		},
 		{
 			it: "fails if there is at least one event for that pod with reason FailedMount",

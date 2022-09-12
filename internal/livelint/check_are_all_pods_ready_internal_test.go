@@ -58,7 +58,7 @@ func TestCheckAreAllPodsReady(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There is 1 Pod that isn't READY",
+			expectedMessage: "There is 1 Pod that is not READY",
 		},
 	}
 
