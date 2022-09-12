@@ -51,7 +51,7 @@ func TestCheckAreAllPodsRunning(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There is 1 Pod that isn't RUNNING",
+			expectedMessage: "There is 1 Pod that is not RUNNING",
 		},
 		{
 			it: "fails if there are pods with non-running containers",
@@ -70,7 +70,7 @@ func TestCheckAreAllPodsRunning(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There is 1 Pod that isn't RUNNING",
+			expectedMessage: "There is 1 Pod that is not RUNNING",
 		},
 	}
 

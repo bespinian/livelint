@@ -35,6 +35,6 @@ func checkAreTherePendingPods(pods []apiv1.Pod) CheckResult {
 	}
 
 	return CheckResult{
-		Message: "No Pods are PENDING",
+		Message: "There are no PENDING Pods",
 	}
 }

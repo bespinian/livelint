@@ -13,12 +13,12 @@ func (n *Livelint) checkFailedMount(pod apiv1.Pod) CheckResult {
 				HasFailed:    true,
 				Message:      "The Pod is unable to mount a volume",
 				Details:      []string{event.Message},
-				Instructions: "Check whether the volume exists, the referenced name is correct, and that the pod has access to it.",
+				Instructions: "Check if the volume exists, the referenced name is correct, and the pod has access to it",
 			}
 		}
 	}
 
 	return CheckResult{
-		Message: "There appear to be no issues mounting volumes.",
+		Message: "There are no issues mounting volumes",
 	}
 }

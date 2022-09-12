@@ -94,7 +94,7 @@ func TestCheckAreResourceQuotasHit(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "You are hitting the resource quota limits",
+			expectedMessage: "You are hitting the ResourceQuota limits",
 		},
 	}
 

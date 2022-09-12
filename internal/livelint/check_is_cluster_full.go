@@ -35,7 +35,7 @@ func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 	if podWithInsufficientResources == nil {
 		return CheckResult{
 			Message: "The cluster is not full",
-			Details: []string{"Did not detect any pod with insufficient CPU or memory."},
+			Details: []string{"Did not detect any Pod with insufficient CPU or memory."},
 		}
 	}
 
@@ -45,7 +45,7 @@ func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 	if err != nil {
 		return CheckResult{
 			HasFailed: true,
-			Message:   "Pod may have insufficient cpu or memory. Node resource check failed. Verify and resize pod requested resources or provisiona bigger cluster",
+			Message:   "Pod may have insufficient CPU or memory. Node resource check failed. Verify and resize pod requested resources or provisiona bigger cluster",
 			Details:   []string{err.Error()},
 		}
 	}
@@ -62,7 +62,7 @@ func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 		if err != nil {
 			return CheckResult{
 				HasFailed: true,
-				Message:   "Pod may have insufficient cpu or memory. Node resource check failed. Verify and resize pod requested resources or provision a bigger cluster",
+				Message:   "Pod may have insufficient CPU or memory. Node resource check failed. Verify and resize pod requested resources or provision a bigger cluster",
 				Details:   []string{err.Error()},
 			}
 		}
@@ -82,7 +82,7 @@ func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 			nodeAllocatableMemory.Cmp(*podMemoryRequests) > 0 {
 			return CheckResult{
 				Message: "The cluster is not full",
-				Details: []string{fmt.Sprintf("Found node %s with sufficient CPU and memory. (There may be other constraints on these nodes that prohibit a pod from being scheduled here.)", node.Name)},
+				Details: []string{fmt.Sprintf("Found Node %s with sufficient CPU and memory. (There may be other constraints on that Node that prohibit Pods from being scheduled here.)", node.Name)},
 			}
 		}
 	}

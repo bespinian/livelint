@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+// Start renders the UI and listens for messages.
 func (n *Livelint) Start() {
 	err := n.ui.Start()
 	if err != nil {
@@ -12,40 +13,40 @@ func (n *Livelint) Start() {
 	}
 }
 
+// Quit quits the UI and drops back to the terminal.
 func (n *Livelint) Quit() {
 	n.ui.Quit()
 }
 
 // RunChecks checks for potential issues with a deployment.
 func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
+	verboseMsg := initalizeVerbose(isVerbose)
+	n.ui.Send(verboseMsg)
+
 	// nolint:govet
 	statusMsg := initalizeStatus(fmt.Sprintf("Checking Deployment %q in Namespace %q", deploymentName, namespace))
 	n.ui.Send(statusMsg)
 
-	statusMsg.StartCheck("Checking Pods")
+	statusMsg.StartCheck("Checking Deployment Pods")
 	n.ui.Send(statusMsg)
 
 	allPods, err := n.getDeploymentPods(namespace, deploymentName)
 	if err != nil {
-		return fmt.Errorf("error getting Pods: %w", err)
+		return fmt.Errorf("error getting Deployment Pods: %w", err)
 	}
 
-	// Are you hitting the ResourceQuota limits ?
+	// Are you hitting the ResourceQuota limits?
 	result := n.checkAreResourceQuotasHit(namespace, deploymentName)
-
 	statusMsg.AddCheckResult(result)
 	n.ui.Send(statusMsg)
-
 	if result.HasFailed {
 		return nil
 	}
 
 	// Is there any PENDING Pod?
 	result = checkAreTherePendingPods(allPods)
-
 	statusMsg.AddCheckResult(result)
 	n.ui.Send(statusMsg)
-
 	if result.HasFailed {
 
 		// Is the cluster full?
@@ -88,15 +89,16 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		for _, pod := range allPods {
 			nonRunningContainers := getNonRunningContainers(pod)
 			if len(nonRunningContainers) > 0 {
+				nonRunningContainer := nonRunningContainers[0]
 
 				// Is the Pod status ImagePullBackOff?
-				result = checkImagePullErrors(pod, nonRunningContainers[0].Name)
+				result = checkImagePullErrors(pod, nonRunningContainer)
 				statusMsg.AddCheckResult(result)
 				n.ui.Send(statusMsg)
 				if result.HasFailed {
 
 					// Is the name of the image correct?
-					result = n.checkIsImageNameCorrect()
+					result = n.checkIsImageNameCorrect(nonRunningContainer)
 					statusMsg.AddCheckResult(result)
 					n.ui.Send(statusMsg)
 					if result.HasFailed {
@@ -104,7 +106,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					}
 
 					// Is the image tag valid? Does it exist?
-					result = n.checkIsImageTagValid()
+					result = n.checkIsImageTagValid(nonRunningContainer)
 					statusMsg.AddCheckResult(result)
 					n.ui.Send(statusMsg)
 					if result.HasFailed {
@@ -112,7 +114,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					}
 
 					// Are you pulling images from a private registry?
-					result = n.checkIsPullingFromPrivateRegistry()
+					result = n.checkIsPullingFromPrivateRegistry(nonRunningContainer.Image)
 					statusMsg.AddCheckResult(result)
 					n.ui.Send(statusMsg)
 
@@ -120,7 +122,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 				}
 
 				// Is the Pod status CrashLoopBackOff?
-				result = checkCrashLoopBackOff(pod, nonRunningContainers[0].Name)
+				result = checkCrashLoopBackOff(pod, nonRunningContainer.Name)
 				statusMsg.AddCheckResult(result)
 				n.ui.Send(statusMsg)
 				if result.HasFailed {
@@ -130,8 +132,9 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					statusMsg.AddCheckResult(result)
 					n.ui.Send(statusMsg)
 					if result.HasFailed {
+
 						// Can you see the logs for the app?
-						result = n.checkContainerLogs(pod, nonRunningContainers[0].Name)
+						result = n.checkContainerLogs(pod, nonRunningContainer.Name)
 						statusMsg.AddCheckResult(result)
 						n.ui.Send(statusMsg)
 						if !result.HasFailed {
@@ -153,6 +156,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 				statusMsg.AddCheckResult(result)
 				n.ui.Send(statusMsg)
 				if result.HasFailed {
+
 					// Is there any container running?
 					result = checkAreThereRunningContainers(pod)
 					statusMsg.AddCheckResult(result)
@@ -160,6 +164,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					return nil
 				}
 
+				// Are there failing volume mounts
 				result = n.checkFailedMount(pod)
 				statusMsg.AddCheckResult(result)
 				n.ui.Send(statusMsg)
@@ -205,7 +210,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	statusMsg.CompleteCheck(summaryMsg{text: "Pods are running correctly", kind: success})
 	n.ui.Send(statusMsg)
 
-	statusMsg.StartCheck("Checking Service")
+	statusMsg.StartCheck("Checking Services")
 	n.ui.Send(statusMsg)
 
 	allServices, partlyMatchingServices, err := n.getServices(namespace, deploymentName)
@@ -263,8 +268,9 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		n.ui.Send(statusMsg)
 	}
 
-	statusMsg.StartCheck("Checking Ingress")
+	statusMsg.StartCheck("Checking Ingresses")
 	n.ui.Send(statusMsg)
+
 	ingresses, err := n.getIngressesFromServices(namespace, allServices)
 	if err != nil {
 		log.Fatal(fmt.Errorf("error getting ingresses in namespace %s: %w", namespace, err))
@@ -273,7 +279,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if len(ingresses) < 1 {
 		result = CheckResult{
 			HasFailed: true,
-			Message:   "No ingresses match any of the previously detected services names and ports.",
+			Message:   "No Ingresses match any of the previously detected services names and ports.",
 		}
 		statusMsg.AddCheckResult(result)
 		n.ui.Send(statusMsg)
@@ -294,8 +300,9 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	}
 
 	// Can you visit the app?
-	statusMsg.StartCheck("Checking app connectivity")
+	statusMsg.StartCheck("Checking App Connectivity")
 	n.ui.Send(statusMsg)
+
 	result = n.checkCanVisitIngressApp()
 	statusMsg.AddCheckResult(result)
 	n.ui.Send(statusMsg)
@@ -310,6 +317,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 		return nil
 	}
+
 	statusMsg.CompleteCheck(summaryMsg{text: "The Ingresses are running correctly", kind: success})
 	n.ui.Send(statusMsg)
 

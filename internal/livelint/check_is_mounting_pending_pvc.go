@@ -12,7 +12,7 @@ import (
 func (n *Livelint) checkIsMountingPendingPVC(pods []apiv1.Pod, namespace string) CheckResult {
 	pvcs, err := n.k8s.CoreV1().PersistentVolumeClaims(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error listing PVCs in namespace %s: %w", namespace, err))
+		log.Fatal(fmt.Errorf("error listing PVCs for namespace %s: %w", namespace, err))
 	}
 
 	for _, pod := range pods {

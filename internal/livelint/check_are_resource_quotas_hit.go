@@ -13,7 +13,7 @@ import (
 func (n *Livelint) checkAreResourceQuotasHit(namespace string, deploymentName string) CheckResult {
 	replicaSets, err := n.k8s.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error querying replica set for deployment %s in namespace %s: %w", deploymentName, namespace, err))
+		log.Fatal(fmt.Errorf("error listing ReplicaSets for Namespace %s: %w", namespace, err))
 	}
 
 	for _, rs := range replicaSets.Items {
@@ -33,8 +33,8 @@ func (n *Livelint) checkAreResourceQuotasHit(namespace string, deploymentName st
 				if condition.Type == appsv1.ReplicaSetReplicaFailure && strings.Contains(condition.Message, "exceeded quota:") {
 					return CheckResult{
 						HasFailed:    true,
-						Message:      "You are hitting the resource quota limits",
-						Instructions: "Investigate and relax the resource quota limits of the namespace or lower the resources required by some of your workloads in the namespace.",
+						Message:      "You are hitting the ResourceQuota limits",
+						Instructions: "Investigate and relax the ResourceQuota limits of the namespace or lower the resources required by some of your workloads in the namespace.",
 						Details:      []string{condition.Message},
 					}
 				}

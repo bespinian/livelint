@@ -64,7 +64,7 @@ func TestCheckAreThereRestartCyclingPods(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There is 1 Pod cycling between running an crashing",
+			expectedMessage: "There is 1 Pod cycling between RUNNING and CRASHING",
 		},
 	}
 

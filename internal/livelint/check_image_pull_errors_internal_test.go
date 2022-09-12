@@ -13,13 +13,13 @@ func TestCheckImagePullErrors(t *testing.T) {
 	cases := []struct {
 		it              string
 		pod             apiv1.Pod
-		containerName   string
+		container       apiv1.Container
 		expectedToFail  bool
 		expectedMessage string
 	}{
 		{
-			it:            "succeeds if the container does not have a waiting status",
-			containerName: "container1",
+			it:        "succeeds if the container does not have a waiting status",
+			container: apiv1.Container{Name: "container1"},
 			pod: apiv1.Pod{
 				Status: apiv1.PodStatus{
 					ContainerStatuses: []apiv1.ContainerStatus{
@@ -34,8 +34,8 @@ func TestCheckImagePullErrors(t *testing.T) {
 			expectedMessage: "The Pod is not in status ImagePullBackOff",
 		},
 		{
-			it:            "succeeds if the container does not have a waiting status with reason ErrImagePull or ImagePullBackOff",
-			containerName: "container1",
+			it:        "succeeds if the container does not have a waiting status with reason ErrImagePull or ImagePullBackOff",
+			container: apiv1.Container{Name: "container1"},
 			pod: apiv1.Pod{
 				Status: apiv1.PodStatus{
 					ContainerStatuses: []apiv1.ContainerStatus{
@@ -50,8 +50,8 @@ func TestCheckImagePullErrors(t *testing.T) {
 			expectedMessage: "The Pod is not in status ImagePullBackOff",
 		},
 		{
-			it:            "succeeds if other containers have a waiting status with reason ErrImagePull or ImagePullBackOff",
-			containerName: "container1",
+			it:        "succeeds if other containers have a waiting status with reason ErrImagePull or ImagePullBackOff",
+			container: apiv1.Container{Name: "container1"},
 			pod: apiv1.Pod{
 				Status: apiv1.PodStatus{
 					ContainerStatuses: []apiv1.ContainerStatus{
@@ -74,8 +74,8 @@ func TestCheckImagePullErrors(t *testing.T) {
 			expectedMessage: "The Pod is not in status ImagePullBackOff",
 		},
 		{
-			it:            "fails if the container has a waiting status with reason ErrImagePull",
-			containerName: "container1",
+			it:        "fails if the container has a waiting status with reason ErrImagePull",
+			container: apiv1.Container{Name: "container1", Image: "image1"},
 			pod: apiv1.Pod{
 				Status: apiv1.PodStatus{
 					ContainerStatuses: []apiv1.ContainerStatus{
@@ -87,11 +87,11 @@ func TestCheckImagePullErrors(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "The Pod is in status ErrImagePull",
+			expectedMessage: "The Pod is in status ErrImagePull because of the image \"image1\"",
 		},
 		{
-			it:            "fails if the container has a waiting status with reason ImagePullBackOff",
-			containerName: "container1",
+			it:        "fails if the container has a waiting status with reason ImagePullBackOff",
+			container: apiv1.Container{Name: "container1", Image: "image1"},
 			pod: apiv1.Pod{
 				Status: apiv1.PodStatus{
 					ContainerStatuses: []apiv1.ContainerStatus{
@@ -103,7 +103,7 @@ func TestCheckImagePullErrors(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "The Pod is in status ImagePullBackOff",
+			expectedMessage: "The Pod is in status ImagePullBackOff because of the image \"image1\"",
 		},
 	}
 
@@ -113,7 +113,7 @@ func TestCheckImagePullErrors(t *testing.T) {
 			t.Parallel()
 			is := is.New(t)
 
-			result := checkImagePullErrors(tc.pod, tc.containerName)
+			result := checkImagePullErrors(tc.pod, tc.container)
 
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 			is.Equal(result.Message, tc.expectedMessage)  // Message

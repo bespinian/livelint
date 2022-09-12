@@ -6,7 +6,7 @@ func (n *Livelint) checkIsPortExposedCorrectly() CheckResult {
 	if yes {
 		return CheckResult{
 			HasFailed:    true,
-			Message:      "The port exposed by the container isn't correct or isn't listening on 0.0.0.0",
+			Message:      "The port exposed by the container is not correct or is not listening on 0.0.0.0",
 			Instructions: "Fix the app. It should listen on 0.0.0.0. Update the container port.",
 		}
 	}

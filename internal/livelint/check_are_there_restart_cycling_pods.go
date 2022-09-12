@@ -16,16 +16,16 @@ func (n *Livelint) checkAreThereRestartCyclingPods(pods []apiv1.Pod) CheckResult
 	}
 
 	if len(reasonsToFail) > 0 {
-		msgTemplate := "There are %v Pods cycling between running an crashing"
+		msgTemplate := "There are %v Pods cycling between RUNNING and CRASHING"
 		if len(reasonsToFail) == 1 {
-			msgTemplate = "There is %v Pod cycling between running an crashing"
+			msgTemplate = "There is %v Pod cycling between RUNNING and CRASHING"
 		}
 
 		return CheckResult{
 			HasFailed:    true,
 			Message:      fmt.Sprintf(msgTemplate, len(reasonsToFail)),
 			Details:      reasonsToFail,
-			Instructions: "Fix the liveness probes",
+			Instructions: "Fix the respective liveness probe(s)",
 		}
 
 	}
