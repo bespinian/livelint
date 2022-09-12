@@ -77,7 +77,7 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 	for range readyChan {
 	}
 
-	n.tea.Send(showSpinnerMsg{showing: true})
+	n.ui.Send(showSpinnerMsg{showing: true})
 	// send some traffic via the port forwarding
 	forwardedPorts, _ := forwarder.GetPorts()
 	_, err = net.Dial("tcp", fmt.Sprintf("localhost:%d", forwardedPorts[0].Local))
@@ -87,7 +87,7 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 
 	// wait for a certain time to see whether port forwarding error handling is called
 	time.Sleep(connectionTimeoutSeconds * time.Second)
-	n.tea.Send(showSpinnerMsg{showing: false})
+	n.ui.Send(showSpinnerMsg{showing: false})
 
 	return connectionSuccessful
 }

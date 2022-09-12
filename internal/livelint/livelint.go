@@ -9,7 +9,7 @@ import (
 type Livelint struct {
 	k8s    kubernetes.Interface
 	config *rest.Config
-	tea    *tea.Program
+	ui     *tea.Program
 }
 
 // New creates a livelint application.
@@ -17,7 +17,7 @@ func New(k8s kubernetes.Interface, config *rest.Config) *Livelint {
 	l := &Livelint{
 		k8s:    k8s,
 		config: config,
-		tea:    tea.NewProgram(initialModel()),
+		ui:     tea.NewProgram(initialModel()),
 	}
 	return l
 }
