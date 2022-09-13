@@ -31,7 +31,7 @@ func TestCheckImagePullErrors(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "The Pod is not in status ImagePullBackOff",
+			expectedMessage: "All images can be pulled",
 		},
 		{
 			it:        "succeeds if the container does not have a waiting status with reason ErrImagePull or ImagePullBackOff",
@@ -47,7 +47,7 @@ func TestCheckImagePullErrors(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "The Pod is not in status ImagePullBackOff",
+			expectedMessage: "All images can be pulled",
 		},
 		{
 			it:        "succeeds if other containers have a waiting status with reason ErrImagePull or ImagePullBackOff",
@@ -71,7 +71,7 @@ func TestCheckImagePullErrors(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "The Pod is not in status ImagePullBackOff",
+			expectedMessage: "All images can be pulled",
 		},
 		{
 			it:        "fails if the container has a waiting status with reason ErrImagePull",
@@ -87,7 +87,7 @@ func TestCheckImagePullErrors(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "The Pod is in status ErrImagePull because of the image \"image1\"",
+			expectedMessage: "A Pod is in status ErrImagePull",
 		},
 		{
 			it:        "fails if the container has a waiting status with reason ImagePullBackOff",
@@ -103,7 +103,7 @@ func TestCheckImagePullErrors(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "The Pod is in status ImagePullBackOff because of the image \"image1\"",
+			expectedMessage: "A Pod is in status ImagePullBackOff",
 		},
 	}
 

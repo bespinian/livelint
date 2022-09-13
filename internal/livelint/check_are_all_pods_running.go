@@ -12,6 +12,7 @@ func checkAreAllPodsRunning(pods []apiv1.Pod) CheckResult {
 	for _, pod := range pods {
 		if pod.Status.Phase != apiv1.PodRunning {
 			nonRunningPods = append(nonRunningPods, pod)
+			break
 		}
 		for _, cs := range pod.Status.ContainerStatuses {
 			if cs.State.Running == nil {
@@ -34,7 +35,7 @@ func checkAreAllPodsRunning(pods []apiv1.Pod) CheckResult {
 		return CheckResult{
 			HasFailed: true,
 			Message:   fmt.Sprintf(msgTemplate, len(nonRunningPods)),
-			Details:   nonRunningPodNames,
+			Details:   append([]string{"Not RUNNING Pods:"}, nonRunningPodNames...),
 		}
 	}
 

@@ -35,14 +35,13 @@ func (n *Livelint) checkContainerLogs(pod apiv1.Pod, containerName string) Check
 
 	return CheckResult{
 		Message:      "You can see the logs for the app",
-		Details:      strings.Split(logs, "\n"),
+		Details:      strings.Split(fmt.Sprintf("Logs for Pod %s:\n", pod.Name)+logs, "\n"),
 		Instructions: "Fix the issue in the application",
 	}
 }
 
 // tailPodLogs returns the last log messages of a pod.
 func (n *Livelint) tailPodLogs(namespace, podName, containerName string, tailLines int64, previous bool) (string, error) {
-	var logs string
 	podLogOptions := apiv1.PodLogOptions{
 		Container: containerName,
 		TailLines: &tailLines,
@@ -51,17 +50,15 @@ func (n *Livelint) tailPodLogs(namespace, podName, containerName string, tailLin
 	req := n.k8s.CoreV1().Pods(namespace).GetLogs(podName, &podLogOptions)
 	podLogs, err := req.Stream(context.Background())
 	if err != nil {
-		return logs, fmt.Errorf("error getting request stream: %w", err)
+		return "", fmt.Errorf("error getting request stream: %w", err)
 	}
 	defer podLogs.Close()
 
 	buf := new(bytes.Buffer)
 	_, err = io.Copy(buf, podLogs)
 	if err != nil {
-		return logs, fmt.Errorf("error copying logs buffer: %w", err)
+		return "", fmt.Errorf("error copying logs buffer: %w", err)
 	}
 
-	logs = buf.String()
-
-	return logs, nil
+	return buf.String(), nil
 }

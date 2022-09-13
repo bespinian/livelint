@@ -17,6 +17,6 @@ func checkAreThereRunningContainers(pod apiv1.Pod) CheckResult {
 	return CheckResult{
 		HasFailed:    true,
 		Message:      "There are no RUNNING containers",
-		Instructions: "Consult StackOverflow",
+		Instructions: "Give it some more time or consult StackOverflow",
 	}
 }
