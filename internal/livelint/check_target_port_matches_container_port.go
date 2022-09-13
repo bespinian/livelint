@@ -43,7 +43,7 @@ func (n *Livelint) checkTargetPortMatchesContainerPort(pods []apiv1.Pod, service
 		return CheckResult{
 			HasFailed:    true,
 			Message:      fmt.Sprintf("The targetPorts %s on the Service don't match the containerPort in the Pod", portList),
-			Instructions: "Fix the Service targetPort and the containerPort",
+			Instructions: "Fix the Service targetPort or the containerPort",
 		}
 	}
 

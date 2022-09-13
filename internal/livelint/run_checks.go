@@ -91,6 +91,14 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 			if len(nonRunningContainers) > 0 {
 				nonRunningContainer := nonRunningContainers[0]
 
+				// Is the Pod status InvalidImageName?
+				result = checkInvalidImageName(pod, nonRunningContainer)
+				statusMsg.AddCheckResult(result)
+				n.ui.Send(statusMsg)
+				if result.HasFailed {
+					return nil
+				}
+
 				// Is the Pod status ImagePullBackOff?
 				result = checkImagePullErrors(pod, nonRunningContainer)
 				statusMsg.AddCheckResult(result)
@@ -144,9 +152,8 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 					// Did you forget the CMD instruction in the Dockerfile?
 					result = n.checkForgottenCMDInDockerfile()
-					if result.HasFailed {
-						return nil
-					}
+					statusMsg.AddCheckResult(result)
+					n.ui.Send(statusMsg)
 
 					return nil
 				}
@@ -199,7 +206,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	n.ui.Send(statusMsg)
 	if result.HasFailed {
 
-		// Is the port exposed by container correct and listing on 0.0.0.0?
+		// Is the port exposed by container correct and listening on 0.0.0.0?
 		result = n.checkIsPortExposedCorrectly()
 		statusMsg.AddCheckResult(result)
 		n.ui.Send(statusMsg)
@@ -279,7 +286,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if len(ingresses) < 1 {
 		result = CheckResult{
 			HasFailed: true,
-			Message:   "No Ingresses match any of the previously detected services names and ports.",
+			Message:   "No Ingresses match any of the previously detected services names and ports",
 		}
 		statusMsg.AddCheckResult(result)
 		n.ui.Send(statusMsg)

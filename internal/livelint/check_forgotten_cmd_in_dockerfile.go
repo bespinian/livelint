@@ -12,6 +12,7 @@ func (n *Livelint) checkForgottenCMDInDockerfile() CheckResult {
 	}
 
 	return CheckResult{
-		Message: "Your Dockerfile has a CMD instruction",
+		Message:      "Your Dockerfile has a CMD instruction",
+		Instructions: "Unknown state",
 	}
 }

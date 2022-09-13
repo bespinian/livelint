@@ -12,7 +12,7 @@ func checkIsContainerCreating(pod apiv1.Pod) CheckResult {
 			if containerStatus.State.Waiting != nil && containerStatus.State.Waiting.Reason == "ContainerCreating" {
 				return CheckResult{
 					HasFailed: true,
-					Message:   fmt.Sprintf("Container %s of pod %s is in state ContainerCreating", containerStatus.Name, pod.Name),
+					Message:   fmt.Sprintf("Container %s of Pod %s is in state ContainerCreating", containerStatus.Name, pod.Name),
 				}
 			}
 		}

@@ -309,23 +309,30 @@ func (m model) assembleLists() string {
 		listItemDetails = func(c CheckResult) string {
 			details := ""
 			if m.verbose && len(c.Details) > 0 {
-				details = "\n     " + lipgloss.NewStyle().SetString(strings.Join(c.Details, "\n     ")).
+				details = "\n\n     " + lipgloss.NewStyle().SetString(strings.Join(c.Details, "\n     ")).
 					Foreground(gray).
-					String()
+					String() + "\n"
 			}
 			return details
 		}
+		listItemInstructions = func(c CheckResult) string {
+			instructions := ""
+			if c.Instructions != "" {
+				instructions = "\n\n" + listItem.Copy().Render(
+					arrowRight+lipgloss.NewStyle().SetString(c.Instructions).Bold(true).String(),
+				) + "\n"
+			}
+			return instructions
+		}
 		listItemSuccess = func(c CheckResult) string {
 			return listItem.Copy().Render(checkMark+c.Message) +
-				listItemDetails(c)
+				listItemDetails(c) +
+				listItemInstructions(c)
 		}
 		listItemError = func(c CheckResult) string {
-			instructions := lipgloss.NewStyle().SetString(c.Instructions).Bold(true).String()
-
 			return listItem.Copy().Render(cross+c.Message) +
 				listItemDetails(c) +
-				"\n\n" +
-				listItem.Copy().Render(arrowRight+instructions)
+				listItemInstructions(c)
 		}
 	)
 

@@ -8,6 +8,7 @@ import (
 
 func (n *Livelint) checkCanVisitServiceApp(service apiv1.Service) CheckResult {
 	failureDetails := []string{}
+
 	pods, _ := n.getServicePods(service)
 	for _, port := range service.Spec.Ports {
 		for _, pod := range pods {
@@ -18,16 +19,15 @@ func (n *Livelint) checkCanVisitServiceApp(service apiv1.Service) CheckResult {
 		}
 	}
 
-	checkResult := CheckResult{
-		Message: "You can access the service",
-	}
 	if len(failureDetails) > 0 {
-		checkResult = CheckResult{
-			Message:   "One or more ports were not acessible",
+		return CheckResult{
 			HasFailed: true,
+			Message:   "One or more ports were not accessible",
 			Details:   failureDetails,
 		}
 	}
 
-	return checkResult
+	return CheckResult{
+		Message: "You can access the service",
+	}
 }

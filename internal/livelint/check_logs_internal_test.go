@@ -148,9 +148,9 @@ func TestCheckContainerLogs(t *testing.T) {
 				} else {
 					lr = tc.logResponse
 				}
-				is.Equal(len(result.Details), len(lr.logLines))
+				is.Equal(len(result.Details), len(lr.logLines)+1)
 				for i, line := range lr.logLines {
-					is.Equal(result.Details[i], line)
+					is.Equal(result.Details[i+1], line)
 				}
 			}
 			is.Equal(result.Message, tc.expectedMessage) // Message

@@ -34,7 +34,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  true,
-			expectedMessage: "Container TESTCONTAINER of pod TESTPOD is in state ContainerCreating",
+			expectedMessage: "Container TESTCONTAINER of Pod TESTPOD is in state ContainerCreating",
 		},
 		{
 			it: "returns a non failing result if the pod has a container with status waiting and reason ContainerCreating but is not pending",
@@ -70,7 +70,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  true,
-			expectedMessage: "Container TESTCONTAINER of pod TESTPOD is in state ContainerCreating",
+			expectedMessage: "Container TESTCONTAINER of Pod TESTPOD is in state ContainerCreating",
 		},
 		{
 			it: "returns a failing result if the pod has one of many containers with status waiting and reason ContainerCreating",
@@ -96,7 +96,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  true,
-			expectedMessage: "Container TESTCONTAINER of pod TESTPOD is in state ContainerCreating",
+			expectedMessage: "Container TESTCONTAINER of Pod TESTPOD is in state ContainerCreating",
 		},
 		{
 			it: "returns a non-failing result if the pod has a container with status waiting and reason != ContainerCreating",

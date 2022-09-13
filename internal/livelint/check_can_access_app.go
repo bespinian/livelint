@@ -59,6 +59,7 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 	}
 	path := fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/portforward", pod.Namespace, pod.Name)
 	hostIP := strings.TrimLeft(n.config.Host, "htps:/")
+	fmt.Println(hostIP)
 	serverURL := url.URL{Scheme: "https", Path: path, Host: hostIP}
 	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: roundTripper}, http.MethodPost, &serverURL)
 	stopChan, readyChan := make(chan struct{}, 1), make(chan struct{}, 1)
@@ -78,6 +79,7 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32) bool {
 	}
 
 	n.ui.Send(showSpinnerMsg{showing: true})
+
 	// send some traffic via the port forwarding
 	forwardedPorts, _ := forwarder.GetPorts()
 	_, err = net.Dial("tcp", fmt.Sprintf("localhost:%d", forwardedPorts[0].Local))

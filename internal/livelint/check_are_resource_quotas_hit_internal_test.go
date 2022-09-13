@@ -42,13 +42,13 @@ func TestCheckAreResourceQuotasHit(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "You are not hitting the ResourceQuota limits",
+			expectedMessage: "You are well within the ResourceQuota limits",
 		},
 		{
 			it:              "succeeds if there are no replica sets",
 			replicaSets:     []appsv1.ReplicaSet{},
 			expectedToFail:  false,
-			expectedMessage: "You are not hitting the ResourceQuota limits",
+			expectedMessage: "You are well within the ResourceQuota limits",
 		},
 		{
 			it: "succeeds if there are no replica sets for deployment",
@@ -65,7 +65,7 @@ func TestCheckAreResourceQuotasHit(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "You are not hitting the ResourceQuota limits",
+			expectedMessage: "You are well within the ResourceQuota limits",
 		},
 		{
 			it: "fails if quotas are exceeded",

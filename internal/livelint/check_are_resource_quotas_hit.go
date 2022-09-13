@@ -43,6 +43,6 @@ func (n *Livelint) checkAreResourceQuotasHit(namespace string, deploymentName st
 	}
 
 	return CheckResult{
-		Message: "You are not hitting the ResourceQuota limits",
+		Message: "You are well within the ResourceQuota limits",
 	}
 }

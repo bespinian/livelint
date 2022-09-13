@@ -1,6 +1,8 @@
 # Livelint
 
-A linting tool for live Kubernetes deployments
+A CLI linting tool for live Kubernetes deployments
+
+Livelint is based on [the A visual guide on troubleshooting Kubernetes deployments blog post](https://learnk8s.io/troubleshooting-deployments) by Daniele Polencic.
 
 ## Installation
 
