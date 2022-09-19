@@ -16,12 +16,13 @@ func (n *Livelint) checkCanSeeBackends(ingress netv1.Ingress, namespace string) 
 		if rule.HTTP == nil {
 			continue
 		}
+
 		for _, path := range rule.HTTP.Paths {
 			switch {
 			case path.Backend.Service != nil:
 				service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})
 				if err != nil {
-					log.Fatal(fmt.Errorf("error getting backends for Ingress %s in namespace %s: %w", ingress.Name, namespace, err))
+					log.Fatal(fmt.Errorf("error getting backends for Ingress %s in Namespace %s: %w", ingress.Name, namespace, err))
 				}
 
 				hasPortMatch := false

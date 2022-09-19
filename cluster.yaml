@@ -1,0 +1,12 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: livelint-demo
+  region: eu-central-1
+  version: "1.23"
+
+managedNodeGroups:
+  - name: spot
+    instanceType: t3.small
+    spot: true
