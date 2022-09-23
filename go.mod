@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbles v0.14.0
 	github.com/charmbracelet/bubbletea v0.22.1
 	github.com/charmbracelet/lipgloss v0.6.0
+	github.com/ishidawataru/sctp v0.0.0-20210707070123-9a39160e9062
 	github.com/matryer/is v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/urfave/cli/v2 v2.23.0
