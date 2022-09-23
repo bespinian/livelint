@@ -13,7 +13,7 @@ func (n *Livelint) checkCanVisitServiceApp(service apiv1.Service) CheckResult {
 	for _, port := range service.Spec.Ports {
 		for _, pod := range pods {
 			checkFunc := checkTCPConnection
-			if port.Protocol == "udp" {
+			if port.Protocol == apiv1.ProtocolUDP {
 				checkFunc = checkUDPConnection
 			}
 			portForwardOk, connectionCheckMsg := n.canPortForward(pod, port.TargetPort.IntVal, checkFunc)

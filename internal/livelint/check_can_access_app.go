@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ishidawataru/sctp"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/tools/portforward"
@@ -23,8 +24,11 @@ func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
 		for _, container := range pod.Spec.Containers {
 			for _, port := range container.Ports {
 				checkFunc := checkTCPConnection
-				if port.Protocol == "udp" {
+				if port.Protocol == apiv1.ProtocolUDP {
 					checkFunc = checkUDPConnection
+				}
+				if port.Protocol == apiv1.ProtocolSCTP {
+					checkFunc = checkSCTPConnection
 				}
 				portForwardOk, connectionCheckMsg := n.canPortForward(pod, port.ContainerPort, checkFunc)
 				if !portForwardOk {
@@ -115,4 +119,20 @@ func checkUDPConnection(port uint16) (bool, string) {
 		return false, fmt.Sprintf("UDP connection error: %s", err)
 	}
 	return true, "UDP connection successful"
+}
+
+func checkSCTPConnection(port uint16) (bool, string) {
+	ipAddr, err := net.ResolveIPAddr("ip", "localhost")
+	if err != nil {
+		return false, fmt.Sprintf("error resolving localhost: %s", err)
+	}
+	addr := sctp.SCTPAddr{
+		IPAddrs: []net.IPAddr{*ipAddr},
+		Port:    int(port),
+	}
+	_, err = sctp.DialSCTP("sctp", nil, &addr)
+	if err != nil {
+		return false, fmt.Sprintf("SCTP connection error: %s", err)
+	}
+	return true, "SCTP connection successful"
 }
