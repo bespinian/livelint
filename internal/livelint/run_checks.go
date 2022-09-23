@@ -114,7 +114,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					}
 
 					// Is the image tag valid? Does it exist?
-					result = n.checkIsImageTagValid(nonRunningContainer)
+					result = n.checkDoesImageTagExist(nonRunningContainer)
 					statusMsg.AddCheckResult(result)
 					n.ui.Send(statusMsg)
 					if result.HasFailed {
