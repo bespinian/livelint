@@ -22,9 +22,13 @@ func (n *Livelint) checkCanAccessApp(pods []apiv1.Pod) CheckResult {
 	for _, pod := range pods {
 		for _, container := range pod.Spec.Containers {
 			for _, port := range container.Ports {
-				portForwardOk, connectionCheckMsg := n.canPortForward(pod, port.ContainerPort, checkTCPConnection)
+				checkFunc := checkTCPConnection
+				if port.Protocol == "udp" {
+					checkFunc = checkUDPConnection
+				}
+				portForwardOk, connectionCheckMsg := n.canPortForward(pod, port.ContainerPort, checkFunc)
 				if !portForwardOk {
-					reason := fmt.Sprintf("container %s of Pod %s has refused connection on port %v: %s", container.Name, pod.Name, port.ContainerPort, connectionCheckMsg)
+					reason := fmt.Sprintf("container %s of Pod %s has refused %s connection on port %v: %s", container.Name, pod.Name, port.Protocol, port.ContainerPort, connectionCheckMsg)
 					reasonsToFail = append(reasonsToFail, reason)
 				}
 			}
@@ -103,4 +107,12 @@ func checkTCPConnection(port uint16) (bool, string) {
 		return false, fmt.Sprintf("TCP connection error: %s", err)
 	}
 	return true, "TCP connection successful"
+}
+
+func checkUDPConnection(port uint16) (bool, string) {
+	_, err := net.Dial("tcp", fmt.Sprintf("localhost:%d", port))
+	if err != nil {
+		return false, fmt.Sprintf("UDP connection error: %s", err)
+	}
+	return true, "UDP connection successful"
 }
