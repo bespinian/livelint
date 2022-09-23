@@ -12,9 +12,13 @@ func (n *Livelint) checkCanVisitServiceApp(service apiv1.Service) CheckResult {
 	pods, _ := n.getServicePods(service)
 	for _, port := range service.Spec.Ports {
 		for _, pod := range pods {
-			portForwardOk, connectionCheckMsg := n.canPortForward(pod, port.TargetPort.IntVal, checkTCPConnection)
+			checkFunc := checkTCPConnection
+			if port.Protocol == "udp" {
+				checkFunc = checkUDPConnection
+			}
+			portForwardOk, connectionCheckMsg := n.canPortForward(pod, port.TargetPort.IntVal, checkFunc)
 			if !portForwardOk {
-				failureDetail := fmt.Sprintf("Pod %s has refused connection on port %d, forwarded from port %d: %s", pod.Name, port.TargetPort.IntVal, port.Port, connectionCheckMsg)
+				failureDetail := fmt.Sprintf("Pod %s has refused %s connection on port %d, forwarded from port %d: %s", pod.Name, port.Protocol, port.TargetPort.IntVal, port.Port, connectionCheckMsg)
 				failureDetails = append(failureDetails, failureDetail)
 			}
 		}
