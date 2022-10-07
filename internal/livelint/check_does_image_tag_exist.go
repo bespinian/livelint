@@ -16,7 +16,7 @@ func (n *Livelint) checkDoesImageTagExist(container apiv1.Container) CheckResult
 		tag = parts[1]
 	}
 
-	yes := n.askUserYesOrNo(fmt.Sprintf("Does the tag %q for the image %q exist in the docker repository?", tag, image))
+	yes := n.askUserYesOrNo(fmt.Sprintf("Does the tag %q for the image %q exist in the container repository?", tag, image))
 
 	if !yes {
 		return CheckResult{
