@@ -2,6 +2,7 @@ linters:
   enable-all: true
   disable:
     - cyclop
+    - deadcode
     - dupl
     - exhaustivestruct
     - exhaustruct
@@ -19,7 +20,10 @@ linters:
     - nestif
     - nlreturn
     - nolintlint
+    - nosnakecase
     - scopelint
+    - structcheck
+    - varcheck
     - varnamelen
     - whitespace
     - wsl

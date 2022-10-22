@@ -293,7 +293,7 @@ func (m model) assembleLists() string {
 				String()
 
 		bad   = lipgloss.AdaptiveColor{Light: "#EA9999", Dark: "#E06666"}
-		cross = lipgloss.NewStyle().SetString("✘").
+		cross = lipgloss.NewStyle().SetString("✖").
 			Foreground(bad).
 			PaddingRight(listItemPaddingLeft).
 			String()
