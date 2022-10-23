@@ -24,13 +24,16 @@ func getUrlsFromIngress(ingress netv1.Ingress) []url.URL {
 			host = ingressRule.Host
 		}
 		var scheme string
+		var port int
 		if hasTLSCertificate(ingressRule.Host, ingress) {
 			scheme = "https"
+			port = 443
 		} else {
 			scheme = "http"
+			port = 80
 		}
 		for _, path := range ingressRule.HTTP.Paths {
-			urls = append(urls, *net.FormatURL(scheme, host, 0, path.Path))
+			urls = append(urls, *net.FormatURL(scheme, host, port, path.Path))
 		}
 	}
 	return urls
