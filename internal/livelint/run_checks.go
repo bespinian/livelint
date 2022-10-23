@@ -330,7 +330,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	n.ui.Send(statusMsg)
 
 	// The app should be running. Can you visit it from the public internet?
-	result = n.checkCanVisitPublicApp()
+	result = n.checkCanVisitPublicApp(namespace, allServices)
 	statusMsg.AddCheckResult(result)
 	n.ui.Send(statusMsg)
 	if result.HasFailed {
