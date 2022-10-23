@@ -25,15 +25,14 @@ type ForwardedPorts struct {
 
 func (n *Livelint) checkCanAccessAppFromIngressControllerPod(ingressControllerPod apiv1.Pod, port int32, url url.URL) CheckResult {
 	result := CheckResult{HasFailed: false}
-
 	checkHTTPConnection := func(port uint16) (bool, string) {
 		localhostURL := getLocalhostURL(url, port)
 		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, localhostURL, nil)
 		if err != nil {
-			log.Fatal(fmt.Errorf("error creating http GET request for url %s: %w", localhostURL, err))
+			log.Fatal(fmt.Errorf("error creating HTTP GET request for URL %s: %w", localhostURL, err))
 		}
 		if url.Hostname() != "" && url.Hostname() != "localhost" {
-			req.Header.Add("Host", url.Hostname())
+			req.Host = url.Hostname()
 		}
 		resp, err := http.DefaultClient.Do(req)
 		statusString := fmt.Sprintf("HTTP status code %d", resp.StatusCode)
@@ -133,7 +132,7 @@ func (n *Livelint) checkCanAccessAppFromIngressController(ingress netv1.Ingress,
 	for _, url := range urls {
 		urlResult := n.checkCanAccessURLFromIngressControllerPods(url, forwardedPorts, controllerPods)
 		if urlResult.HasFailed {
-			return CheckResult{HasFailed: true, Message: "You cannot visit the app from the corresponding ingress controller"}
+			return CheckResult{HasFailed: true, Message: urlResult.Message}
 		}
 
 	}
