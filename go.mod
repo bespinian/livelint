@@ -7,7 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.22.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/matryer/is v1.4.0
-	github.com/urfave/cli/v2 v2.20.2
+	github.com/urfave/cli/v2 v2.23.0
 	k8s.io/api v0.25.3
 	k8s.io/apimachinery v0.25.3
 	k8s.io/client-go v0.25.3
