@@ -65,7 +65,8 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, checkFunc func(uint
 	serverURL := url.URL{Scheme: "https", Path: path, Host: hostIP}
 	dialer := spdy.NewDialer(upgrader, &http.Client{Transport: roundTripper}, http.MethodPost, &serverURL)
 	stopChan, readyChan := make(chan struct{}, 1), make(chan struct{}, 1)
-	out, errOut := new(bytes.Buffer), new(bytes.Buffer)
+	out := &bytes.Buffer{}
+	errOut := &bytes.Buffer{}
 	ports := []string{fmt.Sprintf(":%d", port)}
 	forwarder, err := portforward.New(dialer, ports, stopChan, readyChan, out, errOut)
 
