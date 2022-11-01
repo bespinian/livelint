@@ -54,7 +54,7 @@ func (n *Livelint) tailPodLogs(namespace, podName, containerName string, tailLin
 	}
 	defer podLogs.Close()
 
-	buf := new(bytes.Buffer)
+	buf := &bytes.Buffer{}
 	_, err = io.Copy(buf, podLogs)
 	if err != nil {
 		return "", fmt.Errorf("error copying logs buffer: %w", err)

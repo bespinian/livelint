@@ -25,7 +25,7 @@ func TestCheckAreAllPodsRunning(t *testing.T) {
 						ContainerStatuses: []apiv1.ContainerStatus{
 							{
 								State: apiv1.ContainerState{
-									Running: new(apiv1.ContainerStateRunning),
+									Running: &apiv1.ContainerStateRunning{},
 								},
 							},
 						},
