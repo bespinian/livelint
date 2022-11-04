@@ -1,15 +1,22 @@
 package livelint
 
 import (
+	"errors"
 	"fmt"
 	"log"
 )
 
 // RunChecks checks for potential issues with a deployment.
 func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
+	if namespace == "" {
+		return errors.New("no namespace defined")
+	}
+	if deploymentName == "" {
+		return errors.New("no deployment defined")
+	}
+
 	// nolint:govet
 	n.ui.DisplayContext(fmt.Sprintf("Checking Deployment %q in Namespace %q", deploymentName, namespace))
-
 	n.ui.DisplayCheckStart("Checking Deployment Pods")
 
 	allPods, err := n.getDeploymentPods(namespace, deploymentName)
