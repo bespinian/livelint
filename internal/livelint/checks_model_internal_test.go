@@ -11,7 +11,7 @@ import (
 func TestChecksModelInit(t *testing.T) {
 	t.Parallel()
 
-	t.Run("initializes the model correctly", func(t *testing.T) {
+	t.Run("initializes the Model correctly", func(t *testing.T) {
 		t.Parallel()
 		is := is.New(t)
 

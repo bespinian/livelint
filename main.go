@@ -78,13 +78,13 @@ func main() {
 
 					go func() {
 						defer bubbletea.Quit()
-						errRunChecks := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
-						if errRunChecks != nil {
-							log.Fatal(fmt.Errorf("error running checks: %w", errRunChecks))
+						runErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
+						if runErr != nil {
+							log.Fatal(fmt.Errorf("error running checks: %w", err))
 						}
 					}()
 
-					err := bubbletea.Start()
+					err = bubbletea.Start()
 					if err != nil {
 						return fmt.Errorf("Failed to start ui %w", err)
 					}
