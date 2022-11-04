@@ -8,7 +8,6 @@ import (
 
 	"github.com/bespinian/livelint/internal/livelint"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -85,10 +84,11 @@ func main() {
 						}
 					}()
 
-					errStart := bubbletea.Start()
-					if errStart != nil {
-						return errors.Wrap(errStart, "Failed to start ui")
+					err := bubbletea.Start()
+					if err != nil {
+						return fmt.Errorf("Failed to start ui %w", err)
 					}
+
 					return nil
 				},
 			},
