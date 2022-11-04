@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
+	"k8s.io/client-go/applyconfigurations/core/v1"
 	"sync"
 )
 
@@ -23,10 +23,10 @@ var _ apiv1NodeInterface = &apiv1NodeInterfaceMock{}
 //
 // 		// make and configure a mocked apiv1NodeInterface
 // 		mockedapiv1NodeInterface := &apiv1NodeInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, node *corev1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
+// 			ApplyFunc: func(ctx context.Context, node *v1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
 // 				panic("mock out the Apply method")
 // 			},
-// 			ApplyStatusFunc: func(ctx context.Context, node *corev1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
+// 			ApplyStatusFunc: func(ctx context.Context, node *v1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
 // 				panic("mock out the ApplyStatus method")
 // 			},
 // 			CreateFunc: func(ctx context.Context, node *apiv1.Node, opts metav1.CreateOptions) (*apiv1.Node, error) {
@@ -67,10 +67,10 @@ var _ apiv1NodeInterface = &apiv1NodeInterfaceMock{}
 // 	}
 type apiv1NodeInterfaceMock struct {
 	// ApplyFunc mocks the Apply method.
-	ApplyFunc func(ctx context.Context, node *corev1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error)
+	ApplyFunc func(ctx context.Context, node *v1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error)
 
 	// ApplyStatusFunc mocks the ApplyStatus method.
-	ApplyStatusFunc func(ctx context.Context, node *corev1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error)
+	ApplyStatusFunc func(ctx context.Context, node *v1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error)
 
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, node *apiv1.Node, opts metav1.CreateOptions) (*apiv1.Node, error)
@@ -109,7 +109,7 @@ type apiv1NodeInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Node is the node argument value.
-			Node *corev1.NodeApplyConfiguration
+			Node *v1.NodeApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -118,7 +118,7 @@ type apiv1NodeInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Node is the node argument value.
-			Node *corev1.NodeApplyConfiguration
+			Node *v1.NodeApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -230,13 +230,13 @@ type apiv1NodeInterfaceMock struct {
 }
 
 // Apply calls ApplyFunc.
-func (mock *apiv1NodeInterfaceMock) Apply(ctx context.Context, node *corev1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
+func (mock *apiv1NodeInterfaceMock) Apply(ctx context.Context, node *v1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
 	if mock.ApplyFunc == nil {
 		panic("apiv1NodeInterfaceMock.ApplyFunc: method is nil but apiv1NodeInterface.Apply was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Node *corev1.NodeApplyConfiguration
+		Node *v1.NodeApplyConfiguration
 		Opts metav1.ApplyOptions
 	}{
 		Ctx:  ctx,
@@ -254,12 +254,12 @@ func (mock *apiv1NodeInterfaceMock) Apply(ctx context.Context, node *corev1.Node
 //     len(mockedapiv1NodeInterface.ApplyCalls())
 func (mock *apiv1NodeInterfaceMock) ApplyCalls() []struct {
 	Ctx  context.Context
-	Node *corev1.NodeApplyConfiguration
+	Node *v1.NodeApplyConfiguration
 	Opts metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Node *corev1.NodeApplyConfiguration
+		Node *v1.NodeApplyConfiguration
 		Opts metav1.ApplyOptions
 	}
 	mock.lockApply.RLock()
@@ -269,13 +269,13 @@ func (mock *apiv1NodeInterfaceMock) ApplyCalls() []struct {
 }
 
 // ApplyStatus calls ApplyStatusFunc.
-func (mock *apiv1NodeInterfaceMock) ApplyStatus(ctx context.Context, node *corev1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
+func (mock *apiv1NodeInterfaceMock) ApplyStatus(ctx context.Context, node *v1.NodeApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Node, error) {
 	if mock.ApplyStatusFunc == nil {
 		panic("apiv1NodeInterfaceMock.ApplyStatusFunc: method is nil but apiv1NodeInterface.ApplyStatus was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Node *corev1.NodeApplyConfiguration
+		Node *v1.NodeApplyConfiguration
 		Opts metav1.ApplyOptions
 	}{
 		Ctx:  ctx,
@@ -293,12 +293,12 @@ func (mock *apiv1NodeInterfaceMock) ApplyStatus(ctx context.Context, node *corev
 //     len(mockedapiv1NodeInterface.ApplyStatusCalls())
 func (mock *apiv1NodeInterfaceMock) ApplyStatusCalls() []struct {
 	Ctx  context.Context
-	Node *corev1.NodeApplyConfiguration
+	Node *v1.NodeApplyConfiguration
 	Opts metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Node *corev1.NodeApplyConfiguration
+		Node *v1.NodeApplyConfiguration
 		Opts metav1.ApplyOptions
 	}
 	mock.lockApplyStatus.RLock()
