@@ -5,13 +5,13 @@ package livelint
 
 import (
 	"context"
-	appsv1 "k8s.io/api/apps/v1"
-	v1 "k8s.io/api/autoscaling/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apiappsv1 "k8s.io/api/apps/v1"
+	apiautoscalingv1 "k8s.io/api/autoscaling/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	configappsv1 "k8s.io/client-go/applyconfigurations/apps/v1"
-	autoscalingv1 "k8s.io/client-go/applyconfigurations/autoscaling/v1"
+	applyconfigurationsappsv1 "k8s.io/client-go/applyconfigurations/apps/v1"
+	applyconfigurationsautoscalingv1 "k8s.io/client-go/applyconfigurations/autoscaling/v1"
 	"sync"
 )
 
@@ -25,46 +25,46 @@ var _ replicaSetInterface = &replicaSetInterfaceMock{}
 //
 // 		// make and configure a mocked replicaSetInterface
 // 		mockedreplicaSetInterface := &replicaSetInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
+// 			ApplyFunc: func(ctx context.Context, replicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration, opts apismetav1.ApplyOptions) (*apiappsv1.ReplicaSet, error) {
 // 				panic("mock out the Apply method")
 // 			},
-// 			ApplyScaleFunc: func(ctx context.Context, replicaSetName string, scale *autoscalingv1.ScaleApplyConfiguration, opts metav1.ApplyOptions) (*v1.Scale, error) {
+// 			ApplyScaleFunc: func(ctx context.Context, replicaSetName string, scale *applyconfigurationsautoscalingv1.ScaleApplyConfiguration, opts apismetav1.ApplyOptions) (*apiautoscalingv1.Scale, error) {
 // 				panic("mock out the ApplyScale method")
 // 			},
-// 			ApplyStatusFunc: func(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
+// 			ApplyStatusFunc: func(ctx context.Context, replicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration, opts apismetav1.ApplyOptions) (*apiappsv1.ReplicaSet, error) {
 // 				panic("mock out the ApplyStatus method")
 // 			},
-// 			CreateFunc: func(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.CreateOptions) (*appsv1.ReplicaSet, error) {
+// 			CreateFunc: func(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.CreateOptions) (*apiappsv1.ReplicaSet, error) {
 // 				panic("mock out the Create method")
 // 			},
-// 			DeleteFunc: func(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+// 			DeleteFunc: func(ctx context.Context, name string, opts apismetav1.DeleteOptions) error {
 // 				panic("mock out the Delete method")
 // 			},
-// 			DeleteCollectionFunc: func(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
+// 			DeleteCollectionFunc: func(ctx context.Context, opts apismetav1.DeleteOptions, listOpts apismetav1.ListOptions) error {
 // 				panic("mock out the DeleteCollection method")
 // 			},
-// 			GetFunc: func(ctx context.Context, name string, opts metav1.GetOptions) (*appsv1.ReplicaSet, error) {
+// 			GetFunc: func(ctx context.Context, name string, opts apismetav1.GetOptions) (*apiappsv1.ReplicaSet, error) {
 // 				panic("mock out the Get method")
 // 			},
-// 			GetScaleFunc: func(ctx context.Context, replicaSetName string, options metav1.GetOptions) (*v1.Scale, error) {
+// 			GetScaleFunc: func(ctx context.Context, replicaSetName string, options apismetav1.GetOptions) (*apiautoscalingv1.Scale, error) {
 // 				panic("mock out the GetScale method")
 // 			},
-// 			ListFunc: func(ctx context.Context, opts metav1.ListOptions) (*appsv1.ReplicaSetList, error) {
+// 			ListFunc: func(ctx context.Context, opts apismetav1.ListOptions) (*apiappsv1.ReplicaSetList, error) {
 // 				panic("mock out the List method")
 // 			},
-// 			PatchFunc: func(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (*appsv1.ReplicaSet, error) {
+// 			PatchFunc: func(ctx context.Context, name string, pt types.PatchType, data []byte, opts apismetav1.PatchOptions, subresources ...string) (*apiappsv1.ReplicaSet, error) {
 // 				panic("mock out the Patch method")
 // 			},
-// 			UpdateFunc: func(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.UpdateOptions) (*appsv1.ReplicaSet, error) {
+// 			UpdateFunc: func(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.UpdateOptions) (*apiappsv1.ReplicaSet, error) {
 // 				panic("mock out the Update method")
 // 			},
-// 			UpdateScaleFunc: func(ctx context.Context, replicaSetName string, scale *v1.Scale, opts metav1.UpdateOptions) (*v1.Scale, error) {
+// 			UpdateScaleFunc: func(ctx context.Context, replicaSetName string, scale *apiautoscalingv1.Scale, opts apismetav1.UpdateOptions) (*apiautoscalingv1.Scale, error) {
 // 				panic("mock out the UpdateScale method")
 // 			},
-// 			UpdateStatusFunc: func(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.UpdateOptions) (*appsv1.ReplicaSet, error) {
+// 			UpdateStatusFunc: func(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.UpdateOptions) (*apiappsv1.ReplicaSet, error) {
 // 				panic("mock out the UpdateStatus method")
 // 			},
-// 			WatchFunc: func(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+// 			WatchFunc: func(ctx context.Context, opts apismetav1.ListOptions) (watch.Interface, error) {
 // 				panic("mock out the Watch method")
 // 			},
 // 		}
@@ -75,46 +75,46 @@ var _ replicaSetInterface = &replicaSetInterfaceMock{}
 // 	}
 type replicaSetInterfaceMock struct {
 	// ApplyFunc mocks the Apply method.
-	ApplyFunc func(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error)
+	ApplyFunc func(ctx context.Context, replicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration, opts apismetav1.ApplyOptions) (*apiappsv1.ReplicaSet, error)
 
 	// ApplyScaleFunc mocks the ApplyScale method.
-	ApplyScaleFunc func(ctx context.Context, replicaSetName string, scale *autoscalingv1.ScaleApplyConfiguration, opts metav1.ApplyOptions) (*v1.Scale, error)
+	ApplyScaleFunc func(ctx context.Context, replicaSetName string, scale *applyconfigurationsautoscalingv1.ScaleApplyConfiguration, opts apismetav1.ApplyOptions) (*apiautoscalingv1.Scale, error)
 
 	// ApplyStatusFunc mocks the ApplyStatus method.
-	ApplyStatusFunc func(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error)
+	ApplyStatusFunc func(ctx context.Context, replicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration, opts apismetav1.ApplyOptions) (*apiappsv1.ReplicaSet, error)
 
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.CreateOptions) (*appsv1.ReplicaSet, error)
+	CreateFunc func(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.CreateOptions) (*apiappsv1.ReplicaSet, error)
 
 	// DeleteFunc mocks the Delete method.
-	DeleteFunc func(ctx context.Context, name string, opts metav1.DeleteOptions) error
+	DeleteFunc func(ctx context.Context, name string, opts apismetav1.DeleteOptions) error
 
 	// DeleteCollectionFunc mocks the DeleteCollection method.
-	DeleteCollectionFunc func(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
+	DeleteCollectionFunc func(ctx context.Context, opts apismetav1.DeleteOptions, listOpts apismetav1.ListOptions) error
 
 	// GetFunc mocks the Get method.
-	GetFunc func(ctx context.Context, name string, opts metav1.GetOptions) (*appsv1.ReplicaSet, error)
+	GetFunc func(ctx context.Context, name string, opts apismetav1.GetOptions) (*apiappsv1.ReplicaSet, error)
 
 	// GetScaleFunc mocks the GetScale method.
-	GetScaleFunc func(ctx context.Context, replicaSetName string, options metav1.GetOptions) (*v1.Scale, error)
+	GetScaleFunc func(ctx context.Context, replicaSetName string, options apismetav1.GetOptions) (*apiautoscalingv1.Scale, error)
 
 	// ListFunc mocks the List method.
-	ListFunc func(ctx context.Context, opts metav1.ListOptions) (*appsv1.ReplicaSetList, error)
+	ListFunc func(ctx context.Context, opts apismetav1.ListOptions) (*apiappsv1.ReplicaSetList, error)
 
 	// PatchFunc mocks the Patch method.
-	PatchFunc func(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (*appsv1.ReplicaSet, error)
+	PatchFunc func(ctx context.Context, name string, pt types.PatchType, data []byte, opts apismetav1.PatchOptions, subresources ...string) (*apiappsv1.ReplicaSet, error)
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.UpdateOptions) (*appsv1.ReplicaSet, error)
+	UpdateFunc func(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.UpdateOptions) (*apiappsv1.ReplicaSet, error)
 
 	// UpdateScaleFunc mocks the UpdateScale method.
-	UpdateScaleFunc func(ctx context.Context, replicaSetName string, scale *v1.Scale, opts metav1.UpdateOptions) (*v1.Scale, error)
+	UpdateScaleFunc func(ctx context.Context, replicaSetName string, scale *apiautoscalingv1.Scale, opts apismetav1.UpdateOptions) (*apiautoscalingv1.Scale, error)
 
 	// UpdateStatusFunc mocks the UpdateStatus method.
-	UpdateStatusFunc func(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.UpdateOptions) (*appsv1.ReplicaSet, error)
+	UpdateStatusFunc func(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.UpdateOptions) (*apiappsv1.ReplicaSet, error)
 
 	// WatchFunc mocks the Watch method.
-	WatchFunc func(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
+	WatchFunc func(ctx context.Context, opts apismetav1.ListOptions) (watch.Interface, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -123,9 +123,9 @@ type replicaSetInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// ReplicaSet is the replicaSet argument value.
-			ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
+			ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
 			// Opts is the opts argument value.
-			Opts metav1.ApplyOptions
+			Opts apismetav1.ApplyOptions
 		}
 		// ApplyScale holds details about calls to the ApplyScale method.
 		ApplyScale []struct {
@@ -134,27 +134,27 @@ type replicaSetInterfaceMock struct {
 			// ReplicaSetName is the replicaSetName argument value.
 			ReplicaSetName string
 			// Scale is the scale argument value.
-			Scale *autoscalingv1.ScaleApplyConfiguration
+			Scale *applyconfigurationsautoscalingv1.ScaleApplyConfiguration
 			// Opts is the opts argument value.
-			Opts metav1.ApplyOptions
+			Opts apismetav1.ApplyOptions
 		}
 		// ApplyStatus holds details about calls to the ApplyStatus method.
 		ApplyStatus []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// ReplicaSet is the replicaSet argument value.
-			ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
+			ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
 			// Opts is the opts argument value.
-			Opts metav1.ApplyOptions
+			Opts apismetav1.ApplyOptions
 		}
 		// Create holds details about calls to the Create method.
 		Create []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// ReplicaSet is the replicaSet argument value.
-			ReplicaSet *appsv1.ReplicaSet
+			ReplicaSet *apiappsv1.ReplicaSet
 			// Opts is the opts argument value.
-			Opts metav1.CreateOptions
+			Opts apismetav1.CreateOptions
 		}
 		// Delete holds details about calls to the Delete method.
 		Delete []struct {
@@ -163,16 +163,16 @@ type replicaSetInterfaceMock struct {
 			// Name is the name argument value.
 			Name string
 			// Opts is the opts argument value.
-			Opts metav1.DeleteOptions
+			Opts apismetav1.DeleteOptions
 		}
 		// DeleteCollection holds details about calls to the DeleteCollection method.
 		DeleteCollection []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Opts is the opts argument value.
-			Opts metav1.DeleteOptions
+			Opts apismetav1.DeleteOptions
 			// ListOpts is the listOpts argument value.
-			ListOpts metav1.ListOptions
+			ListOpts apismetav1.ListOptions
 		}
 		// Get holds details about calls to the Get method.
 		Get []struct {
@@ -181,7 +181,7 @@ type replicaSetInterfaceMock struct {
 			// Name is the name argument value.
 			Name string
 			// Opts is the opts argument value.
-			Opts metav1.GetOptions
+			Opts apismetav1.GetOptions
 		}
 		// GetScale holds details about calls to the GetScale method.
 		GetScale []struct {
@@ -190,14 +190,14 @@ type replicaSetInterfaceMock struct {
 			// ReplicaSetName is the replicaSetName argument value.
 			ReplicaSetName string
 			// Options is the options argument value.
-			Options metav1.GetOptions
+			Options apismetav1.GetOptions
 		}
 		// List holds details about calls to the List method.
 		List []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Opts is the opts argument value.
-			Opts metav1.ListOptions
+			Opts apismetav1.ListOptions
 		}
 		// Patch holds details about calls to the Patch method.
 		Patch []struct {
@@ -210,7 +210,7 @@ type replicaSetInterfaceMock struct {
 			// Data is the data argument value.
 			Data []byte
 			// Opts is the opts argument value.
-			Opts metav1.PatchOptions
+			Opts apismetav1.PatchOptions
 			// Subresources is the subresources argument value.
 			Subresources []string
 		}
@@ -219,9 +219,9 @@ type replicaSetInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// ReplicaSet is the replicaSet argument value.
-			ReplicaSet *appsv1.ReplicaSet
+			ReplicaSet *apiappsv1.ReplicaSet
 			// Opts is the opts argument value.
-			Opts metav1.UpdateOptions
+			Opts apismetav1.UpdateOptions
 		}
 		// UpdateScale holds details about calls to the UpdateScale method.
 		UpdateScale []struct {
@@ -230,25 +230,25 @@ type replicaSetInterfaceMock struct {
 			// ReplicaSetName is the replicaSetName argument value.
 			ReplicaSetName string
 			// Scale is the scale argument value.
-			Scale *v1.Scale
+			Scale *apiautoscalingv1.Scale
 			// Opts is the opts argument value.
-			Opts metav1.UpdateOptions
+			Opts apismetav1.UpdateOptions
 		}
 		// UpdateStatus holds details about calls to the UpdateStatus method.
 		UpdateStatus []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// ReplicaSet is the replicaSet argument value.
-			ReplicaSet *appsv1.ReplicaSet
+			ReplicaSet *apiappsv1.ReplicaSet
 			// Opts is the opts argument value.
-			Opts metav1.UpdateOptions
+			Opts apismetav1.UpdateOptions
 		}
 		// Watch holds details about calls to the Watch method.
 		Watch []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Opts is the opts argument value.
-			Opts metav1.ListOptions
+			Opts apismetav1.ListOptions
 		}
 	}
 	lockApply            sync.RWMutex
@@ -268,14 +268,14 @@ type replicaSetInterfaceMock struct {
 }
 
 // Apply calls ApplyFunc.
-func (mock *replicaSetInterfaceMock) Apply(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
+func (mock *replicaSetInterfaceMock) Apply(ctx context.Context, replicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration, opts apismetav1.ApplyOptions) (*apiappsv1.ReplicaSet, error) {
 	if mock.ApplyFunc == nil {
 		panic("replicaSetInterfaceMock.ApplyFunc: method is nil but replicaSetInterface.Apply was just called")
 	}
 	callInfo := struct {
 		Ctx        context.Context
-		ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
-		Opts       metav1.ApplyOptions
+		ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
+		Opts       apismetav1.ApplyOptions
 	}{
 		Ctx:        ctx,
 		ReplicaSet: replicaSet,
@@ -292,13 +292,13 @@ func (mock *replicaSetInterfaceMock) Apply(ctx context.Context, replicaSet *conf
 //     len(mockedreplicaSetInterface.ApplyCalls())
 func (mock *replicaSetInterfaceMock) ApplyCalls() []struct {
 	Ctx        context.Context
-	ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
-	Opts       metav1.ApplyOptions
+	ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
+	Opts       apismetav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx        context.Context
-		ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
-		Opts       metav1.ApplyOptions
+		ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
+		Opts       apismetav1.ApplyOptions
 	}
 	mock.lockApply.RLock()
 	calls = mock.calls.Apply
@@ -307,15 +307,15 @@ func (mock *replicaSetInterfaceMock) ApplyCalls() []struct {
 }
 
 // ApplyScale calls ApplyScaleFunc.
-func (mock *replicaSetInterfaceMock) ApplyScale(ctx context.Context, replicaSetName string, scale *autoscalingv1.ScaleApplyConfiguration, opts metav1.ApplyOptions) (*v1.Scale, error) {
+func (mock *replicaSetInterfaceMock) ApplyScale(ctx context.Context, replicaSetName string, scale *applyconfigurationsautoscalingv1.ScaleApplyConfiguration, opts apismetav1.ApplyOptions) (*apiautoscalingv1.Scale, error) {
 	if mock.ApplyScaleFunc == nil {
 		panic("replicaSetInterfaceMock.ApplyScaleFunc: method is nil but replicaSetInterface.ApplyScale was just called")
 	}
 	callInfo := struct {
 		Ctx            context.Context
 		ReplicaSetName string
-		Scale          *autoscalingv1.ScaleApplyConfiguration
-		Opts           metav1.ApplyOptions
+		Scale          *applyconfigurationsautoscalingv1.ScaleApplyConfiguration
+		Opts           apismetav1.ApplyOptions
 	}{
 		Ctx:            ctx,
 		ReplicaSetName: replicaSetName,
@@ -334,14 +334,14 @@ func (mock *replicaSetInterfaceMock) ApplyScale(ctx context.Context, replicaSetN
 func (mock *replicaSetInterfaceMock) ApplyScaleCalls() []struct {
 	Ctx            context.Context
 	ReplicaSetName string
-	Scale          *autoscalingv1.ScaleApplyConfiguration
-	Opts           metav1.ApplyOptions
+	Scale          *applyconfigurationsautoscalingv1.ScaleApplyConfiguration
+	Opts           apismetav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx            context.Context
 		ReplicaSetName string
-		Scale          *autoscalingv1.ScaleApplyConfiguration
-		Opts           metav1.ApplyOptions
+		Scale          *applyconfigurationsautoscalingv1.ScaleApplyConfiguration
+		Opts           apismetav1.ApplyOptions
 	}
 	mock.lockApplyScale.RLock()
 	calls = mock.calls.ApplyScale
@@ -350,14 +350,14 @@ func (mock *replicaSetInterfaceMock) ApplyScaleCalls() []struct {
 }
 
 // ApplyStatus calls ApplyStatusFunc.
-func (mock *replicaSetInterfaceMock) ApplyStatus(ctx context.Context, replicaSet *configappsv1.ReplicaSetApplyConfiguration, opts metav1.ApplyOptions) (*appsv1.ReplicaSet, error) {
+func (mock *replicaSetInterfaceMock) ApplyStatus(ctx context.Context, replicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration, opts apismetav1.ApplyOptions) (*apiappsv1.ReplicaSet, error) {
 	if mock.ApplyStatusFunc == nil {
 		panic("replicaSetInterfaceMock.ApplyStatusFunc: method is nil but replicaSetInterface.ApplyStatus was just called")
 	}
 	callInfo := struct {
 		Ctx        context.Context
-		ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
-		Opts       metav1.ApplyOptions
+		ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
+		Opts       apismetav1.ApplyOptions
 	}{
 		Ctx:        ctx,
 		ReplicaSet: replicaSet,
@@ -374,13 +374,13 @@ func (mock *replicaSetInterfaceMock) ApplyStatus(ctx context.Context, replicaSet
 //     len(mockedreplicaSetInterface.ApplyStatusCalls())
 func (mock *replicaSetInterfaceMock) ApplyStatusCalls() []struct {
 	Ctx        context.Context
-	ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
-	Opts       metav1.ApplyOptions
+	ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
+	Opts       apismetav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx        context.Context
-		ReplicaSet *configappsv1.ReplicaSetApplyConfiguration
-		Opts       metav1.ApplyOptions
+		ReplicaSet *applyconfigurationsappsv1.ReplicaSetApplyConfiguration
+		Opts       apismetav1.ApplyOptions
 	}
 	mock.lockApplyStatus.RLock()
 	calls = mock.calls.ApplyStatus
@@ -389,14 +389,14 @@ func (mock *replicaSetInterfaceMock) ApplyStatusCalls() []struct {
 }
 
 // Create calls CreateFunc.
-func (mock *replicaSetInterfaceMock) Create(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.CreateOptions) (*appsv1.ReplicaSet, error) {
+func (mock *replicaSetInterfaceMock) Create(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.CreateOptions) (*apiappsv1.ReplicaSet, error) {
 	if mock.CreateFunc == nil {
 		panic("replicaSetInterfaceMock.CreateFunc: method is nil but replicaSetInterface.Create was just called")
 	}
 	callInfo := struct {
 		Ctx        context.Context
-		ReplicaSet *appsv1.ReplicaSet
-		Opts       metav1.CreateOptions
+		ReplicaSet *apiappsv1.ReplicaSet
+		Opts       apismetav1.CreateOptions
 	}{
 		Ctx:        ctx,
 		ReplicaSet: replicaSet,
@@ -413,13 +413,13 @@ func (mock *replicaSetInterfaceMock) Create(ctx context.Context, replicaSet *app
 //     len(mockedreplicaSetInterface.CreateCalls())
 func (mock *replicaSetInterfaceMock) CreateCalls() []struct {
 	Ctx        context.Context
-	ReplicaSet *appsv1.ReplicaSet
-	Opts       metav1.CreateOptions
+	ReplicaSet *apiappsv1.ReplicaSet
+	Opts       apismetav1.CreateOptions
 } {
 	var calls []struct {
 		Ctx        context.Context
-		ReplicaSet *appsv1.ReplicaSet
-		Opts       metav1.CreateOptions
+		ReplicaSet *apiappsv1.ReplicaSet
+		Opts       apismetav1.CreateOptions
 	}
 	mock.lockCreate.RLock()
 	calls = mock.calls.Create
@@ -428,14 +428,14 @@ func (mock *replicaSetInterfaceMock) CreateCalls() []struct {
 }
 
 // Delete calls DeleteFunc.
-func (mock *replicaSetInterfaceMock) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+func (mock *replicaSetInterfaceMock) Delete(ctx context.Context, name string, opts apismetav1.DeleteOptions) error {
 	if mock.DeleteFunc == nil {
 		panic("replicaSetInterfaceMock.DeleteFunc: method is nil but replicaSetInterface.Delete was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.DeleteOptions
+		Opts apismetav1.DeleteOptions
 	}{
 		Ctx:  ctx,
 		Name: name,
@@ -453,12 +453,12 @@ func (mock *replicaSetInterfaceMock) Delete(ctx context.Context, name string, op
 func (mock *replicaSetInterfaceMock) DeleteCalls() []struct {
 	Ctx  context.Context
 	Name string
-	Opts metav1.DeleteOptions
+	Opts apismetav1.DeleteOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.DeleteOptions
+		Opts apismetav1.DeleteOptions
 	}
 	mock.lockDelete.RLock()
 	calls = mock.calls.Delete
@@ -467,14 +467,14 @@ func (mock *replicaSetInterfaceMock) DeleteCalls() []struct {
 }
 
 // DeleteCollection calls DeleteCollectionFunc.
-func (mock *replicaSetInterfaceMock) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
+func (mock *replicaSetInterfaceMock) DeleteCollection(ctx context.Context, opts apismetav1.DeleteOptions, listOpts apismetav1.ListOptions) error {
 	if mock.DeleteCollectionFunc == nil {
 		panic("replicaSetInterfaceMock.DeleteCollectionFunc: method is nil but replicaSetInterface.DeleteCollection was just called")
 	}
 	callInfo := struct {
 		Ctx      context.Context
-		Opts     metav1.DeleteOptions
-		ListOpts metav1.ListOptions
+		Opts     apismetav1.DeleteOptions
+		ListOpts apismetav1.ListOptions
 	}{
 		Ctx:      ctx,
 		Opts:     opts,
@@ -491,13 +491,13 @@ func (mock *replicaSetInterfaceMock) DeleteCollection(ctx context.Context, opts 
 //     len(mockedreplicaSetInterface.DeleteCollectionCalls())
 func (mock *replicaSetInterfaceMock) DeleteCollectionCalls() []struct {
 	Ctx      context.Context
-	Opts     metav1.DeleteOptions
-	ListOpts metav1.ListOptions
+	Opts     apismetav1.DeleteOptions
+	ListOpts apismetav1.ListOptions
 } {
 	var calls []struct {
 		Ctx      context.Context
-		Opts     metav1.DeleteOptions
-		ListOpts metav1.ListOptions
+		Opts     apismetav1.DeleteOptions
+		ListOpts apismetav1.ListOptions
 	}
 	mock.lockDeleteCollection.RLock()
 	calls = mock.calls.DeleteCollection
@@ -506,14 +506,14 @@ func (mock *replicaSetInterfaceMock) DeleteCollectionCalls() []struct {
 }
 
 // Get calls GetFunc.
-func (mock *replicaSetInterfaceMock) Get(ctx context.Context, name string, opts metav1.GetOptions) (*appsv1.ReplicaSet, error) {
+func (mock *replicaSetInterfaceMock) Get(ctx context.Context, name string, opts apismetav1.GetOptions) (*apiappsv1.ReplicaSet, error) {
 	if mock.GetFunc == nil {
 		panic("replicaSetInterfaceMock.GetFunc: method is nil but replicaSetInterface.Get was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.GetOptions
+		Opts apismetav1.GetOptions
 	}{
 		Ctx:  ctx,
 		Name: name,
@@ -531,12 +531,12 @@ func (mock *replicaSetInterfaceMock) Get(ctx context.Context, name string, opts 
 func (mock *replicaSetInterfaceMock) GetCalls() []struct {
 	Ctx  context.Context
 	Name string
-	Opts metav1.GetOptions
+	Opts apismetav1.GetOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.GetOptions
+		Opts apismetav1.GetOptions
 	}
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
@@ -545,14 +545,14 @@ func (mock *replicaSetInterfaceMock) GetCalls() []struct {
 }
 
 // GetScale calls GetScaleFunc.
-func (mock *replicaSetInterfaceMock) GetScale(ctx context.Context, replicaSetName string, options metav1.GetOptions) (*v1.Scale, error) {
+func (mock *replicaSetInterfaceMock) GetScale(ctx context.Context, replicaSetName string, options apismetav1.GetOptions) (*apiautoscalingv1.Scale, error) {
 	if mock.GetScaleFunc == nil {
 		panic("replicaSetInterfaceMock.GetScaleFunc: method is nil but replicaSetInterface.GetScale was just called")
 	}
 	callInfo := struct {
 		Ctx            context.Context
 		ReplicaSetName string
-		Options        metav1.GetOptions
+		Options        apismetav1.GetOptions
 	}{
 		Ctx:            ctx,
 		ReplicaSetName: replicaSetName,
@@ -570,12 +570,12 @@ func (mock *replicaSetInterfaceMock) GetScale(ctx context.Context, replicaSetNam
 func (mock *replicaSetInterfaceMock) GetScaleCalls() []struct {
 	Ctx            context.Context
 	ReplicaSetName string
-	Options        metav1.GetOptions
+	Options        apismetav1.GetOptions
 } {
 	var calls []struct {
 		Ctx            context.Context
 		ReplicaSetName string
-		Options        metav1.GetOptions
+		Options        apismetav1.GetOptions
 	}
 	mock.lockGetScale.RLock()
 	calls = mock.calls.GetScale
@@ -584,13 +584,13 @@ func (mock *replicaSetInterfaceMock) GetScaleCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *replicaSetInterfaceMock) List(ctx context.Context, opts metav1.ListOptions) (*appsv1.ReplicaSetList, error) {
+func (mock *replicaSetInterfaceMock) List(ctx context.Context, opts apismetav1.ListOptions) (*apiappsv1.ReplicaSetList, error) {
 	if mock.ListFunc == nil {
 		panic("replicaSetInterfaceMock.ListFunc: method is nil but replicaSetInterface.List was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}{
 		Ctx:  ctx,
 		Opts: opts,
@@ -606,11 +606,11 @@ func (mock *replicaSetInterfaceMock) List(ctx context.Context, opts metav1.ListO
 //     len(mockedreplicaSetInterface.ListCalls())
 func (mock *replicaSetInterfaceMock) ListCalls() []struct {
 	Ctx  context.Context
-	Opts metav1.ListOptions
+	Opts apismetav1.ListOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List
@@ -619,7 +619,7 @@ func (mock *replicaSetInterfaceMock) ListCalls() []struct {
 }
 
 // Patch calls PatchFunc.
-func (mock *replicaSetInterfaceMock) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (*appsv1.ReplicaSet, error) {
+func (mock *replicaSetInterfaceMock) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts apismetav1.PatchOptions, subresources ...string) (*apiappsv1.ReplicaSet, error) {
 	if mock.PatchFunc == nil {
 		panic("replicaSetInterfaceMock.PatchFunc: method is nil but replicaSetInterface.Patch was just called")
 	}
@@ -628,7 +628,7 @@ func (mock *replicaSetInterfaceMock) Patch(ctx context.Context, name string, pt 
 		Name         string
 		Pt           types.PatchType
 		Data         []byte
-		Opts         metav1.PatchOptions
+		Opts         apismetav1.PatchOptions
 		Subresources []string
 	}{
 		Ctx:          ctx,
@@ -652,7 +652,7 @@ func (mock *replicaSetInterfaceMock) PatchCalls() []struct {
 	Name         string
 	Pt           types.PatchType
 	Data         []byte
-	Opts         metav1.PatchOptions
+	Opts         apismetav1.PatchOptions
 	Subresources []string
 } {
 	var calls []struct {
@@ -660,7 +660,7 @@ func (mock *replicaSetInterfaceMock) PatchCalls() []struct {
 		Name         string
 		Pt           types.PatchType
 		Data         []byte
-		Opts         metav1.PatchOptions
+		Opts         apismetav1.PatchOptions
 		Subresources []string
 	}
 	mock.lockPatch.RLock()
@@ -670,14 +670,14 @@ func (mock *replicaSetInterfaceMock) PatchCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *replicaSetInterfaceMock) Update(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.UpdateOptions) (*appsv1.ReplicaSet, error) {
+func (mock *replicaSetInterfaceMock) Update(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.UpdateOptions) (*apiappsv1.ReplicaSet, error) {
 	if mock.UpdateFunc == nil {
 		panic("replicaSetInterfaceMock.UpdateFunc: method is nil but replicaSetInterface.Update was just called")
 	}
 	callInfo := struct {
 		Ctx        context.Context
-		ReplicaSet *appsv1.ReplicaSet
-		Opts       metav1.UpdateOptions
+		ReplicaSet *apiappsv1.ReplicaSet
+		Opts       apismetav1.UpdateOptions
 	}{
 		Ctx:        ctx,
 		ReplicaSet: replicaSet,
@@ -694,13 +694,13 @@ func (mock *replicaSetInterfaceMock) Update(ctx context.Context, replicaSet *app
 //     len(mockedreplicaSetInterface.UpdateCalls())
 func (mock *replicaSetInterfaceMock) UpdateCalls() []struct {
 	Ctx        context.Context
-	ReplicaSet *appsv1.ReplicaSet
-	Opts       metav1.UpdateOptions
+	ReplicaSet *apiappsv1.ReplicaSet
+	Opts       apismetav1.UpdateOptions
 } {
 	var calls []struct {
 		Ctx        context.Context
-		ReplicaSet *appsv1.ReplicaSet
-		Opts       metav1.UpdateOptions
+		ReplicaSet *apiappsv1.ReplicaSet
+		Opts       apismetav1.UpdateOptions
 	}
 	mock.lockUpdate.RLock()
 	calls = mock.calls.Update
@@ -709,15 +709,15 @@ func (mock *replicaSetInterfaceMock) UpdateCalls() []struct {
 }
 
 // UpdateScale calls UpdateScaleFunc.
-func (mock *replicaSetInterfaceMock) UpdateScale(ctx context.Context, replicaSetName string, scale *v1.Scale, opts metav1.UpdateOptions) (*v1.Scale, error) {
+func (mock *replicaSetInterfaceMock) UpdateScale(ctx context.Context, replicaSetName string, scale *apiautoscalingv1.Scale, opts apismetav1.UpdateOptions) (*apiautoscalingv1.Scale, error) {
 	if mock.UpdateScaleFunc == nil {
 		panic("replicaSetInterfaceMock.UpdateScaleFunc: method is nil but replicaSetInterface.UpdateScale was just called")
 	}
 	callInfo := struct {
 		Ctx            context.Context
 		ReplicaSetName string
-		Scale          *v1.Scale
-		Opts           metav1.UpdateOptions
+		Scale          *apiautoscalingv1.Scale
+		Opts           apismetav1.UpdateOptions
 	}{
 		Ctx:            ctx,
 		ReplicaSetName: replicaSetName,
@@ -736,14 +736,14 @@ func (mock *replicaSetInterfaceMock) UpdateScale(ctx context.Context, replicaSet
 func (mock *replicaSetInterfaceMock) UpdateScaleCalls() []struct {
 	Ctx            context.Context
 	ReplicaSetName string
-	Scale          *v1.Scale
-	Opts           metav1.UpdateOptions
+	Scale          *apiautoscalingv1.Scale
+	Opts           apismetav1.UpdateOptions
 } {
 	var calls []struct {
 		Ctx            context.Context
 		ReplicaSetName string
-		Scale          *v1.Scale
-		Opts           metav1.UpdateOptions
+		Scale          *apiautoscalingv1.Scale
+		Opts           apismetav1.UpdateOptions
 	}
 	mock.lockUpdateScale.RLock()
 	calls = mock.calls.UpdateScale
@@ -752,14 +752,14 @@ func (mock *replicaSetInterfaceMock) UpdateScaleCalls() []struct {
 }
 
 // UpdateStatus calls UpdateStatusFunc.
-func (mock *replicaSetInterfaceMock) UpdateStatus(ctx context.Context, replicaSet *appsv1.ReplicaSet, opts metav1.UpdateOptions) (*appsv1.ReplicaSet, error) {
+func (mock *replicaSetInterfaceMock) UpdateStatus(ctx context.Context, replicaSet *apiappsv1.ReplicaSet, opts apismetav1.UpdateOptions) (*apiappsv1.ReplicaSet, error) {
 	if mock.UpdateStatusFunc == nil {
 		panic("replicaSetInterfaceMock.UpdateStatusFunc: method is nil but replicaSetInterface.UpdateStatus was just called")
 	}
 	callInfo := struct {
 		Ctx        context.Context
-		ReplicaSet *appsv1.ReplicaSet
-		Opts       metav1.UpdateOptions
+		ReplicaSet *apiappsv1.ReplicaSet
+		Opts       apismetav1.UpdateOptions
 	}{
 		Ctx:        ctx,
 		ReplicaSet: replicaSet,
@@ -776,13 +776,13 @@ func (mock *replicaSetInterfaceMock) UpdateStatus(ctx context.Context, replicaSe
 //     len(mockedreplicaSetInterface.UpdateStatusCalls())
 func (mock *replicaSetInterfaceMock) UpdateStatusCalls() []struct {
 	Ctx        context.Context
-	ReplicaSet *appsv1.ReplicaSet
-	Opts       metav1.UpdateOptions
+	ReplicaSet *apiappsv1.ReplicaSet
+	Opts       apismetav1.UpdateOptions
 } {
 	var calls []struct {
 		Ctx        context.Context
-		ReplicaSet *appsv1.ReplicaSet
-		Opts       metav1.UpdateOptions
+		ReplicaSet *apiappsv1.ReplicaSet
+		Opts       apismetav1.UpdateOptions
 	}
 	mock.lockUpdateStatus.RLock()
 	calls = mock.calls.UpdateStatus
@@ -791,13 +791,13 @@ func (mock *replicaSetInterfaceMock) UpdateStatusCalls() []struct {
 }
 
 // Watch calls WatchFunc.
-func (mock *replicaSetInterfaceMock) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+func (mock *replicaSetInterfaceMock) Watch(ctx context.Context, opts apismetav1.ListOptions) (watch.Interface, error) {
 	if mock.WatchFunc == nil {
 		panic("replicaSetInterfaceMock.WatchFunc: method is nil but replicaSetInterface.Watch was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}{
 		Ctx:  ctx,
 		Opts: opts,
@@ -813,11 +813,11 @@ func (mock *replicaSetInterfaceMock) Watch(ctx context.Context, opts metav1.List
 //     len(mockedreplicaSetInterface.WatchCalls())
 func (mock *replicaSetInterfaceMock) WatchCalls() []struct {
 	Ctx  context.Context
-	Opts metav1.ListOptions
+	Opts apismetav1.ListOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}
 	mock.lockWatch.RLock()
 	calls = mock.calls.Watch

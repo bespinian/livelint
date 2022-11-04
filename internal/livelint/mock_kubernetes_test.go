@@ -48,9 +48,9 @@ import (
 	schedulingv1 "k8s.io/client-go/kubernetes/typed/scheduling/v1"
 	schedulingv1alpha1 "k8s.io/client-go/kubernetes/typed/scheduling/v1alpha1"
 	schedulingv1beta1 "k8s.io/client-go/kubernetes/typed/scheduling/v1beta1"
-	"k8s.io/client-go/kubernetes/typed/storage/v1"
-	"k8s.io/client-go/kubernetes/typed/storage/v1alpha1"
-	"k8s.io/client-go/kubernetes/typed/storage/v1beta1"
+	storagev1 "k8s.io/client-go/kubernetes/typed/storage/v1"
+	storagev1alpha1 "k8s.io/client-go/kubernetes/typed/storage/v1alpha1"
+	storagev1beta1 "k8s.io/client-go/kubernetes/typed/storage/v1beta1"
 	"sync"
 )
 
@@ -196,13 +196,13 @@ var _ kubernetesInterface = &kubernetesInterfaceMock{}
 // 			SchedulingV1beta1Func: func() schedulingv1beta1.SchedulingV1beta1Interface {
 // 				panic("mock out the SchedulingV1beta1 method")
 // 			},
-// 			StorageV1Func: func() v1.StorageV1Interface {
+// 			StorageV1Func: func() storagev1.StorageV1Interface {
 // 				panic("mock out the StorageV1 method")
 // 			},
-// 			StorageV1alpha1Func: func() v1alpha1.StorageV1alpha1Interface {
+// 			StorageV1alpha1Func: func() storagev1alpha1.StorageV1alpha1Interface {
 // 				panic("mock out the StorageV1alpha1 method")
 // 			},
-// 			StorageV1beta1Func: func() v1beta1.StorageV1beta1Interface {
+// 			StorageV1beta1Func: func() storagev1beta1.StorageV1beta1Interface {
 // 				panic("mock out the StorageV1beta1 method")
 // 			},
 // 		}
@@ -345,13 +345,13 @@ type kubernetesInterfaceMock struct {
 	SchedulingV1beta1Func func() schedulingv1beta1.SchedulingV1beta1Interface
 
 	// StorageV1Func mocks the StorageV1 method.
-	StorageV1Func func() v1.StorageV1Interface
+	StorageV1Func func() storagev1.StorageV1Interface
 
 	// StorageV1alpha1Func mocks the StorageV1alpha1 method.
-	StorageV1alpha1Func func() v1alpha1.StorageV1alpha1Interface
+	StorageV1alpha1Func func() storagev1alpha1.StorageV1alpha1Interface
 
 	// StorageV1beta1Func mocks the StorageV1beta1 method.
-	StorageV1beta1Func func() v1beta1.StorageV1beta1Interface
+	StorageV1beta1Func func() storagev1beta1.StorageV1beta1Interface
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -1691,7 +1691,7 @@ func (mock *kubernetesInterfaceMock) SchedulingV1beta1Calls() []struct {
 }
 
 // StorageV1 calls StorageV1Func.
-func (mock *kubernetesInterfaceMock) StorageV1() v1.StorageV1Interface {
+func (mock *kubernetesInterfaceMock) StorageV1() storagev1.StorageV1Interface {
 	if mock.StorageV1Func == nil {
 		panic("kubernetesInterfaceMock.StorageV1Func: method is nil but kubernetesInterface.StorageV1 was just called")
 	}
@@ -1717,7 +1717,7 @@ func (mock *kubernetesInterfaceMock) StorageV1Calls() []struct {
 }
 
 // StorageV1alpha1 calls StorageV1alpha1Func.
-func (mock *kubernetesInterfaceMock) StorageV1alpha1() v1alpha1.StorageV1alpha1Interface {
+func (mock *kubernetesInterfaceMock) StorageV1alpha1() storagev1alpha1.StorageV1alpha1Interface {
 	if mock.StorageV1alpha1Func == nil {
 		panic("kubernetesInterfaceMock.StorageV1alpha1Func: method is nil but kubernetesInterface.StorageV1alpha1 was just called")
 	}
@@ -1743,7 +1743,7 @@ func (mock *kubernetesInterfaceMock) StorageV1alpha1Calls() []struct {
 }
 
 // StorageV1beta1 calls StorageV1beta1Func.
-func (mock *kubernetesInterfaceMock) StorageV1beta1() v1beta1.StorageV1beta1Interface {
+func (mock *kubernetesInterfaceMock) StorageV1beta1() storagev1beta1.StorageV1beta1Interface {
 	if mock.StorageV1beta1Func == nil {
 		panic("kubernetesInterfaceMock.StorageV1beta1Func: method is nil but kubernetesInterface.StorageV1beta1 was just called")
 	}

@@ -4,7 +4,7 @@
 package livelint
 
 import (
-	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	apiv1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	"sync"
 )
@@ -19,55 +19,55 @@ var _ apiv1Interface = &apiv1InterfaceMock{}
 //
 // 		// make and configure a mocked apiv1Interface
 // 		mockedapiv1Interface := &apiv1InterfaceMock{
-// 			ComponentStatusesFunc: func() corev1.ComponentStatusInterface {
+// 			ComponentStatusesFunc: func() apiv1.ComponentStatusInterface {
 // 				panic("mock out the ComponentStatuses method")
 // 			},
-// 			ConfigMapsFunc: func(namespace string) corev1.ConfigMapInterface {
+// 			ConfigMapsFunc: func(namespace string) apiv1.ConfigMapInterface {
 // 				panic("mock out the ConfigMaps method")
 // 			},
-// 			EndpointsFunc: func(namespace string) corev1.EndpointsInterface {
+// 			EndpointsFunc: func(namespace string) apiv1.EndpointsInterface {
 // 				panic("mock out the Endpoints method")
 // 			},
-// 			EventsFunc: func(namespace string) corev1.EventInterface {
+// 			EventsFunc: func(namespace string) apiv1.EventInterface {
 // 				panic("mock out the Events method")
 // 			},
-// 			LimitRangesFunc: func(namespace string) corev1.LimitRangeInterface {
+// 			LimitRangesFunc: func(namespace string) apiv1.LimitRangeInterface {
 // 				panic("mock out the LimitRanges method")
 // 			},
-// 			NamespacesFunc: func() corev1.NamespaceInterface {
+// 			NamespacesFunc: func() apiv1.NamespaceInterface {
 // 				panic("mock out the Namespaces method")
 // 			},
-// 			NodesFunc: func() corev1.NodeInterface {
+// 			NodesFunc: func() apiv1.NodeInterface {
 // 				panic("mock out the Nodes method")
 // 			},
-// 			PersistentVolumeClaimsFunc: func(namespace string) corev1.PersistentVolumeClaimInterface {
+// 			PersistentVolumeClaimsFunc: func(namespace string) apiv1.PersistentVolumeClaimInterface {
 // 				panic("mock out the PersistentVolumeClaims method")
 // 			},
-// 			PersistentVolumesFunc: func() corev1.PersistentVolumeInterface {
+// 			PersistentVolumesFunc: func() apiv1.PersistentVolumeInterface {
 // 				panic("mock out the PersistentVolumes method")
 // 			},
-// 			PodTemplatesFunc: func(namespace string) corev1.PodTemplateInterface {
+// 			PodTemplatesFunc: func(namespace string) apiv1.PodTemplateInterface {
 // 				panic("mock out the PodTemplates method")
 // 			},
-// 			PodsFunc: func(namespace string) corev1.PodInterface {
+// 			PodsFunc: func(namespace string) apiv1.PodInterface {
 // 				panic("mock out the Pods method")
 // 			},
 // 			RESTClientFunc: func() rest.Interface {
 // 				panic("mock out the RESTClient method")
 // 			},
-// 			ReplicationControllersFunc: func(namespace string) corev1.ReplicationControllerInterface {
+// 			ReplicationControllersFunc: func(namespace string) apiv1.ReplicationControllerInterface {
 // 				panic("mock out the ReplicationControllers method")
 // 			},
-// 			ResourceQuotasFunc: func(namespace string) corev1.ResourceQuotaInterface {
+// 			ResourceQuotasFunc: func(namespace string) apiv1.ResourceQuotaInterface {
 // 				panic("mock out the ResourceQuotas method")
 // 			},
-// 			SecretsFunc: func(namespace string) corev1.SecretInterface {
+// 			SecretsFunc: func(namespace string) apiv1.SecretInterface {
 // 				panic("mock out the Secrets method")
 // 			},
-// 			ServiceAccountsFunc: func(namespace string) corev1.ServiceAccountInterface {
+// 			ServiceAccountsFunc: func(namespace string) apiv1.ServiceAccountInterface {
 // 				panic("mock out the ServiceAccounts method")
 // 			},
-// 			ServicesFunc: func(namespace string) corev1.ServiceInterface {
+// 			ServicesFunc: func(namespace string) apiv1.ServiceInterface {
 // 				panic("mock out the Services method")
 // 			},
 // 		}
@@ -78,55 +78,55 @@ var _ apiv1Interface = &apiv1InterfaceMock{}
 // 	}
 type apiv1InterfaceMock struct {
 	// ComponentStatusesFunc mocks the ComponentStatuses method.
-	ComponentStatusesFunc func() corev1.ComponentStatusInterface
+	ComponentStatusesFunc func() apiv1.ComponentStatusInterface
 
 	// ConfigMapsFunc mocks the ConfigMaps method.
-	ConfigMapsFunc func(namespace string) corev1.ConfigMapInterface
+	ConfigMapsFunc func(namespace string) apiv1.ConfigMapInterface
 
 	// EndpointsFunc mocks the Endpoints method.
-	EndpointsFunc func(namespace string) corev1.EndpointsInterface
+	EndpointsFunc func(namespace string) apiv1.EndpointsInterface
 
 	// EventsFunc mocks the Events method.
-	EventsFunc func(namespace string) corev1.EventInterface
+	EventsFunc func(namespace string) apiv1.EventInterface
 
 	// LimitRangesFunc mocks the LimitRanges method.
-	LimitRangesFunc func(namespace string) corev1.LimitRangeInterface
+	LimitRangesFunc func(namespace string) apiv1.LimitRangeInterface
 
 	// NamespacesFunc mocks the Namespaces method.
-	NamespacesFunc func() corev1.NamespaceInterface
+	NamespacesFunc func() apiv1.NamespaceInterface
 
 	// NodesFunc mocks the Nodes method.
-	NodesFunc func() corev1.NodeInterface
+	NodesFunc func() apiv1.NodeInterface
 
 	// PersistentVolumeClaimsFunc mocks the PersistentVolumeClaims method.
-	PersistentVolumeClaimsFunc func(namespace string) corev1.PersistentVolumeClaimInterface
+	PersistentVolumeClaimsFunc func(namespace string) apiv1.PersistentVolumeClaimInterface
 
 	// PersistentVolumesFunc mocks the PersistentVolumes method.
-	PersistentVolumesFunc func() corev1.PersistentVolumeInterface
+	PersistentVolumesFunc func() apiv1.PersistentVolumeInterface
 
 	// PodTemplatesFunc mocks the PodTemplates method.
-	PodTemplatesFunc func(namespace string) corev1.PodTemplateInterface
+	PodTemplatesFunc func(namespace string) apiv1.PodTemplateInterface
 
 	// PodsFunc mocks the Pods method.
-	PodsFunc func(namespace string) corev1.PodInterface
+	PodsFunc func(namespace string) apiv1.PodInterface
 
 	// RESTClientFunc mocks the RESTClient method.
 	RESTClientFunc func() rest.Interface
 
 	// ReplicationControllersFunc mocks the ReplicationControllers method.
-	ReplicationControllersFunc func(namespace string) corev1.ReplicationControllerInterface
+	ReplicationControllersFunc func(namespace string) apiv1.ReplicationControllerInterface
 
 	// ResourceQuotasFunc mocks the ResourceQuotas method.
-	ResourceQuotasFunc func(namespace string) corev1.ResourceQuotaInterface
+	ResourceQuotasFunc func(namespace string) apiv1.ResourceQuotaInterface
 
 	// SecretsFunc mocks the Secrets method.
-	SecretsFunc func(namespace string) corev1.SecretInterface
+	SecretsFunc func(namespace string) apiv1.SecretInterface
 
 	// ServiceAccountsFunc mocks the ServiceAccounts method.
-	ServiceAccountsFunc func(namespace string) corev1.ServiceAccountInterface
+	ServiceAccountsFunc func(namespace string) apiv1.ServiceAccountInterface
 
 	// ServicesFunc mocks the Services method.
-	ServicesFunc func(namespace string) corev1.ServiceInterface
+	ServicesFunc func(namespace string) apiv1.ServiceInterface
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -226,7 +226,7 @@ type apiv1InterfaceMock struct {
 }
 
 // ComponentStatuses calls ComponentStatusesFunc.
-func (mock *apiv1InterfaceMock) ComponentStatuses() corev1.ComponentStatusInterface {
+func (mock *apiv1InterfaceMock) ComponentStatuses() apiv1.ComponentStatusInterface {
 	if mock.ComponentStatusesFunc == nil {
 		panic("apiv1InterfaceMock.ComponentStatusesFunc: method is nil but apiv1Interface.ComponentStatuses was just called")
 	}
@@ -252,7 +252,7 @@ func (mock *apiv1InterfaceMock) ComponentStatusesCalls() []struct {
 }
 
 // ConfigMaps calls ConfigMapsFunc.
-func (mock *apiv1InterfaceMock) ConfigMaps(namespace string) corev1.ConfigMapInterface {
+func (mock *apiv1InterfaceMock) ConfigMaps(namespace string) apiv1.ConfigMapInterface {
 	if mock.ConfigMapsFunc == nil {
 		panic("apiv1InterfaceMock.ConfigMapsFunc: method is nil but apiv1Interface.ConfigMaps was just called")
 	}
@@ -283,7 +283,7 @@ func (mock *apiv1InterfaceMock) ConfigMapsCalls() []struct {
 }
 
 // Endpoints calls EndpointsFunc.
-func (mock *apiv1InterfaceMock) Endpoints(namespace string) corev1.EndpointsInterface {
+func (mock *apiv1InterfaceMock) Endpoints(namespace string) apiv1.EndpointsInterface {
 	if mock.EndpointsFunc == nil {
 		panic("apiv1InterfaceMock.EndpointsFunc: method is nil but apiv1Interface.Endpoints was just called")
 	}
@@ -314,7 +314,7 @@ func (mock *apiv1InterfaceMock) EndpointsCalls() []struct {
 }
 
 // Events calls EventsFunc.
-func (mock *apiv1InterfaceMock) Events(namespace string) corev1.EventInterface {
+func (mock *apiv1InterfaceMock) Events(namespace string) apiv1.EventInterface {
 	if mock.EventsFunc == nil {
 		panic("apiv1InterfaceMock.EventsFunc: method is nil but apiv1Interface.Events was just called")
 	}
@@ -345,7 +345,7 @@ func (mock *apiv1InterfaceMock) EventsCalls() []struct {
 }
 
 // LimitRanges calls LimitRangesFunc.
-func (mock *apiv1InterfaceMock) LimitRanges(namespace string) corev1.LimitRangeInterface {
+func (mock *apiv1InterfaceMock) LimitRanges(namespace string) apiv1.LimitRangeInterface {
 	if mock.LimitRangesFunc == nil {
 		panic("apiv1InterfaceMock.LimitRangesFunc: method is nil but apiv1Interface.LimitRanges was just called")
 	}
@@ -376,7 +376,7 @@ func (mock *apiv1InterfaceMock) LimitRangesCalls() []struct {
 }
 
 // Namespaces calls NamespacesFunc.
-func (mock *apiv1InterfaceMock) Namespaces() corev1.NamespaceInterface {
+func (mock *apiv1InterfaceMock) Namespaces() apiv1.NamespaceInterface {
 	if mock.NamespacesFunc == nil {
 		panic("apiv1InterfaceMock.NamespacesFunc: method is nil but apiv1Interface.Namespaces was just called")
 	}
@@ -402,7 +402,7 @@ func (mock *apiv1InterfaceMock) NamespacesCalls() []struct {
 }
 
 // Nodes calls NodesFunc.
-func (mock *apiv1InterfaceMock) Nodes() corev1.NodeInterface {
+func (mock *apiv1InterfaceMock) Nodes() apiv1.NodeInterface {
 	if mock.NodesFunc == nil {
 		panic("apiv1InterfaceMock.NodesFunc: method is nil but apiv1Interface.Nodes was just called")
 	}
@@ -428,7 +428,7 @@ func (mock *apiv1InterfaceMock) NodesCalls() []struct {
 }
 
 // PersistentVolumeClaims calls PersistentVolumeClaimsFunc.
-func (mock *apiv1InterfaceMock) PersistentVolumeClaims(namespace string) corev1.PersistentVolumeClaimInterface {
+func (mock *apiv1InterfaceMock) PersistentVolumeClaims(namespace string) apiv1.PersistentVolumeClaimInterface {
 	if mock.PersistentVolumeClaimsFunc == nil {
 		panic("apiv1InterfaceMock.PersistentVolumeClaimsFunc: method is nil but apiv1Interface.PersistentVolumeClaims was just called")
 	}
@@ -459,7 +459,7 @@ func (mock *apiv1InterfaceMock) PersistentVolumeClaimsCalls() []struct {
 }
 
 // PersistentVolumes calls PersistentVolumesFunc.
-func (mock *apiv1InterfaceMock) PersistentVolumes() corev1.PersistentVolumeInterface {
+func (mock *apiv1InterfaceMock) PersistentVolumes() apiv1.PersistentVolumeInterface {
 	if mock.PersistentVolumesFunc == nil {
 		panic("apiv1InterfaceMock.PersistentVolumesFunc: method is nil but apiv1Interface.PersistentVolumes was just called")
 	}
@@ -485,7 +485,7 @@ func (mock *apiv1InterfaceMock) PersistentVolumesCalls() []struct {
 }
 
 // PodTemplates calls PodTemplatesFunc.
-func (mock *apiv1InterfaceMock) PodTemplates(namespace string) corev1.PodTemplateInterface {
+func (mock *apiv1InterfaceMock) PodTemplates(namespace string) apiv1.PodTemplateInterface {
 	if mock.PodTemplatesFunc == nil {
 		panic("apiv1InterfaceMock.PodTemplatesFunc: method is nil but apiv1Interface.PodTemplates was just called")
 	}
@@ -516,7 +516,7 @@ func (mock *apiv1InterfaceMock) PodTemplatesCalls() []struct {
 }
 
 // Pods calls PodsFunc.
-func (mock *apiv1InterfaceMock) Pods(namespace string) corev1.PodInterface {
+func (mock *apiv1InterfaceMock) Pods(namespace string) apiv1.PodInterface {
 	if mock.PodsFunc == nil {
 		panic("apiv1InterfaceMock.PodsFunc: method is nil but apiv1Interface.Pods was just called")
 	}
@@ -573,7 +573,7 @@ func (mock *apiv1InterfaceMock) RESTClientCalls() []struct {
 }
 
 // ReplicationControllers calls ReplicationControllersFunc.
-func (mock *apiv1InterfaceMock) ReplicationControllers(namespace string) corev1.ReplicationControllerInterface {
+func (mock *apiv1InterfaceMock) ReplicationControllers(namespace string) apiv1.ReplicationControllerInterface {
 	if mock.ReplicationControllersFunc == nil {
 		panic("apiv1InterfaceMock.ReplicationControllersFunc: method is nil but apiv1Interface.ReplicationControllers was just called")
 	}
@@ -604,7 +604,7 @@ func (mock *apiv1InterfaceMock) ReplicationControllersCalls() []struct {
 }
 
 // ResourceQuotas calls ResourceQuotasFunc.
-func (mock *apiv1InterfaceMock) ResourceQuotas(namespace string) corev1.ResourceQuotaInterface {
+func (mock *apiv1InterfaceMock) ResourceQuotas(namespace string) apiv1.ResourceQuotaInterface {
 	if mock.ResourceQuotasFunc == nil {
 		panic("apiv1InterfaceMock.ResourceQuotasFunc: method is nil but apiv1Interface.ResourceQuotas was just called")
 	}
@@ -635,7 +635,7 @@ func (mock *apiv1InterfaceMock) ResourceQuotasCalls() []struct {
 }
 
 // Secrets calls SecretsFunc.
-func (mock *apiv1InterfaceMock) Secrets(namespace string) corev1.SecretInterface {
+func (mock *apiv1InterfaceMock) Secrets(namespace string) apiv1.SecretInterface {
 	if mock.SecretsFunc == nil {
 		panic("apiv1InterfaceMock.SecretsFunc: method is nil but apiv1Interface.Secrets was just called")
 	}
@@ -666,7 +666,7 @@ func (mock *apiv1InterfaceMock) SecretsCalls() []struct {
 }
 
 // ServiceAccounts calls ServiceAccountsFunc.
-func (mock *apiv1InterfaceMock) ServiceAccounts(namespace string) corev1.ServiceAccountInterface {
+func (mock *apiv1InterfaceMock) ServiceAccounts(namespace string) apiv1.ServiceAccountInterface {
 	if mock.ServiceAccountsFunc == nil {
 		panic("apiv1InterfaceMock.ServiceAccountsFunc: method is nil but apiv1Interface.ServiceAccounts was just called")
 	}
@@ -697,7 +697,7 @@ func (mock *apiv1InterfaceMock) ServiceAccountsCalls() []struct {
 }
 
 // Services calls ServicesFunc.
-func (mock *apiv1InterfaceMock) Services(namespace string) corev1.ServiceInterface {
+func (mock *apiv1InterfaceMock) Services(namespace string) apiv1.ServiceInterface {
 	if mock.ServicesFunc == nil {
 		panic("apiv1InterfaceMock.ServicesFunc: method is nil but apiv1Interface.Services was just called")
 	}
