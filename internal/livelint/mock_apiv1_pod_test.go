@@ -5,13 +5,13 @@ package livelint
 
 import (
 	"context"
-	apiv1 "k8s.io/api/core/v1"
-	policyv1 "k8s.io/api/policy/v1"
+	apicorev1 "k8s.io/api/core/v1"
+	apipolicyv1 "k8s.io/api/policy/v1"
 	"k8s.io/api/policy/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	apismetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
+	applyconfigurationscorev1 "k8s.io/client-go/applyconfigurations/core/v1"
 	"k8s.io/client-go/rest"
 	"sync"
 )
@@ -26,58 +26,58 @@ var _ apiv1PodInterface = &apiv1PodInterfaceMock{}
 //
 // 		// make and configure a mocked apiv1PodInterface
 // 		mockedapiv1PodInterface := &apiv1PodInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, pod *corev1.PodApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Pod, error) {
+// 			ApplyFunc: func(ctx context.Context, pod *applyconfigurationscorev1.PodApplyConfiguration, opts apismetav1.ApplyOptions) (*apicorev1.Pod, error) {
 // 				panic("mock out the Apply method")
 // 			},
-// 			ApplyStatusFunc: func(ctx context.Context, pod *corev1.PodApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Pod, error) {
+// 			ApplyStatusFunc: func(ctx context.Context, pod *applyconfigurationscorev1.PodApplyConfiguration, opts apismetav1.ApplyOptions) (*apicorev1.Pod, error) {
 // 				panic("mock out the ApplyStatus method")
 // 			},
-// 			BindFunc: func(ctx context.Context, binding *apiv1.Binding, opts metav1.CreateOptions) error {
+// 			BindFunc: func(ctx context.Context, binding *apicorev1.Binding, opts apismetav1.CreateOptions) error {
 // 				panic("mock out the Bind method")
 // 			},
-// 			CreateFunc: func(ctx context.Context, pod *apiv1.Pod, opts metav1.CreateOptions) (*apiv1.Pod, error) {
+// 			CreateFunc: func(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.CreateOptions) (*apicorev1.Pod, error) {
 // 				panic("mock out the Create method")
 // 			},
-// 			DeleteFunc: func(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+// 			DeleteFunc: func(ctx context.Context, name string, opts apismetav1.DeleteOptions) error {
 // 				panic("mock out the Delete method")
 // 			},
-// 			DeleteCollectionFunc: func(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
+// 			DeleteCollectionFunc: func(ctx context.Context, opts apismetav1.DeleteOptions, listOpts apismetav1.ListOptions) error {
 // 				panic("mock out the DeleteCollection method")
 // 			},
 // 			EvictFunc: func(ctx context.Context, eviction *v1beta1.Eviction) error {
 // 				panic("mock out the Evict method")
 // 			},
-// 			EvictV1Func: func(ctx context.Context, eviction *policyv1.Eviction) error {
+// 			EvictV1Func: func(ctx context.Context, eviction *apipolicyv1.Eviction) error {
 // 				panic("mock out the EvictV1 method")
 // 			},
 // 			EvictV1beta1Func: func(ctx context.Context, eviction *v1beta1.Eviction) error {
 // 				panic("mock out the EvictV1beta1 method")
 // 			},
-// 			GetFunc: func(ctx context.Context, name string, opts metav1.GetOptions) (*apiv1.Pod, error) {
+// 			GetFunc: func(ctx context.Context, name string, opts apismetav1.GetOptions) (*apicorev1.Pod, error) {
 // 				panic("mock out the Get method")
 // 			},
-// 			GetLogsFunc: func(name string, opts *apiv1.PodLogOptions) *rest.Request {
+// 			GetLogsFunc: func(name string, opts *apicorev1.PodLogOptions) *rest.Request {
 // 				panic("mock out the GetLogs method")
 // 			},
-// 			ListFunc: func(ctx context.Context, opts metav1.ListOptions) (*apiv1.PodList, error) {
+// 			ListFunc: func(ctx context.Context, opts apismetav1.ListOptions) (*apicorev1.PodList, error) {
 // 				panic("mock out the List method")
 // 			},
-// 			PatchFunc: func(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (*apiv1.Pod, error) {
+// 			PatchFunc: func(ctx context.Context, name string, pt types.PatchType, data []byte, opts apismetav1.PatchOptions, subresources ...string) (*apicorev1.Pod, error) {
 // 				panic("mock out the Patch method")
 // 			},
 // 			ProxyGetFunc: func(scheme string, name string, port string, path string, params map[string]string) rest.ResponseWrapper {
 // 				panic("mock out the ProxyGet method")
 // 			},
-// 			UpdateFunc: func(ctx context.Context, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error) {
+// 			UpdateFunc: func(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error) {
 // 				panic("mock out the Update method")
 // 			},
-// 			UpdateEphemeralContainersFunc: func(ctx context.Context, podName string, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error) {
+// 			UpdateEphemeralContainersFunc: func(ctx context.Context, podName string, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error) {
 // 				panic("mock out the UpdateEphemeralContainers method")
 // 			},
-// 			UpdateStatusFunc: func(ctx context.Context, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error) {
+// 			UpdateStatusFunc: func(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error) {
 // 				panic("mock out the UpdateStatus method")
 // 			},
-// 			WatchFunc: func(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+// 			WatchFunc: func(ctx context.Context, opts apismetav1.ListOptions) (watch.Interface, error) {
 // 				panic("mock out the Watch method")
 // 			},
 // 		}
@@ -88,58 +88,58 @@ var _ apiv1PodInterface = &apiv1PodInterfaceMock{}
 // 	}
 type apiv1PodInterfaceMock struct {
 	// ApplyFunc mocks the Apply method.
-	ApplyFunc func(ctx context.Context, pod *corev1.PodApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Pod, error)
+	ApplyFunc func(ctx context.Context, pod *applyconfigurationscorev1.PodApplyConfiguration, opts apismetav1.ApplyOptions) (*apicorev1.Pod, error)
 
 	// ApplyStatusFunc mocks the ApplyStatus method.
-	ApplyStatusFunc func(ctx context.Context, pod *corev1.PodApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Pod, error)
+	ApplyStatusFunc func(ctx context.Context, pod *applyconfigurationscorev1.PodApplyConfiguration, opts apismetav1.ApplyOptions) (*apicorev1.Pod, error)
 
 	// BindFunc mocks the Bind method.
-	BindFunc func(ctx context.Context, binding *apiv1.Binding, opts metav1.CreateOptions) error
+	BindFunc func(ctx context.Context, binding *apicorev1.Binding, opts apismetav1.CreateOptions) error
 
 	// CreateFunc mocks the Create method.
-	CreateFunc func(ctx context.Context, pod *apiv1.Pod, opts metav1.CreateOptions) (*apiv1.Pod, error)
+	CreateFunc func(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.CreateOptions) (*apicorev1.Pod, error)
 
 	// DeleteFunc mocks the Delete method.
-	DeleteFunc func(ctx context.Context, name string, opts metav1.DeleteOptions) error
+	DeleteFunc func(ctx context.Context, name string, opts apismetav1.DeleteOptions) error
 
 	// DeleteCollectionFunc mocks the DeleteCollection method.
-	DeleteCollectionFunc func(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error
+	DeleteCollectionFunc func(ctx context.Context, opts apismetav1.DeleteOptions, listOpts apismetav1.ListOptions) error
 
 	// EvictFunc mocks the Evict method.
 	EvictFunc func(ctx context.Context, eviction *v1beta1.Eviction) error
 
 	// EvictV1Func mocks the EvictV1 method.
-	EvictV1Func func(ctx context.Context, eviction *policyv1.Eviction) error
+	EvictV1Func func(ctx context.Context, eviction *apipolicyv1.Eviction) error
 
 	// EvictV1beta1Func mocks the EvictV1beta1 method.
 	EvictV1beta1Func func(ctx context.Context, eviction *v1beta1.Eviction) error
 
 	// GetFunc mocks the Get method.
-	GetFunc func(ctx context.Context, name string, opts metav1.GetOptions) (*apiv1.Pod, error)
+	GetFunc func(ctx context.Context, name string, opts apismetav1.GetOptions) (*apicorev1.Pod, error)
 
 	// GetLogsFunc mocks the GetLogs method.
-	GetLogsFunc func(name string, opts *apiv1.PodLogOptions) *rest.Request
+	GetLogsFunc func(name string, opts *apicorev1.PodLogOptions) *rest.Request
 
 	// ListFunc mocks the List method.
-	ListFunc func(ctx context.Context, opts metav1.ListOptions) (*apiv1.PodList, error)
+	ListFunc func(ctx context.Context, opts apismetav1.ListOptions) (*apicorev1.PodList, error)
 
 	// PatchFunc mocks the Patch method.
-	PatchFunc func(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (*apiv1.Pod, error)
+	PatchFunc func(ctx context.Context, name string, pt types.PatchType, data []byte, opts apismetav1.PatchOptions, subresources ...string) (*apicorev1.Pod, error)
 
 	// ProxyGetFunc mocks the ProxyGet method.
 	ProxyGetFunc func(scheme string, name string, port string, path string, params map[string]string) rest.ResponseWrapper
 
 	// UpdateFunc mocks the Update method.
-	UpdateFunc func(ctx context.Context, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error)
+	UpdateFunc func(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error)
 
 	// UpdateEphemeralContainersFunc mocks the UpdateEphemeralContainers method.
-	UpdateEphemeralContainersFunc func(ctx context.Context, podName string, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error)
+	UpdateEphemeralContainersFunc func(ctx context.Context, podName string, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error)
 
 	// UpdateStatusFunc mocks the UpdateStatus method.
-	UpdateStatusFunc func(ctx context.Context, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error)
+	UpdateStatusFunc func(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error)
 
 	// WatchFunc mocks the Watch method.
-	WatchFunc func(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error)
+	WatchFunc func(ctx context.Context, opts apismetav1.ListOptions) (watch.Interface, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -148,36 +148,36 @@ type apiv1PodInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Pod is the pod argument value.
-			Pod *corev1.PodApplyConfiguration
+			Pod *applyconfigurationscorev1.PodApplyConfiguration
 			// Opts is the opts argument value.
-			Opts metav1.ApplyOptions
+			Opts apismetav1.ApplyOptions
 		}
 		// ApplyStatus holds details about calls to the ApplyStatus method.
 		ApplyStatus []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Pod is the pod argument value.
-			Pod *corev1.PodApplyConfiguration
+			Pod *applyconfigurationscorev1.PodApplyConfiguration
 			// Opts is the opts argument value.
-			Opts metav1.ApplyOptions
+			Opts apismetav1.ApplyOptions
 		}
 		// Bind holds details about calls to the Bind method.
 		Bind []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Binding is the binding argument value.
-			Binding *apiv1.Binding
+			Binding *apicorev1.Binding
 			// Opts is the opts argument value.
-			Opts metav1.CreateOptions
+			Opts apismetav1.CreateOptions
 		}
 		// Create holds details about calls to the Create method.
 		Create []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Pod is the pod argument value.
-			Pod *apiv1.Pod
+			Pod *apicorev1.Pod
 			// Opts is the opts argument value.
-			Opts metav1.CreateOptions
+			Opts apismetav1.CreateOptions
 		}
 		// Delete holds details about calls to the Delete method.
 		Delete []struct {
@@ -186,16 +186,16 @@ type apiv1PodInterfaceMock struct {
 			// Name is the name argument value.
 			Name string
 			// Opts is the opts argument value.
-			Opts metav1.DeleteOptions
+			Opts apismetav1.DeleteOptions
 		}
 		// DeleteCollection holds details about calls to the DeleteCollection method.
 		DeleteCollection []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Opts is the opts argument value.
-			Opts metav1.DeleteOptions
+			Opts apismetav1.DeleteOptions
 			// ListOpts is the listOpts argument value.
-			ListOpts metav1.ListOptions
+			ListOpts apismetav1.ListOptions
 		}
 		// Evict holds details about calls to the Evict method.
 		Evict []struct {
@@ -209,7 +209,7 @@ type apiv1PodInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Eviction is the eviction argument value.
-			Eviction *policyv1.Eviction
+			Eviction *apipolicyv1.Eviction
 		}
 		// EvictV1beta1 holds details about calls to the EvictV1beta1 method.
 		EvictV1beta1 []struct {
@@ -225,21 +225,21 @@ type apiv1PodInterfaceMock struct {
 			// Name is the name argument value.
 			Name string
 			// Opts is the opts argument value.
-			Opts metav1.GetOptions
+			Opts apismetav1.GetOptions
 		}
 		// GetLogs holds details about calls to the GetLogs method.
 		GetLogs []struct {
 			// Name is the name argument value.
 			Name string
 			// Opts is the opts argument value.
-			Opts *apiv1.PodLogOptions
+			Opts *apicorev1.PodLogOptions
 		}
 		// List holds details about calls to the List method.
 		List []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Opts is the opts argument value.
-			Opts metav1.ListOptions
+			Opts apismetav1.ListOptions
 		}
 		// Patch holds details about calls to the Patch method.
 		Patch []struct {
@@ -252,7 +252,7 @@ type apiv1PodInterfaceMock struct {
 			// Data is the data argument value.
 			Data []byte
 			// Opts is the opts argument value.
-			Opts metav1.PatchOptions
+			Opts apismetav1.PatchOptions
 			// Subresources is the subresources argument value.
 			Subresources []string
 		}
@@ -274,9 +274,9 @@ type apiv1PodInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Pod is the pod argument value.
-			Pod *apiv1.Pod
+			Pod *apicorev1.Pod
 			// Opts is the opts argument value.
-			Opts metav1.UpdateOptions
+			Opts apismetav1.UpdateOptions
 		}
 		// UpdateEphemeralContainers holds details about calls to the UpdateEphemeralContainers method.
 		UpdateEphemeralContainers []struct {
@@ -285,25 +285,25 @@ type apiv1PodInterfaceMock struct {
 			// PodName is the podName argument value.
 			PodName string
 			// Pod is the pod argument value.
-			Pod *apiv1.Pod
+			Pod *apicorev1.Pod
 			// Opts is the opts argument value.
-			Opts metav1.UpdateOptions
+			Opts apismetav1.UpdateOptions
 		}
 		// UpdateStatus holds details about calls to the UpdateStatus method.
 		UpdateStatus []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Pod is the pod argument value.
-			Pod *apiv1.Pod
+			Pod *apicorev1.Pod
 			// Opts is the opts argument value.
-			Opts metav1.UpdateOptions
+			Opts apismetav1.UpdateOptions
 		}
 		// Watch holds details about calls to the Watch method.
 		Watch []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Opts is the opts argument value.
-			Opts metav1.ListOptions
+			Opts apismetav1.ListOptions
 		}
 	}
 	lockApply                     sync.RWMutex
@@ -327,14 +327,14 @@ type apiv1PodInterfaceMock struct {
 }
 
 // Apply calls ApplyFunc.
-func (mock *apiv1PodInterfaceMock) Apply(ctx context.Context, pod *corev1.PodApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) Apply(ctx context.Context, pod *applyconfigurationscorev1.PodApplyConfiguration, opts apismetav1.ApplyOptions) (*apicorev1.Pod, error) {
 	if mock.ApplyFunc == nil {
 		panic("apiv1PodInterfaceMock.ApplyFunc: method is nil but apiv1PodInterface.Apply was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Pod  *corev1.PodApplyConfiguration
-		Opts metav1.ApplyOptions
+		Pod  *applyconfigurationscorev1.PodApplyConfiguration
+		Opts apismetav1.ApplyOptions
 	}{
 		Ctx:  ctx,
 		Pod:  pod,
@@ -351,13 +351,13 @@ func (mock *apiv1PodInterfaceMock) Apply(ctx context.Context, pod *corev1.PodApp
 //     len(mockedapiv1PodInterface.ApplyCalls())
 func (mock *apiv1PodInterfaceMock) ApplyCalls() []struct {
 	Ctx  context.Context
-	Pod  *corev1.PodApplyConfiguration
-	Opts metav1.ApplyOptions
+	Pod  *applyconfigurationscorev1.PodApplyConfiguration
+	Opts apismetav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Pod  *corev1.PodApplyConfiguration
-		Opts metav1.ApplyOptions
+		Pod  *applyconfigurationscorev1.PodApplyConfiguration
+		Opts apismetav1.ApplyOptions
 	}
 	mock.lockApply.RLock()
 	calls = mock.calls.Apply
@@ -366,14 +366,14 @@ func (mock *apiv1PodInterfaceMock) ApplyCalls() []struct {
 }
 
 // ApplyStatus calls ApplyStatusFunc.
-func (mock *apiv1PodInterfaceMock) ApplyStatus(ctx context.Context, pod *corev1.PodApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) ApplyStatus(ctx context.Context, pod *applyconfigurationscorev1.PodApplyConfiguration, opts apismetav1.ApplyOptions) (*apicorev1.Pod, error) {
 	if mock.ApplyStatusFunc == nil {
 		panic("apiv1PodInterfaceMock.ApplyStatusFunc: method is nil but apiv1PodInterface.ApplyStatus was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Pod  *corev1.PodApplyConfiguration
-		Opts metav1.ApplyOptions
+		Pod  *applyconfigurationscorev1.PodApplyConfiguration
+		Opts apismetav1.ApplyOptions
 	}{
 		Ctx:  ctx,
 		Pod:  pod,
@@ -390,13 +390,13 @@ func (mock *apiv1PodInterfaceMock) ApplyStatus(ctx context.Context, pod *corev1.
 //     len(mockedapiv1PodInterface.ApplyStatusCalls())
 func (mock *apiv1PodInterfaceMock) ApplyStatusCalls() []struct {
 	Ctx  context.Context
-	Pod  *corev1.PodApplyConfiguration
-	Opts metav1.ApplyOptions
+	Pod  *applyconfigurationscorev1.PodApplyConfiguration
+	Opts apismetav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Pod  *corev1.PodApplyConfiguration
-		Opts metav1.ApplyOptions
+		Pod  *applyconfigurationscorev1.PodApplyConfiguration
+		Opts apismetav1.ApplyOptions
 	}
 	mock.lockApplyStatus.RLock()
 	calls = mock.calls.ApplyStatus
@@ -405,14 +405,14 @@ func (mock *apiv1PodInterfaceMock) ApplyStatusCalls() []struct {
 }
 
 // Bind calls BindFunc.
-func (mock *apiv1PodInterfaceMock) Bind(ctx context.Context, binding *apiv1.Binding, opts metav1.CreateOptions) error {
+func (mock *apiv1PodInterfaceMock) Bind(ctx context.Context, binding *apicorev1.Binding, opts apismetav1.CreateOptions) error {
 	if mock.BindFunc == nil {
 		panic("apiv1PodInterfaceMock.BindFunc: method is nil but apiv1PodInterface.Bind was just called")
 	}
 	callInfo := struct {
 		Ctx     context.Context
-		Binding *apiv1.Binding
-		Opts    metav1.CreateOptions
+		Binding *apicorev1.Binding
+		Opts    apismetav1.CreateOptions
 	}{
 		Ctx:     ctx,
 		Binding: binding,
@@ -429,13 +429,13 @@ func (mock *apiv1PodInterfaceMock) Bind(ctx context.Context, binding *apiv1.Bind
 //     len(mockedapiv1PodInterface.BindCalls())
 func (mock *apiv1PodInterfaceMock) BindCalls() []struct {
 	Ctx     context.Context
-	Binding *apiv1.Binding
-	Opts    metav1.CreateOptions
+	Binding *apicorev1.Binding
+	Opts    apismetav1.CreateOptions
 } {
 	var calls []struct {
 		Ctx     context.Context
-		Binding *apiv1.Binding
-		Opts    metav1.CreateOptions
+		Binding *apicorev1.Binding
+		Opts    apismetav1.CreateOptions
 	}
 	mock.lockBind.RLock()
 	calls = mock.calls.Bind
@@ -444,14 +444,14 @@ func (mock *apiv1PodInterfaceMock) BindCalls() []struct {
 }
 
 // Create calls CreateFunc.
-func (mock *apiv1PodInterfaceMock) Create(ctx context.Context, pod *apiv1.Pod, opts metav1.CreateOptions) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) Create(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.CreateOptions) (*apicorev1.Pod, error) {
 	if mock.CreateFunc == nil {
 		panic("apiv1PodInterfaceMock.CreateFunc: method is nil but apiv1PodInterface.Create was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Pod  *apiv1.Pod
-		Opts metav1.CreateOptions
+		Pod  *apicorev1.Pod
+		Opts apismetav1.CreateOptions
 	}{
 		Ctx:  ctx,
 		Pod:  pod,
@@ -468,13 +468,13 @@ func (mock *apiv1PodInterfaceMock) Create(ctx context.Context, pod *apiv1.Pod, o
 //     len(mockedapiv1PodInterface.CreateCalls())
 func (mock *apiv1PodInterfaceMock) CreateCalls() []struct {
 	Ctx  context.Context
-	Pod  *apiv1.Pod
-	Opts metav1.CreateOptions
+	Pod  *apicorev1.Pod
+	Opts apismetav1.CreateOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Pod  *apiv1.Pod
-		Opts metav1.CreateOptions
+		Pod  *apicorev1.Pod
+		Opts apismetav1.CreateOptions
 	}
 	mock.lockCreate.RLock()
 	calls = mock.calls.Create
@@ -483,14 +483,14 @@ func (mock *apiv1PodInterfaceMock) CreateCalls() []struct {
 }
 
 // Delete calls DeleteFunc.
-func (mock *apiv1PodInterfaceMock) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+func (mock *apiv1PodInterfaceMock) Delete(ctx context.Context, name string, opts apismetav1.DeleteOptions) error {
 	if mock.DeleteFunc == nil {
 		panic("apiv1PodInterfaceMock.DeleteFunc: method is nil but apiv1PodInterface.Delete was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.DeleteOptions
+		Opts apismetav1.DeleteOptions
 	}{
 		Ctx:  ctx,
 		Name: name,
@@ -508,12 +508,12 @@ func (mock *apiv1PodInterfaceMock) Delete(ctx context.Context, name string, opts
 func (mock *apiv1PodInterfaceMock) DeleteCalls() []struct {
 	Ctx  context.Context
 	Name string
-	Opts metav1.DeleteOptions
+	Opts apismetav1.DeleteOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.DeleteOptions
+		Opts apismetav1.DeleteOptions
 	}
 	mock.lockDelete.RLock()
 	calls = mock.calls.Delete
@@ -522,14 +522,14 @@ func (mock *apiv1PodInterfaceMock) DeleteCalls() []struct {
 }
 
 // DeleteCollection calls DeleteCollectionFunc.
-func (mock *apiv1PodInterfaceMock) DeleteCollection(ctx context.Context, opts metav1.DeleteOptions, listOpts metav1.ListOptions) error {
+func (mock *apiv1PodInterfaceMock) DeleteCollection(ctx context.Context, opts apismetav1.DeleteOptions, listOpts apismetav1.ListOptions) error {
 	if mock.DeleteCollectionFunc == nil {
 		panic("apiv1PodInterfaceMock.DeleteCollectionFunc: method is nil but apiv1PodInterface.DeleteCollection was just called")
 	}
 	callInfo := struct {
 		Ctx      context.Context
-		Opts     metav1.DeleteOptions
-		ListOpts metav1.ListOptions
+		Opts     apismetav1.DeleteOptions
+		ListOpts apismetav1.ListOptions
 	}{
 		Ctx:      ctx,
 		Opts:     opts,
@@ -546,13 +546,13 @@ func (mock *apiv1PodInterfaceMock) DeleteCollection(ctx context.Context, opts me
 //     len(mockedapiv1PodInterface.DeleteCollectionCalls())
 func (mock *apiv1PodInterfaceMock) DeleteCollectionCalls() []struct {
 	Ctx      context.Context
-	Opts     metav1.DeleteOptions
-	ListOpts metav1.ListOptions
+	Opts     apismetav1.DeleteOptions
+	ListOpts apismetav1.ListOptions
 } {
 	var calls []struct {
 		Ctx      context.Context
-		Opts     metav1.DeleteOptions
-		ListOpts metav1.ListOptions
+		Opts     apismetav1.DeleteOptions
+		ListOpts apismetav1.ListOptions
 	}
 	mock.lockDeleteCollection.RLock()
 	calls = mock.calls.DeleteCollection
@@ -596,13 +596,13 @@ func (mock *apiv1PodInterfaceMock) EvictCalls() []struct {
 }
 
 // EvictV1 calls EvictV1Func.
-func (mock *apiv1PodInterfaceMock) EvictV1(ctx context.Context, eviction *policyv1.Eviction) error {
+func (mock *apiv1PodInterfaceMock) EvictV1(ctx context.Context, eviction *apipolicyv1.Eviction) error {
 	if mock.EvictV1Func == nil {
 		panic("apiv1PodInterfaceMock.EvictV1Func: method is nil but apiv1PodInterface.EvictV1 was just called")
 	}
 	callInfo := struct {
 		Ctx      context.Context
-		Eviction *policyv1.Eviction
+		Eviction *apipolicyv1.Eviction
 	}{
 		Ctx:      ctx,
 		Eviction: eviction,
@@ -618,11 +618,11 @@ func (mock *apiv1PodInterfaceMock) EvictV1(ctx context.Context, eviction *policy
 //     len(mockedapiv1PodInterface.EvictV1Calls())
 func (mock *apiv1PodInterfaceMock) EvictV1Calls() []struct {
 	Ctx      context.Context
-	Eviction *policyv1.Eviction
+	Eviction *apipolicyv1.Eviction
 } {
 	var calls []struct {
 		Ctx      context.Context
-		Eviction *policyv1.Eviction
+		Eviction *apipolicyv1.Eviction
 	}
 	mock.lockEvictV1.RLock()
 	calls = mock.calls.EvictV1
@@ -666,14 +666,14 @@ func (mock *apiv1PodInterfaceMock) EvictV1beta1Calls() []struct {
 }
 
 // Get calls GetFunc.
-func (mock *apiv1PodInterfaceMock) Get(ctx context.Context, name string, opts metav1.GetOptions) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) Get(ctx context.Context, name string, opts apismetav1.GetOptions) (*apicorev1.Pod, error) {
 	if mock.GetFunc == nil {
 		panic("apiv1PodInterfaceMock.GetFunc: method is nil but apiv1PodInterface.Get was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.GetOptions
+		Opts apismetav1.GetOptions
 	}{
 		Ctx:  ctx,
 		Name: name,
@@ -691,12 +691,12 @@ func (mock *apiv1PodInterfaceMock) Get(ctx context.Context, name string, opts me
 func (mock *apiv1PodInterfaceMock) GetCalls() []struct {
 	Ctx  context.Context
 	Name string
-	Opts metav1.GetOptions
+	Opts apismetav1.GetOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
 		Name string
-		Opts metav1.GetOptions
+		Opts apismetav1.GetOptions
 	}
 	mock.lockGet.RLock()
 	calls = mock.calls.Get
@@ -705,13 +705,13 @@ func (mock *apiv1PodInterfaceMock) GetCalls() []struct {
 }
 
 // GetLogs calls GetLogsFunc.
-func (mock *apiv1PodInterfaceMock) GetLogs(name string, opts *apiv1.PodLogOptions) *rest.Request {
+func (mock *apiv1PodInterfaceMock) GetLogs(name string, opts *apicorev1.PodLogOptions) *rest.Request {
 	if mock.GetLogsFunc == nil {
 		panic("apiv1PodInterfaceMock.GetLogsFunc: method is nil but apiv1PodInterface.GetLogs was just called")
 	}
 	callInfo := struct {
 		Name string
-		Opts *apiv1.PodLogOptions
+		Opts *apicorev1.PodLogOptions
 	}{
 		Name: name,
 		Opts: opts,
@@ -727,11 +727,11 @@ func (mock *apiv1PodInterfaceMock) GetLogs(name string, opts *apiv1.PodLogOption
 //     len(mockedapiv1PodInterface.GetLogsCalls())
 func (mock *apiv1PodInterfaceMock) GetLogsCalls() []struct {
 	Name string
-	Opts *apiv1.PodLogOptions
+	Opts *apicorev1.PodLogOptions
 } {
 	var calls []struct {
 		Name string
-		Opts *apiv1.PodLogOptions
+		Opts *apicorev1.PodLogOptions
 	}
 	mock.lockGetLogs.RLock()
 	calls = mock.calls.GetLogs
@@ -740,13 +740,13 @@ func (mock *apiv1PodInterfaceMock) GetLogsCalls() []struct {
 }
 
 // List calls ListFunc.
-func (mock *apiv1PodInterfaceMock) List(ctx context.Context, opts metav1.ListOptions) (*apiv1.PodList, error) {
+func (mock *apiv1PodInterfaceMock) List(ctx context.Context, opts apismetav1.ListOptions) (*apicorev1.PodList, error) {
 	if mock.ListFunc == nil {
 		panic("apiv1PodInterfaceMock.ListFunc: method is nil but apiv1PodInterface.List was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}{
 		Ctx:  ctx,
 		Opts: opts,
@@ -762,11 +762,11 @@ func (mock *apiv1PodInterfaceMock) List(ctx context.Context, opts metav1.ListOpt
 //     len(mockedapiv1PodInterface.ListCalls())
 func (mock *apiv1PodInterfaceMock) ListCalls() []struct {
 	Ctx  context.Context
-	Opts metav1.ListOptions
+	Opts apismetav1.ListOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}
 	mock.lockList.RLock()
 	calls = mock.calls.List
@@ -775,7 +775,7 @@ func (mock *apiv1PodInterfaceMock) ListCalls() []struct {
 }
 
 // Patch calls PatchFunc.
-func (mock *apiv1PodInterfaceMock) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts metav1.PatchOptions, subresources ...string) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts apismetav1.PatchOptions, subresources ...string) (*apicorev1.Pod, error) {
 	if mock.PatchFunc == nil {
 		panic("apiv1PodInterfaceMock.PatchFunc: method is nil but apiv1PodInterface.Patch was just called")
 	}
@@ -784,7 +784,7 @@ func (mock *apiv1PodInterfaceMock) Patch(ctx context.Context, name string, pt ty
 		Name         string
 		Pt           types.PatchType
 		Data         []byte
-		Opts         metav1.PatchOptions
+		Opts         apismetav1.PatchOptions
 		Subresources []string
 	}{
 		Ctx:          ctx,
@@ -808,7 +808,7 @@ func (mock *apiv1PodInterfaceMock) PatchCalls() []struct {
 	Name         string
 	Pt           types.PatchType
 	Data         []byte
-	Opts         metav1.PatchOptions
+	Opts         apismetav1.PatchOptions
 	Subresources []string
 } {
 	var calls []struct {
@@ -816,7 +816,7 @@ func (mock *apiv1PodInterfaceMock) PatchCalls() []struct {
 		Name         string
 		Pt           types.PatchType
 		Data         []byte
-		Opts         metav1.PatchOptions
+		Opts         apismetav1.PatchOptions
 		Subresources []string
 	}
 	mock.lockPatch.RLock()
@@ -873,14 +873,14 @@ func (mock *apiv1PodInterfaceMock) ProxyGetCalls() []struct {
 }
 
 // Update calls UpdateFunc.
-func (mock *apiv1PodInterfaceMock) Update(ctx context.Context, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) Update(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error) {
 	if mock.UpdateFunc == nil {
 		panic("apiv1PodInterfaceMock.UpdateFunc: method is nil but apiv1PodInterface.Update was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Pod  *apiv1.Pod
-		Opts metav1.UpdateOptions
+		Pod  *apicorev1.Pod
+		Opts apismetav1.UpdateOptions
 	}{
 		Ctx:  ctx,
 		Pod:  pod,
@@ -897,13 +897,13 @@ func (mock *apiv1PodInterfaceMock) Update(ctx context.Context, pod *apiv1.Pod, o
 //     len(mockedapiv1PodInterface.UpdateCalls())
 func (mock *apiv1PodInterfaceMock) UpdateCalls() []struct {
 	Ctx  context.Context
-	Pod  *apiv1.Pod
-	Opts metav1.UpdateOptions
+	Pod  *apicorev1.Pod
+	Opts apismetav1.UpdateOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Pod  *apiv1.Pod
-		Opts metav1.UpdateOptions
+		Pod  *apicorev1.Pod
+		Opts apismetav1.UpdateOptions
 	}
 	mock.lockUpdate.RLock()
 	calls = mock.calls.Update
@@ -912,15 +912,15 @@ func (mock *apiv1PodInterfaceMock) UpdateCalls() []struct {
 }
 
 // UpdateEphemeralContainers calls UpdateEphemeralContainersFunc.
-func (mock *apiv1PodInterfaceMock) UpdateEphemeralContainers(ctx context.Context, podName string, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) UpdateEphemeralContainers(ctx context.Context, podName string, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error) {
 	if mock.UpdateEphemeralContainersFunc == nil {
 		panic("apiv1PodInterfaceMock.UpdateEphemeralContainersFunc: method is nil but apiv1PodInterface.UpdateEphemeralContainers was just called")
 	}
 	callInfo := struct {
 		Ctx     context.Context
 		PodName string
-		Pod     *apiv1.Pod
-		Opts    metav1.UpdateOptions
+		Pod     *apicorev1.Pod
+		Opts    apismetav1.UpdateOptions
 	}{
 		Ctx:     ctx,
 		PodName: podName,
@@ -939,14 +939,14 @@ func (mock *apiv1PodInterfaceMock) UpdateEphemeralContainers(ctx context.Context
 func (mock *apiv1PodInterfaceMock) UpdateEphemeralContainersCalls() []struct {
 	Ctx     context.Context
 	PodName string
-	Pod     *apiv1.Pod
-	Opts    metav1.UpdateOptions
+	Pod     *apicorev1.Pod
+	Opts    apismetav1.UpdateOptions
 } {
 	var calls []struct {
 		Ctx     context.Context
 		PodName string
-		Pod     *apiv1.Pod
-		Opts    metav1.UpdateOptions
+		Pod     *apicorev1.Pod
+		Opts    apismetav1.UpdateOptions
 	}
 	mock.lockUpdateEphemeralContainers.RLock()
 	calls = mock.calls.UpdateEphemeralContainers
@@ -955,14 +955,14 @@ func (mock *apiv1PodInterfaceMock) UpdateEphemeralContainersCalls() []struct {
 }
 
 // UpdateStatus calls UpdateStatusFunc.
-func (mock *apiv1PodInterfaceMock) UpdateStatus(ctx context.Context, pod *apiv1.Pod, opts metav1.UpdateOptions) (*apiv1.Pod, error) {
+func (mock *apiv1PodInterfaceMock) UpdateStatus(ctx context.Context, pod *apicorev1.Pod, opts apismetav1.UpdateOptions) (*apicorev1.Pod, error) {
 	if mock.UpdateStatusFunc == nil {
 		panic("apiv1PodInterfaceMock.UpdateStatusFunc: method is nil but apiv1PodInterface.UpdateStatus was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Pod  *apiv1.Pod
-		Opts metav1.UpdateOptions
+		Pod  *apicorev1.Pod
+		Opts apismetav1.UpdateOptions
 	}{
 		Ctx:  ctx,
 		Pod:  pod,
@@ -979,13 +979,13 @@ func (mock *apiv1PodInterfaceMock) UpdateStatus(ctx context.Context, pod *apiv1.
 //     len(mockedapiv1PodInterface.UpdateStatusCalls())
 func (mock *apiv1PodInterfaceMock) UpdateStatusCalls() []struct {
 	Ctx  context.Context
-	Pod  *apiv1.Pod
-	Opts metav1.UpdateOptions
+	Pod  *apicorev1.Pod
+	Opts apismetav1.UpdateOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Pod  *apiv1.Pod
-		Opts metav1.UpdateOptions
+		Pod  *apicorev1.Pod
+		Opts apismetav1.UpdateOptions
 	}
 	mock.lockUpdateStatus.RLock()
 	calls = mock.calls.UpdateStatus
@@ -994,13 +994,13 @@ func (mock *apiv1PodInterfaceMock) UpdateStatusCalls() []struct {
 }
 
 // Watch calls WatchFunc.
-func (mock *apiv1PodInterfaceMock) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+func (mock *apiv1PodInterfaceMock) Watch(ctx context.Context, opts apismetav1.ListOptions) (watch.Interface, error) {
 	if mock.WatchFunc == nil {
 		panic("apiv1PodInterfaceMock.WatchFunc: method is nil but apiv1PodInterface.Watch was just called")
 	}
 	callInfo := struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}{
 		Ctx:  ctx,
 		Opts: opts,
@@ -1016,11 +1016,11 @@ func (mock *apiv1PodInterfaceMock) Watch(ctx context.Context, opts metav1.ListOp
 //     len(mockedapiv1PodInterface.WatchCalls())
 func (mock *apiv1PodInterfaceMock) WatchCalls() []struct {
 	Ctx  context.Context
-	Opts metav1.ListOptions
+	Opts apismetav1.ListOptions
 } {
 	var calls []struct {
 		Ctx  context.Context
-		Opts metav1.ListOptions
+		Opts apismetav1.ListOptions
 	}
 	mock.lockWatch.RLock()
 	calls = mock.calls.Watch

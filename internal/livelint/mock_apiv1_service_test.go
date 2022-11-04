@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
+	"k8s.io/client-go/applyconfigurations/core/v1"
 	"k8s.io/client-go/rest"
 	"sync"
 )
@@ -24,10 +24,10 @@ var _ apiv1ServiceInterface = &apiv1ServiceInterfaceMock{}
 //
 // 		// make and configure a mocked apiv1ServiceInterface
 // 		mockedapiv1ServiceInterface := &apiv1ServiceInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
+// 			ApplyFunc: func(ctx context.Context, service *v1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
 // 				panic("mock out the Apply method")
 // 			},
-// 			ApplyStatusFunc: func(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
+// 			ApplyStatusFunc: func(ctx context.Context, service *v1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
 // 				panic("mock out the ApplyStatus method")
 // 			},
 // 			CreateFunc: func(ctx context.Context, service *apiv1.Service, opts metav1.CreateOptions) (*apiv1.Service, error) {
@@ -65,10 +65,10 @@ var _ apiv1ServiceInterface = &apiv1ServiceInterfaceMock{}
 // 	}
 type apiv1ServiceInterfaceMock struct {
 	// ApplyFunc mocks the Apply method.
-	ApplyFunc func(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error)
+	ApplyFunc func(ctx context.Context, service *v1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error)
 
 	// ApplyStatusFunc mocks the ApplyStatus method.
-	ApplyStatusFunc func(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error)
+	ApplyStatusFunc func(ctx context.Context, service *v1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error)
 
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, service *apiv1.Service, opts metav1.CreateOptions) (*apiv1.Service, error)
@@ -104,7 +104,7 @@ type apiv1ServiceInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Service is the service argument value.
-			Service *corev1.ServiceApplyConfiguration
+			Service *v1.ServiceApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -113,7 +113,7 @@ type apiv1ServiceInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Service is the service argument value.
-			Service *corev1.ServiceApplyConfiguration
+			Service *v1.ServiceApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -219,13 +219,13 @@ type apiv1ServiceInterfaceMock struct {
 }
 
 // Apply calls ApplyFunc.
-func (mock *apiv1ServiceInterfaceMock) Apply(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
+func (mock *apiv1ServiceInterfaceMock) Apply(ctx context.Context, service *v1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
 	if mock.ApplyFunc == nil {
 		panic("apiv1ServiceInterfaceMock.ApplyFunc: method is nil but apiv1ServiceInterface.Apply was just called")
 	}
 	callInfo := struct {
 		Ctx     context.Context
-		Service *corev1.ServiceApplyConfiguration
+		Service *v1.ServiceApplyConfiguration
 		Opts    metav1.ApplyOptions
 	}{
 		Ctx:     ctx,
@@ -243,12 +243,12 @@ func (mock *apiv1ServiceInterfaceMock) Apply(ctx context.Context, service *corev
 //     len(mockedapiv1ServiceInterface.ApplyCalls())
 func (mock *apiv1ServiceInterfaceMock) ApplyCalls() []struct {
 	Ctx     context.Context
-	Service *corev1.ServiceApplyConfiguration
+	Service *v1.ServiceApplyConfiguration
 	Opts    metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx     context.Context
-		Service *corev1.ServiceApplyConfiguration
+		Service *v1.ServiceApplyConfiguration
 		Opts    metav1.ApplyOptions
 	}
 	mock.lockApply.RLock()
@@ -258,13 +258,13 @@ func (mock *apiv1ServiceInterfaceMock) ApplyCalls() []struct {
 }
 
 // ApplyStatus calls ApplyStatusFunc.
-func (mock *apiv1ServiceInterfaceMock) ApplyStatus(ctx context.Context, service *corev1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
+func (mock *apiv1ServiceInterfaceMock) ApplyStatus(ctx context.Context, service *v1.ServiceApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Service, error) {
 	if mock.ApplyStatusFunc == nil {
 		panic("apiv1ServiceInterfaceMock.ApplyStatusFunc: method is nil but apiv1ServiceInterface.ApplyStatus was just called")
 	}
 	callInfo := struct {
 		Ctx     context.Context
-		Service *corev1.ServiceApplyConfiguration
+		Service *v1.ServiceApplyConfiguration
 		Opts    metav1.ApplyOptions
 	}{
 		Ctx:     ctx,
@@ -282,12 +282,12 @@ func (mock *apiv1ServiceInterfaceMock) ApplyStatus(ctx context.Context, service 
 //     len(mockedapiv1ServiceInterface.ApplyStatusCalls())
 func (mock *apiv1ServiceInterfaceMock) ApplyStatusCalls() []struct {
 	Ctx     context.Context
-	Service *corev1.ServiceApplyConfiguration
+	Service *v1.ServiceApplyConfiguration
 	Opts    metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx     context.Context
-		Service *corev1.ServiceApplyConfiguration
+		Service *v1.ServiceApplyConfiguration
 		Opts    metav1.ApplyOptions
 	}
 	mock.lockApplyStatus.RLock()

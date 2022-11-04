@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
-	corev1 "k8s.io/client-go/applyconfigurations/core/v1"
+	"k8s.io/client-go/applyconfigurations/core/v1"
 	"sync"
 )
 
@@ -25,7 +25,7 @@ var _ apiv1EventInterface = &apiv1EventInterfaceMock{}
 //
 // 		// make and configure a mocked apiv1EventInterface
 // 		mockedapiv1EventInterface := &apiv1EventInterfaceMock{
-// 			ApplyFunc: func(ctx context.Context, event *corev1.EventApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Event, error) {
+// 			ApplyFunc: func(ctx context.Context, event *v1.EventApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Event, error) {
 // 				panic("mock out the Apply method")
 // 			},
 // 			CreateFunc: func(ctx context.Context, event *apiv1.Event, opts metav1.CreateOptions) (*apiv1.Event, error) {
@@ -75,7 +75,7 @@ var _ apiv1EventInterface = &apiv1EventInterfaceMock{}
 // 	}
 type apiv1EventInterfaceMock struct {
 	// ApplyFunc mocks the Apply method.
-	ApplyFunc func(ctx context.Context, event *corev1.EventApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Event, error)
+	ApplyFunc func(ctx context.Context, event *v1.EventApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Event, error)
 
 	// CreateFunc mocks the Create method.
 	CreateFunc func(ctx context.Context, event *apiv1.Event, opts metav1.CreateOptions) (*apiv1.Event, error)
@@ -123,7 +123,7 @@ type apiv1EventInterfaceMock struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
 			// Event is the event argument value.
-			Event *corev1.EventApplyConfiguration
+			Event *v1.EventApplyConfiguration
 			// Opts is the opts argument value.
 			Opts metav1.ApplyOptions
 		}
@@ -254,13 +254,13 @@ type apiv1EventInterfaceMock struct {
 }
 
 // Apply calls ApplyFunc.
-func (mock *apiv1EventInterfaceMock) Apply(ctx context.Context, event *corev1.EventApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Event, error) {
+func (mock *apiv1EventInterfaceMock) Apply(ctx context.Context, event *v1.EventApplyConfiguration, opts metav1.ApplyOptions) (*apiv1.Event, error) {
 	if mock.ApplyFunc == nil {
 		panic("apiv1EventInterfaceMock.ApplyFunc: method is nil but apiv1EventInterface.Apply was just called")
 	}
 	callInfo := struct {
 		Ctx   context.Context
-		Event *corev1.EventApplyConfiguration
+		Event *v1.EventApplyConfiguration
 		Opts  metav1.ApplyOptions
 	}{
 		Ctx:   ctx,
@@ -278,12 +278,12 @@ func (mock *apiv1EventInterfaceMock) Apply(ctx context.Context, event *corev1.Ev
 //     len(mockedapiv1EventInterface.ApplyCalls())
 func (mock *apiv1EventInterfaceMock) ApplyCalls() []struct {
 	Ctx   context.Context
-	Event *corev1.EventApplyConfiguration
+	Event *v1.EventApplyConfiguration
 	Opts  metav1.ApplyOptions
 } {
 	var calls []struct {
 		Ctx   context.Context
-		Event *corev1.EventApplyConfiguration
+		Event *v1.EventApplyConfiguration
 		Opts  metav1.ApplyOptions
 	}
 	mock.lockApply.RLock()
