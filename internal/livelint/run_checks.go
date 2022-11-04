@@ -6,13 +6,18 @@ import (
 	"log"
 )
 
+var (
+	errNamespaceUndefined      = errors.New("no namespace defined")
+	errDeploymentNameUndefined = errors.New("no deployment defined")
+)
+
 // RunChecks checks for potential issues with a deployment.
 func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
 	if namespace == "" {
-		return errors.New("no namespace defined")
+		return errNamespaceUndefined
 	}
 	if deploymentName == "" {
-		return errors.New("no deployment defined")
+		return errDeploymentNameUndefined
 	}
 
 	// nolint:govet
@@ -130,7 +135,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					}
 
 					// Did you forget the CMD instruction in the Dockerfile?
-					result = n.checkForgottenCMDInDockerfile()
+					result = n.CheckForgottenCMDInDockerfile(nonRunningContainer)
 					n.ui.DisplayCheckResult(result)
 
 					return nil
