@@ -10,6 +10,9 @@ import (
 
 func (n *Livelint) CheckIsNumberOfPodsMatching(namespace string, deploymentName string) CheckResult {
 	deployment, err := n.getDeployment(namespace, deploymentName)
+	if err != nil {
+		log.Fatal(fmt.Errorf("error getting deployment %s in namespace %s: %w", deploymentName, namespace, err))
+	}
 
 	replicaSets, err := n.k8s.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
