@@ -28,7 +28,7 @@ func (n *Livelint) checkCanVisitPublicApp(namespace string, services []apiv1.Ser
 			if err != nil {
 				log.Fatal(fmt.Errorf("error when creating http request for url %s: %w", url.String(), err))
 			}
-			resp, err := http.DefaultClient.Do(req)
+			resp, err := n.http.Do(req)
 			if err != nil {
 				return CheckResult{
 					HasFailed: true,
