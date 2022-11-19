@@ -19,7 +19,7 @@ const (
 	listItemPaddingLeft = 2
 )
 
-type model struct {
+type Model struct {
 	error             error
 	choice            chan int
 	list              list.Model
@@ -36,13 +36,13 @@ type model struct {
 	verbose           bool
 }
 
-func initialModel() model {
+func InitialModel() Model {
 	yesNoItems := []list.Item{
 		listItem{title: "Yes"},
 		listItem{title: "No"},
 	}
 
-	return model{
+	return Model{
 		list:              list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0),
 		textInput:         textinput.New(),
 		yesNoInput:        list.New(yesNoItems, list.NewDefaultDelegate(), len(yesNoItems)*width, len(yesNoItems)*listHeight),
@@ -54,11 +54,11 @@ func initialModel() model {
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) View() string {
+func (m Model) View() string {
 	listStyle := lipgloss.NewStyle().
 		Width(width).
 		Margin(1, paddingTopBottom)
@@ -94,7 +94,7 @@ func (m model) View() string {
 }
 
 // nolint:ireturn
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -220,10 +220,6 @@ type check struct {
 	outcome      summaryMsg
 }
 
-func initalizeVerbose(verbose bool) verboseMsg {
-	return verboseMsg{verbose: verbose}
-}
-
 func initalizeStatus(context string) statusMsg {
 	return statusMsg{context: context, checks: []check{}}
 }
@@ -268,7 +264,7 @@ func mapStrings[T interface{}](items []T, f func(item T) string) []string {
 	return result
 }
 
-func (m model) assembleLists() string {
+func (m Model) assembleLists() string {
 	var (
 		gray = lipgloss.AdaptiveColor{Light: "#B2BEB5", Dark: "#818589"}
 
@@ -353,7 +349,7 @@ func (m model) assembleLists() string {
 	)
 }
 
-func (m model) assembleHeaderBar() string {
+func (m Model) assembleHeaderBar() string {
 	var (
 		statusNugget = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#FFFDF5")).

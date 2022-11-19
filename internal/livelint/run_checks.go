@@ -5,30 +5,12 @@ import (
 	"log"
 )
 
-// Start renders the UI and listens for messages.
-func (n *Livelint) Start() {
-	err := n.ui.Start()
-	if err != nil {
-		log.Fatal(fmt.Errorf("error starting UI: %w", err))
-	}
-}
-
-// Quit quits the UI and drops back to the terminal.
-func (n *Livelint) Quit() {
-	n.ui.Quit()
-}
-
 // RunChecks checks for potential issues with a deployment.
 func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
-	verboseMsg := initalizeVerbose(isVerbose)
-	n.ui.Send(verboseMsg)
-
 	// nolint:govet
-	statusMsg := initalizeStatus(fmt.Sprintf("Checking Deployment %q in Namespace %q", deploymentName, namespace))
-	n.ui.Send(statusMsg)
+	n.ui.DisplayContext(fmt.Sprintf("Checking Deployment %q in Namespace %q", deploymentName, namespace))
 
-	statusMsg.StartCheck("Checking Deployment Pods")
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckStart("Checking Deployment Pods")
 
 	allPods, err := n.getDeploymentPods(namespace, deploymentName)
 	if err != nil {
@@ -37,54 +19,47 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	// Are you hitting the ResourceQuota limits?
 	result := n.checkAreResourceQuotasHit(namespace, deploymentName)
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		return nil
 	}
 
 	// Is there any PENDING Pod?
 	result = checkAreTherePendingPods(allPods)
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 
 		// Is the cluster full?
 		result = n.checkIsClusterFull(allPods)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
 		}
 
 		// Are you mounting a PENDING PersistentVolumeClaim?
 		result = n.checkIsMountingPendingPVC(allPods, namespace)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
 		}
 
 		// Is the Pod assigned to the Node?
 		result = checkIsPodAssignedToNode(allPods)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 
 		return nil
 	}
 
 	// Are any Pods restart cycling
 	result = n.checkAreThereRestartCyclingPods(allPods)
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		return nil
 	}
 
 	// Are the Pods RUNNING?
 	result = checkAreAllPodsRunning(allPods)
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		for _, pod := range allPods {
 			nonRunningContainers := getNonRunningContainers(pod)
@@ -93,58 +68,50 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 				// Is the Pod status InvalidImageName?
 				result = checkInvalidImageName(pod, nonRunningContainer)
-				statusMsg.AddCheckResult(result)
-				n.ui.Send(statusMsg)
+				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
 					return nil
 				}
 
 				// Is the Pod status ImagePullBackOff?
 				result = checkImagePullErrors(pod, nonRunningContainer)
-				statusMsg.AddCheckResult(result)
-				n.ui.Send(statusMsg)
+				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
 
 					// Is the name of the image correct?
 					result = n.checkIsImageNameCorrect(nonRunningContainer)
-					statusMsg.AddCheckResult(result)
-					n.ui.Send(statusMsg)
+					n.ui.DisplayCheckResult(result)
 					if result.HasFailed {
 						return nil
 					}
 
 					// Is the image tag valid? Does it exist?
 					result = n.checkDoesImageTagExist(nonRunningContainer)
-					statusMsg.AddCheckResult(result)
-					n.ui.Send(statusMsg)
+					n.ui.DisplayCheckResult(result)
 					if result.HasFailed {
 						return nil
 					}
 
 					// Are you pulling images from a private registry?
 					result = n.checkIsPullingFromPrivateRegistry(nonRunningContainer.Image)
-					statusMsg.AddCheckResult(result)
-					n.ui.Send(statusMsg)
+					n.ui.DisplayCheckResult(result)
 
 					return nil
 				}
 
 				// Is the Pod status CrashLoopBackOff?
 				result = checkCrashLoopBackOff(pod, nonRunningContainer.Name)
-				statusMsg.AddCheckResult(result)
-				n.ui.Send(statusMsg)
+				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
 
 					// Did you inspect the logs and fix the crashing app?
 					result = n.checkDidInspectLogsAndFix()
-					statusMsg.AddCheckResult(result)
-					n.ui.Send(statusMsg)
+					n.ui.DisplayCheckResult(result)
 					if result.HasFailed {
 
 						// Can you see the logs for the app?
 						result = n.checkContainerLogs(pod, nonRunningContainer.Name)
-						statusMsg.AddCheckResult(result)
-						n.ui.Send(statusMsg)
+						n.ui.DisplayCheckResult(result)
 						if !result.HasFailed {
 							return nil
 						}
@@ -152,34 +119,29 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 					// Did you forget the CMD instruction in the Dockerfile?
 					result = n.checkForgottenCMDInDockerfile()
-					statusMsg.AddCheckResult(result)
-					n.ui.Send(statusMsg)
+					n.ui.DisplayCheckResult(result)
 
 					return nil
 				}
 
 				// Is the pod status RunContainerError?
 				result = checkIsContainerCreating(pod)
-				statusMsg.AddCheckResult(result)
-				n.ui.Send(statusMsg)
+				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
 
 					// Is there any container running?
 					result = checkAreThereRunningContainers(pod)
-					statusMsg.AddCheckResult(result)
-					n.ui.Send(statusMsg)
+					n.ui.DisplayCheckResult(result)
 					return nil
 				}
 
 				// Are there failing volume mounts
 				result = n.checkFailedMount(pod)
-				statusMsg.AddCheckResult(result)
-				n.ui.Send(statusMsg)
+				n.ui.DisplayCheckResult(result)
 
 				// Is there any container running?
 				result = checkAreThereRunningContainers(pod)
-				statusMsg.AddCheckResult(result)
-				n.ui.Send(statusMsg)
+				n.ui.DisplayCheckResult(result)
 
 				return nil
 			}
@@ -188,37 +150,30 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	// Are the Pods READY?
 	result = checkAreAllPodsReady(allPods)
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 
 		// Is the Readiness probe failing?
 		result = n.checkReadinessProbe(allPods)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 
 		return nil
 	}
 
 	// Can you access the app?
 	result = n.checkCanAccessApp(allPods)
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 
 		// Is the port exposed by container correct and listening on 0.0.0.0?
 		result = n.checkIsPortExposedCorrectly()
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
-
+		n.ui.DisplayCheckResult(result)
 		return nil
 	}
 
-	statusMsg.CompleteCheck(summaryMsg{text: "Pods are running correctly", kind: success})
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckCompletion("Pods are running correctly", success)
 
-	statusMsg.StartCheck("Checking Services")
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckStart("Checking Services")
 
 	allServices, partlyMatchingServices, err := n.getServices(namespace, deploymentName)
 	if err != nil {
@@ -232,8 +187,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 			HasFailed: true,
 			Message:   "No services match the deployment's matchSelector.",
 		}
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		return nil
 	}
 
@@ -241,42 +195,34 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 		// Can you see a list of endpoints?
 		result = n.checkCanSeeEndpoints(service.Name, namespace)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			// Is the selector matching the right pod label?
 			result = n.checkIsSelectorMatchPodLabel(namespace, service.Name, allPods)
-			statusMsg.AddCheckResult(result)
-			n.ui.Send(statusMsg)
+			n.ui.DisplayCheckResult(result)
 			if result.HasFailed {
 				// Does the Pod have an IP address assigned?
 				result = checkPodHasIPAddressAssigned(allPods)
-				statusMsg.AddCheckResult(result)
-				n.ui.Send(statusMsg)
+				n.ui.DisplayCheckResult(result)
 			}
 			return nil
 		}
 
 		// Can you visit the app?
 		result = n.checkCanVisitServiceApp(service)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 
 			// Is the targetPort on the Service matching the containerPort in the Pod?
 			result = n.checkTargetPortMatchesContainerPort(allPods, service.Name, namespace)
-			statusMsg.AddCheckResult(result)
-			n.ui.Send(statusMsg)
+			n.ui.DisplayCheckResult(result)
 
 			return nil
 		}
-
-		statusMsg.CompleteCheck(summaryMsg{text: fmt.Sprintf("The Service %s is running correctly", service.Name), kind: success})
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckCompletion(fmt.Sprintf("The Service %s is running correctly", service.Name), success)
 	}
 
-	statusMsg.StartCheck("Checking Ingresses")
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckStart("Checking Ingresses")
 
 	ingresses, err := n.getIngressesFromServices(namespace, allServices)
 	if err != nil {
@@ -288,8 +234,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 			HasFailed: true,
 			Message:   "No Ingresses match any of the previously detected services names and ports",
 		}
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		return nil
 	}
 
@@ -301,44 +246,36 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	for _, ingress := range ingresses {
 		// Can you see a list of Backends?
 		result = n.checkCanSeeBackends(ingress, namespace)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
 		}
 
 		result = checkHasValidIngressClass(ingress, ingressClasses)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
 		}
 
 		result = n.checkCanAccessAppFromIngressController(ingress, ingressClasses)
-		statusMsg.AddCheckResult(result)
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
 		}
 
-		statusMsg.CompleteCheck(summaryMsg{text: fmt.Sprintf("The Ingress %s is set up correctly", ingress.Name), kind: success})
-		n.ui.Send(statusMsg)
+		n.ui.DisplayCheckCompletion(fmt.Sprintf("The Ingress %s is set up correctly", ingress.Name), success)
 	}
 
 	// Can you visit the app?
-	statusMsg.StartCheck("Checking App Connectivity")
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckStart("Checking App Connectivity")
 
 	// The app should be running. Can you visit it from the public internet?
 	result = n.checkCanVisitPublicApp(namespace, allServices)
-	statusMsg.AddCheckResult(result)
-	n.ui.Send(statusMsg)
+	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		return nil
 	}
 
-	statusMsg.CompleteCheck(summaryMsg{text: "The Ingresses are running correctly", kind: success})
-	n.ui.Send(statusMsg)
-
+	n.ui.DisplayCheckCompletion("The Ingresses are running correctly", success)
 	return nil
 }
