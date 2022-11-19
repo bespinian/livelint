@@ -1,7 +1,7 @@
 package livelint
 
 func (n *Livelint) checkForgottenCMDInDockerfile() CheckResult {
-	yes := n.askUserYesOrNo("Did you forget the CMD instruction in the Dockerfile?")
+	yes := n.ui.AskYesNo("Did you forget the CMD instruction in the Dockerfile?")
 
 	if yes {
 		return CheckResult{

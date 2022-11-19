@@ -3,7 +3,7 @@ package livelint
 import "fmt"
 
 func (n *Livelint) checkIsPullingFromPrivateRegistry(image string) CheckResult {
-	yes := n.askUserYesOrNo(fmt.Sprintf("Are you pulling the image %q from a private image registry?", image))
+	yes := n.ui.AskYesNo(fmt.Sprintf("Are you pulling the image %q from a private image registry?", image))
 
 	if !yes {
 		return CheckResult{

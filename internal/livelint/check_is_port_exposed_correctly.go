@@ -1,7 +1,7 @@
 package livelint
 
 func (n *Livelint) checkIsPortExposedCorrectly() CheckResult {
-	yes := n.askUserYesOrNo("Is the port exposed by container correct and listening on 0.0.0.0?")
+	yes := n.ui.AskYesNo("Is the port exposed by container correct and listening on 0.0.0.0?")
 
 	if !yes {
 		return CheckResult{
