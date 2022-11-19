@@ -15,7 +15,7 @@ func TestChecksModelInit(t *testing.T) {
 		t.Parallel()
 		is := is.New(t)
 
-		m := initialModel()
+		m := InitialModel()
 
 		is.Equal(m.listVisible, false)
 		is.Equal(m.textInputVisible, false)
@@ -29,34 +29,34 @@ func TestChecksModelUpdate(t *testing.T) {
 
 	cases := []struct {
 		it            string
-		inputModel    model
+		inputModel    Model
 		inputMsg      tea.Msg
-		expectedModel model
+		expectedModel Model
 		expectedCmd   tea.Cmd
 	}{
 		{
 			it:            "quits correctly",
-			inputModel:    initialModel(),
+			inputModel:    InitialModel(),
 			inputMsg:      tea.KeyMsg(tea.Key{Type: tea.KeyCtrlC}),
-			expectedModel: initialModel(),
+			expectedModel: InitialModel(),
 			expectedCmd:   tea.Quit,
 		},
 		{
 			it:         "updates each step's correctly",
-			inputModel: initialModel(),
+			inputModel: InitialModel(),
 			inputMsg:   statusMsg{context: "Test context", checks: []check{{title: "Test check 1", checkResults: []CheckResult{{Message: "Msg 1", HasFailed: true}}}}},
-			expectedModel: (func() model {
-				m := initialModel()
+			expectedModel: (func() Model {
+				m := InitialModel()
 				m.status = statusMsg{context: "Test context", checks: []check{{title: "Test check 1", checkResults: []CheckResult{{Message: "Msg 1", HasFailed: true}}}}}
 				return m
 			})(),
 		},
 		{
 			it:         "sets list choices correctly",
-			inputModel: initialModel(),
+			inputModel: InitialModel(),
 			inputMsg:   listChoiceMsg{title: "test list title", items: []string{"item 1", "item 2"}, choice: make(chan int)},
-			expectedModel: (func() model {
-				m := initialModel()
+			expectedModel: (func() Model {
+				m := InitialModel()
 				m.listVisible = true
 				m.list = list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
 				m.list.SetItems([]list.Item{listItem{title: "item 1"}, listItem{title: "item 2"}})
@@ -67,10 +67,10 @@ func TestChecksModelUpdate(t *testing.T) {
 		},
 		{
 			it:         "sets yes / no choices correctly",
-			inputModel: initialModel(),
+			inputModel: InitialModel(),
 			inputMsg:   yesNoInputMsg{question: "test question"},
-			expectedModel: (func() model {
-				m := initialModel()
+			expectedModel: (func() Model {
+				m := InitialModel()
 				m.yesNoInputVisible = true
 				m.yesNoInput.Title = "test question"
 				return m
@@ -79,10 +79,10 @@ func TestChecksModelUpdate(t *testing.T) {
 		},
 		{
 			it:         "sets up text input correctly",
-			inputModel: initialModel(),
+			inputModel: InitialModel(),
 			inputMsg:   textInputMsg{question: "test question"},
-			expectedModel: (func() model {
-				m := initialModel()
+			expectedModel: (func() Model {
+				m := InitialModel()
 				m.textInputVisible = true
 				m.textInput.Placeholder = "test question"
 				return m
@@ -98,7 +98,7 @@ func TestChecksModelUpdate(t *testing.T) {
 			is := is.New(t)
 
 			m, cmd := tc.inputModel.Update(tc.inputMsg)
-			resultModel, ok := m.(model)
+			resultModel, ok := m.(Model)
 			is.True(ok)
 
 			is.Equal(cmd, tc.expectedCmd)

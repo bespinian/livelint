@@ -81,7 +81,7 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, checkFunc func(uint
 	for range readyChan {
 	}
 
-	n.ui.Send(showSpinnerMsg{showing: true})
+	n.ui.StartSpinner()
 
 	// send some traffic via the port forwarding
 	forwardedPorts, _ := forwarder.GetPorts()
@@ -92,7 +92,7 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, checkFunc func(uint
 
 	// wait for a certain time to see whether port forwarding error handling is called
 	time.Sleep(connectionTimeoutSeconds * time.Second)
-	n.ui.Send(showSpinnerMsg{showing: false})
+	n.ui.StopSpinner()
 
 	return connectionSuccessful, message
 }

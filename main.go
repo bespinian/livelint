@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/bespinian/livelint/internal/livelint"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -43,7 +45,8 @@ func main() {
 		log.Fatal(fmt.Errorf("error getting namespace from k8s config: %w", err))
 	}
 
-	ll := livelint.New(k8s, config)
+	bubbletea := tea.NewProgram(livelint.InitialModel())
+	ll := livelint.New(k8s, config, livelint.NewBubbleTeaInterface(bubbletea))
 
 	app := &cli.App{
 		Name:    "livelint",
@@ -75,15 +78,17 @@ func main() {
 					args := c.Args()
 
 					go func() {
-						err = ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
-						if err != nil {
-							log.Fatal(fmt.Errorf("error running checks: %w", err))
+						defer bubbletea.Quit()
+						errRunChecks := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
+						if errRunChecks != nil {
+							log.Fatal(fmt.Errorf("error running checks: %w", errRunChecks))
 						}
-						defer ll.Quit()
 					}()
 
-					ll.Start()
-
+					errStart := bubbletea.Start()
+					if errStart != nil {
+						return errors.Wrap(errStart, "Failed to start ui")
+					}
 					return nil
 				},
 			},

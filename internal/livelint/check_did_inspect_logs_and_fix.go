@@ -1,7 +1,7 @@
 package livelint
 
 func (n *Livelint) checkDidInspectLogsAndFix() CheckResult {
-	yes := n.askUserYesOrNo("Did you inspect the logs fix the crashing app?")
+	yes := n.ui.AskYesNo("Did you inspect the logs fix the crashing app?")
 
 	if !yes {
 		return CheckResult{
