@@ -86,7 +86,7 @@ func main() {
 
 					err = bubbletea.Start()
 					if err != nil {
-						return fmt.Errorf("Failed to start ui %w", err)
+						return fmt.Errorf("failed to start ui %w", err)
 					}
 
 					return nil

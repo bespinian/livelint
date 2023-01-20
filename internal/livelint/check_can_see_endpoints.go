@@ -8,8 +8,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkCanSeeEndpoints(serviceName string, namespace string) CheckResult {
-	endpoint, err := n.k8s.CoreV1().Endpoints(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
+func (n *Livelint) CheckCanSeeEndpoints(serviceName string, namespace string) CheckResult {
+	endpoint, err := n.K8s.CoreV1().Endpoints(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error getting endpoint %s in namespace %s: %w", serviceName, namespace, err))
 	}

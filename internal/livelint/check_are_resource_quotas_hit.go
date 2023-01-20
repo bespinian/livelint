@@ -10,8 +10,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkAreResourceQuotasHit(namespace string, deploymentName string) CheckResult {
-	replicaSets, err := n.k8s.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
+func (n *Livelint) CheckAreResourceQuotasHit(namespace string, deploymentName string) CheckResult {
+	replicaSets, err := n.K8s.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error listing ReplicaSets for Namespace %s: %w", namespace, err))
 	}

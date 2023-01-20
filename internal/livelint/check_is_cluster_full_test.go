@@ -1,9 +1,10 @@
-package livelint
+package livelint_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	apiv1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -297,11 +298,11 @@ func TestCheckIsClusterFull(t *testing.T) {
 
 			nodeCount := 0
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				CoreV1Func: func() typedapiv1.CoreV1Interface {
-					return &apiv1InterfaceMock{
+					return &Apiv1InterfaceMock{
 						NodesFunc: func() typedapiv1.NodeInterface {
-							return &apiv1NodeInterfaceMock{
+							return &Apiv1NodeInterfaceMock{
 								ListFunc: func(ctx context.Context, opts v1.ListOptions) (*apiv1.NodeList, error) {
 									nodes := []apiv1.Node{}
 									for _, nodePodPair := range tc.nodePodPairs {
@@ -312,7 +313,7 @@ func TestCheckIsClusterFull(t *testing.T) {
 							}
 						},
 						PodsFunc: func(namespace string) typedapiv1.PodInterface {
-							return &apiv1PodInterfaceMock{
+							return &Apiv1PodInterfaceMock{
 								ListFunc: func(ctx context.Context, opts v1.ListOptions) (*apiv1.PodList, error) {
 									nodeCount++
 									return &apiv1.PodList{Items: tc.nodePodPairs[nodeCount-1].nodePods}, nil
@@ -322,11 +323,11 @@ func TestCheckIsClusterFull(t *testing.T) {
 					}
 				},
 			}
-			ll := Livelint{
-				k8s: k8s,
+			ll := livelint.Livelint{
+				K8s: k8s,
 			}
 
-			result := ll.checkIsClusterFull(tc.pods)
+			result := ll.CheckIsClusterFull(tc.pods)
 
 			is.Equal(result.HasFailed, tc.expectedToFail)   // HasFailed
 			is.Equal(result.Message, tc.expectedMessage)    // Message

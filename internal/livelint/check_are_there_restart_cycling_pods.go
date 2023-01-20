@@ -6,7 +6,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-func (n *Livelint) checkAreThereRestartCyclingPods(pods []apiv1.Pod) CheckResult {
+func (n *Livelint) CheckAreThereRestartCyclingPods(pods []apiv1.Pod) CheckResult {
 	reasonsToFail := []string{}
 	for _, pod := range pods {
 		isCycling, reason := n.isRestartCycling(pod)

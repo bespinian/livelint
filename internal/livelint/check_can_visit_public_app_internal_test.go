@@ -1,4 +1,4 @@
-package livelint
+package livelint_test
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	apiv1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -79,7 +80,7 @@ func TestCheckCanVisitPublicApp(t *testing.T) {
 	cases := []struct {
 		it              string
 		ingresses       []netv1.Ingress
-		roundTripFunc   RoundTripFunc
+		roundTripFunc   livelint.RoundTripFunc
 		expectedToFail  bool
 		expectedMessage string
 	}{
@@ -138,11 +139,11 @@ func TestCheckCanVisitPublicApp(t *testing.T) {
 			t.Parallel()
 			is := is.New(t)
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				NetworkingV1Func: func() v1.NetworkingV1Interface {
-					return &networkingV1InterfaceMock{
+					return &NetworkingV1InterfaceMock{
 						IngressesFunc: func(namespace string) v1.IngressInterface {
-							return &ingressInterfaceMock{
+							return &IngressInterfaceMock{
 								ListFunc: func(ctx context.Context, opts metav1.ListOptions) (*netv1.IngressList, error) {
 									return &netv1.IngressList{
 										Items: tc.ingresses,
@@ -153,11 +154,11 @@ func TestCheckCanVisitPublicApp(t *testing.T) {
 					}
 				},
 			}
-			ll := Livelint{
-				k8s:  k8s,
-				http: NewTestClient(tc.roundTripFunc),
+			ll := livelint.Livelint{
+				K8s:  k8s,
+				HTTP: livelint.NewTestClient(tc.roundTripFunc),
 			}
-			result := ll.checkCanVisitPublicApp("namespace", services)
+			result := ll.CheckCanVisitPublicApp("namespace", services)
 
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 			is.Equal(result.Message, tc.expectedMessage)  // Message

@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkCanSeeBackends(ingress netv1.Ingress, namespace string) CheckResult {
+func (n *Livelint) CheckCanSeeBackends(ingress netv1.Ingress, namespace string) CheckResult {
 	hasResourceBackends := false
 
 	for _, rule := range ingress.Spec.Rules {
@@ -20,7 +20,7 @@ func (n *Livelint) checkCanSeeBackends(ingress netv1.Ingress, namespace string) 
 		for _, path := range rule.HTTP.Paths {
 			switch {
 			case path.Backend.Service != nil:
-				service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})
+				service, err := n.K8s.CoreV1().Services(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})
 				if err != nil {
 					log.Fatal(fmt.Errorf("error getting backends for Ingress %s in Namespace %s: %w", ingress.Name, namespace, err))
 				}
@@ -40,7 +40,7 @@ func (n *Livelint) checkCanSeeBackends(ingress netv1.Ingress, namespace string) 
 					}
 				}
 
-				endpoint, err := n.k8s.CoreV1().Endpoints(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})
+				endpoint, err := n.K8s.CoreV1().Endpoints(namespace).Get(context.Background(), path.Backend.Service.Name, metav1.GetOptions{})
 				if err != nil {
 					log.Fatal(fmt.Errorf("error getting endpoints in namespace %s: %w", namespace, err))
 				}
