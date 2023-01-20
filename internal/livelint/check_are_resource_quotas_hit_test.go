@@ -1,9 +1,10 @@
-package livelint
+package livelint_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -104,11 +105,11 @@ func TestCheckAreResourceQuotasHit(t *testing.T) {
 			t.Parallel()
 			is := is.New(t)
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				AppsV1Func: func() typedappsv1.AppsV1Interface {
-					return &appsv1InterfaceMock{
+					return &Appsv1InterfaceMock{
 						ReplicaSetsFunc: func(string) typedappsv1.ReplicaSetInterface {
-							return &replicaSetInterfaceMock{
+							return &ReplicaSetInterfaceMock{
 								ListFunc: func(context.Context, metav1.ListOptions) (*appsv1.ReplicaSetList, error) {
 									return &appsv1.ReplicaSetList{Items: tc.replicaSets}, nil
 								},
@@ -117,10 +118,10 @@ func TestCheckAreResourceQuotasHit(t *testing.T) {
 					}
 				},
 			}
-			ll := Livelint{
-				k8s: k8s,
+			ll := livelint.Livelint{
+				K8s: k8s,
 			}
-			result := ll.checkAreResourceQuotasHit("NAMESPACE", "DEPLOYMENT")
+			result := ll.CheckAreResourceQuotasHit("NAMESPACE", "DEPLOYMENT")
 
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 			is.Equal(result.Message, tc.expectedMessage)  // Message

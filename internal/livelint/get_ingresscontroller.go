@@ -70,21 +70,21 @@ func (n *Livelint) getOwningControllerLabelSelector(pod apiv1.Pod) (map[string]s
 		if *ownerRef.Controller {
 			switch ownerRef.Kind {
 			case "ReplicaSet":
-				replicaSet, err := n.k8s.AppsV1().ReplicaSets(pod.Namespace).Get(context.Background(), ownerRef.Name, metav1.GetOptions{})
+				replicaSet, err := n.K8s.AppsV1().ReplicaSets(pod.Namespace).Get(context.Background(), ownerRef.Name, metav1.GetOptions{})
 				if err != nil {
 					return nil, fmt.Errorf("error getting owning ReplicaSet's label selector for pod %s: %w", pod.Name, err)
 				}
 				labelSelector = replicaSet.Spec.Selector.MatchLabels
 				return labelSelector, nil
 			case "DaemonSet":
-				daemonSet, err := n.k8s.AppsV1().DaemonSets(pod.Namespace).Get(context.Background(), ownerRef.Name, metav1.GetOptions{})
+				daemonSet, err := n.K8s.AppsV1().DaemonSets(pod.Namespace).Get(context.Background(), ownerRef.Name, metav1.GetOptions{})
 				if err != nil {
 					return nil, fmt.Errorf("error getting owning DaemonSet's label selector for pod %s: %w", pod.Name, err)
 				}
 				labelSelector = daemonSet.Spec.Selector.MatchLabels
 				return labelSelector, nil
 			case "StatefulSet":
-				statefulSet, err := n.k8s.AppsV1().StatefulSets(pod.Namespace).Get(context.Background(), ownerRef.Name, metav1.GetOptions{})
+				statefulSet, err := n.K8s.AppsV1().StatefulSets(pod.Namespace).Get(context.Background(), ownerRef.Name, metav1.GetOptions{})
 				if err != nil {
 					return nil, fmt.Errorf("error getting owning StatefulSet's label selector for pod %s: %w", pod.Name, err)
 				}

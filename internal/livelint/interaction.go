@@ -10,7 +10,7 @@ type UserInteraction interface {
 	DisplayContext(contextMsg string)
 	DisplayCheckStart(checkMsg string)
 	DisplayCheckResult(checkResult CheckResult)
-	DisplayCheckCompletion(completionMsg string, kind summaryType)
+	DisplayCheckCompletion(completionMsg string, kind SummaryType)
 	AskYesNo(question string) bool
 	StartSpinner()
 	StopSpinner()
@@ -50,7 +50,7 @@ func (ui *BubbleteaUI) DisplayCheckResult(checkResult CheckResult) {
 	ui.Send(ui.statusMsg)
 }
 
-func (ui *BubbleteaUI) DisplayCheckCompletion(completionMsg string, kind summaryType) {
+func (ui *BubbleteaUI) DisplayCheckCompletion(completionMsg string, kind SummaryType) {
 	ui.statusMsg.CompleteCheck(summaryMsg{text: completionMsg, kind: kind})
 	ui.Send(ui.statusMsg)
 }

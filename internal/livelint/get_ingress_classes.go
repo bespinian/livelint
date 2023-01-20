@@ -9,7 +9,7 @@ import (
 )
 
 func (n *Livelint) getIngressClasses() (map[string]netv1.IngressClass, error) {
-	ingressClassList, err := n.k8s.NetworkingV1().IngressClasses().List(context.Background(), metav1.ListOptions{})
+	ingressClassList, err := n.K8s.NetworkingV1().IngressClasses().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting ingress classes of cluster: %w", err)
 	}

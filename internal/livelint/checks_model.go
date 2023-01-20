@@ -174,15 +174,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-type summaryType int
+type SummaryType int
 
 const (
-	success summaryType = iota
+	success SummaryType = iota
 )
 
 type summaryMsg struct {
 	text string
-	kind summaryType
+	kind SummaryType
 }
 
 type listChoiceMsg struct {

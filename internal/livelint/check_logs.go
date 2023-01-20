@@ -12,7 +12,7 @@ import (
 
 const tailLineCount = 20
 
-func (n *Livelint) checkContainerLogs(pod apiv1.Pod, containerName string) CheckResult {
+func (n *Livelint) CheckContainerLogs(pod apiv1.Pod, containerName string) CheckResult {
 	namespace := pod.Namespace
 
 	logs, err := n.tailPodLogs(namespace, pod.Name, containerName, tailLineCount, false)
@@ -47,7 +47,7 @@ func (n *Livelint) tailPodLogs(namespace, podName, containerName string, tailLin
 		TailLines: &tailLines,
 		Previous:  previous,
 	}
-	req := n.k8s.CoreV1().Pods(namespace).GetLogs(podName, &podLogOptions)
+	req := n.K8s.CoreV1().Pods(namespace).GetLogs(podName, &podLogOptions)
 	podLogs, err := req.Stream(context.Background())
 	if err != nil {
 		return "", fmt.Errorf("error getting request stream: %w", err)

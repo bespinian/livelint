@@ -1,9 +1,10 @@
-package livelint
+package livelint_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -45,11 +46,11 @@ func TestCheckCanSeeEndpoints(t *testing.T) {
 			t.Parallel()
 			is := is.New(t)
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				CoreV1Func: func() typedapiv1.CoreV1Interface {
-					return &apiv1InterfaceMock{
+					return &Apiv1InterfaceMock{
 						EndpointsFunc: func(namespace string) typedapiv1.EndpointsInterface {
-							return &apiv1EndpointsInterfaceMock{
+							return &Apiv1EndpointsInterfaceMock{
 								GetFunc: func(ctx context.Context, name string, opts metav1.GetOptions) (*apiv1.Endpoints, error) {
 									return &tc.endpoint, nil
 								},
@@ -58,10 +59,10 @@ func TestCheckCanSeeEndpoints(t *testing.T) {
 					}
 				},
 			}
-			ll := Livelint{
-				k8s: k8s,
+			ll := livelint.Livelint{
+				K8s: k8s,
 			}
-			result := ll.checkCanSeeEndpoints("SERVICENAME", "NAMESPACE")
+			result := ll.CheckCanSeeEndpoints("SERVICENAME", "NAMESPACE")
 
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 			is.Equal(result.Message, tc.expectedMessage)  // Message

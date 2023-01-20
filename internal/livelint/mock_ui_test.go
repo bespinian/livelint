@@ -5,7 +5,6 @@ package livelint_test
 
 import (
 	"github.com/bespinian/livelint/internal/livelint"
-	tea "github.com/charmbracelet/bubbletea"
 	"sync"
 )
 
@@ -22,8 +21,23 @@ var _ livelint.UserInteraction = &UserInteractionMock{}
 //			AskYesNoFunc: func(question string) bool {
 //				panic("mock out the AskYesNo method")
 //			},
-//			SendFunc: func(msg tea.Msg)  {
-//				panic("mock out the Send method")
+//			DisplayCheckCompletionFunc: func(completionMsg string, kind livelint.SummaryType)  {
+//				panic("mock out the DisplayCheckCompletion method")
+//			},
+//			DisplayCheckResultFunc: func(checkResult livelint.CheckResult)  {
+//				panic("mock out the DisplayCheckResult method")
+//			},
+//			DisplayCheckStartFunc: func(checkMsg string)  {
+//				panic("mock out the DisplayCheckStart method")
+//			},
+//			DisplayContextFunc: func(contextMsg string)  {
+//				panic("mock out the DisplayContext method")
+//			},
+//			StartSpinnerFunc: func()  {
+//				panic("mock out the StartSpinner method")
+//			},
+//			StopSpinnerFunc: func()  {
+//				panic("mock out the StopSpinner method")
 //			},
 //		}
 //
@@ -35,8 +49,23 @@ type UserInteractionMock struct {
 	// AskYesNoFunc mocks the AskYesNo method.
 	AskYesNoFunc func(question string) bool
 
-	// SendFunc mocks the Send method.
-	SendFunc func(msg tea.Msg)
+	// DisplayCheckCompletionFunc mocks the DisplayCheckCompletion method.
+	DisplayCheckCompletionFunc func(completionMsg string, kind livelint.SummaryType)
+
+	// DisplayCheckResultFunc mocks the DisplayCheckResult method.
+	DisplayCheckResultFunc func(checkResult livelint.CheckResult)
+
+	// DisplayCheckStartFunc mocks the DisplayCheckStart method.
+	DisplayCheckStartFunc func(checkMsg string)
+
+	// DisplayContextFunc mocks the DisplayContext method.
+	DisplayContextFunc func(contextMsg string)
+
+	// StartSpinnerFunc mocks the StartSpinner method.
+	StartSpinnerFunc func()
+
+	// StopSpinnerFunc mocks the StopSpinner method.
+	StopSpinnerFunc func()
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -45,14 +74,42 @@ type UserInteractionMock struct {
 			// Question is the question argument value.
 			Question string
 		}
-		// Send holds details about calls to the Send method.
-		Send []struct {
-			// Msg is the msg argument value.
-			Msg tea.Msg
+		// DisplayCheckCompletion holds details about calls to the DisplayCheckCompletion method.
+		DisplayCheckCompletion []struct {
+			// CompletionMsg is the completionMsg argument value.
+			CompletionMsg string
+			// Kind is the kind argument value.
+			Kind livelint.SummaryType
+		}
+		// DisplayCheckResult holds details about calls to the DisplayCheckResult method.
+		DisplayCheckResult []struct {
+			// CheckResult is the checkResult argument value.
+			CheckResult livelint.CheckResult
+		}
+		// DisplayCheckStart holds details about calls to the DisplayCheckStart method.
+		DisplayCheckStart []struct {
+			// CheckMsg is the checkMsg argument value.
+			CheckMsg string
+		}
+		// DisplayContext holds details about calls to the DisplayContext method.
+		DisplayContext []struct {
+			// ContextMsg is the contextMsg argument value.
+			ContextMsg string
+		}
+		// StartSpinner holds details about calls to the StartSpinner method.
+		StartSpinner []struct {
+		}
+		// StopSpinner holds details about calls to the StopSpinner method.
+		StopSpinner []struct {
 		}
 	}
-	lockAskYesNo sync.RWMutex
-	lockSend     sync.RWMutex
+	lockAskYesNo               sync.RWMutex
+	lockDisplayCheckCompletion sync.RWMutex
+	lockDisplayCheckResult     sync.RWMutex
+	lockDisplayCheckStart      sync.RWMutex
+	lockDisplayContext         sync.RWMutex
+	lockStartSpinner           sync.RWMutex
+	lockStopSpinner            sync.RWMutex
 }
 
 // AskYesNo calls AskYesNoFunc.
@@ -87,34 +144,188 @@ func (mock *UserInteractionMock) AskYesNoCalls() []struct {
 	return calls
 }
 
-// Send calls SendFunc.
-func (mock *UserInteractionMock) Send(msg tea.Msg) {
-	if mock.SendFunc == nil {
-		panic("UserInteractionMock.SendFunc: method is nil but UserInteraction.Send was just called")
+// DisplayCheckCompletion calls DisplayCheckCompletionFunc.
+func (mock *UserInteractionMock) DisplayCheckCompletion(completionMsg string, kind livelint.SummaryType) {
+	if mock.DisplayCheckCompletionFunc == nil {
+		panic("UserInteractionMock.DisplayCheckCompletionFunc: method is nil but UserInteraction.DisplayCheckCompletion was just called")
 	}
 	callInfo := struct {
-		Msg tea.Msg
+		CompletionMsg string
+		Kind          livelint.SummaryType
 	}{
-		Msg: msg,
+		CompletionMsg: completionMsg,
+		Kind:          kind,
 	}
-	mock.lockSend.Lock()
-	mock.calls.Send = append(mock.calls.Send, callInfo)
-	mock.lockSend.Unlock()
-	mock.SendFunc(msg)
+	mock.lockDisplayCheckCompletion.Lock()
+	mock.calls.DisplayCheckCompletion = append(mock.calls.DisplayCheckCompletion, callInfo)
+	mock.lockDisplayCheckCompletion.Unlock()
+	mock.DisplayCheckCompletionFunc(completionMsg, kind)
 }
 
-// SendCalls gets all the calls that were made to Send.
+// DisplayCheckCompletionCalls gets all the calls that were made to DisplayCheckCompletion.
 // Check the length with:
 //
-//	len(mockedUserInteraction.SendCalls())
-func (mock *UserInteractionMock) SendCalls() []struct {
-	Msg tea.Msg
+//	len(mockedUserInteraction.DisplayCheckCompletionCalls())
+func (mock *UserInteractionMock) DisplayCheckCompletionCalls() []struct {
+	CompletionMsg string
+	Kind          livelint.SummaryType
 } {
 	var calls []struct {
-		Msg tea.Msg
+		CompletionMsg string
+		Kind          livelint.SummaryType
 	}
-	mock.lockSend.RLock()
-	calls = mock.calls.Send
-	mock.lockSend.RUnlock()
+	mock.lockDisplayCheckCompletion.RLock()
+	calls = mock.calls.DisplayCheckCompletion
+	mock.lockDisplayCheckCompletion.RUnlock()
+	return calls
+}
+
+// DisplayCheckResult calls DisplayCheckResultFunc.
+func (mock *UserInteractionMock) DisplayCheckResult(checkResult livelint.CheckResult) {
+	if mock.DisplayCheckResultFunc == nil {
+		panic("UserInteractionMock.DisplayCheckResultFunc: method is nil but UserInteraction.DisplayCheckResult was just called")
+	}
+	callInfo := struct {
+		CheckResult livelint.CheckResult
+	}{
+		CheckResult: checkResult,
+	}
+	mock.lockDisplayCheckResult.Lock()
+	mock.calls.DisplayCheckResult = append(mock.calls.DisplayCheckResult, callInfo)
+	mock.lockDisplayCheckResult.Unlock()
+	mock.DisplayCheckResultFunc(checkResult)
+}
+
+// DisplayCheckResultCalls gets all the calls that were made to DisplayCheckResult.
+// Check the length with:
+//
+//	len(mockedUserInteraction.DisplayCheckResultCalls())
+func (mock *UserInteractionMock) DisplayCheckResultCalls() []struct {
+	CheckResult livelint.CheckResult
+} {
+	var calls []struct {
+		CheckResult livelint.CheckResult
+	}
+	mock.lockDisplayCheckResult.RLock()
+	calls = mock.calls.DisplayCheckResult
+	mock.lockDisplayCheckResult.RUnlock()
+	return calls
+}
+
+// DisplayCheckStart calls DisplayCheckStartFunc.
+func (mock *UserInteractionMock) DisplayCheckStart(checkMsg string) {
+	if mock.DisplayCheckStartFunc == nil {
+		panic("UserInteractionMock.DisplayCheckStartFunc: method is nil but UserInteraction.DisplayCheckStart was just called")
+	}
+	callInfo := struct {
+		CheckMsg string
+	}{
+		CheckMsg: checkMsg,
+	}
+	mock.lockDisplayCheckStart.Lock()
+	mock.calls.DisplayCheckStart = append(mock.calls.DisplayCheckStart, callInfo)
+	mock.lockDisplayCheckStart.Unlock()
+	mock.DisplayCheckStartFunc(checkMsg)
+}
+
+// DisplayCheckStartCalls gets all the calls that were made to DisplayCheckStart.
+// Check the length with:
+//
+//	len(mockedUserInteraction.DisplayCheckStartCalls())
+func (mock *UserInteractionMock) DisplayCheckStartCalls() []struct {
+	CheckMsg string
+} {
+	var calls []struct {
+		CheckMsg string
+	}
+	mock.lockDisplayCheckStart.RLock()
+	calls = mock.calls.DisplayCheckStart
+	mock.lockDisplayCheckStart.RUnlock()
+	return calls
+}
+
+// DisplayContext calls DisplayContextFunc.
+func (mock *UserInteractionMock) DisplayContext(contextMsg string) {
+	if mock.DisplayContextFunc == nil {
+		panic("UserInteractionMock.DisplayContextFunc: method is nil but UserInteraction.DisplayContext was just called")
+	}
+	callInfo := struct {
+		ContextMsg string
+	}{
+		ContextMsg: contextMsg,
+	}
+	mock.lockDisplayContext.Lock()
+	mock.calls.DisplayContext = append(mock.calls.DisplayContext, callInfo)
+	mock.lockDisplayContext.Unlock()
+	mock.DisplayContextFunc(contextMsg)
+}
+
+// DisplayContextCalls gets all the calls that were made to DisplayContext.
+// Check the length with:
+//
+//	len(mockedUserInteraction.DisplayContextCalls())
+func (mock *UserInteractionMock) DisplayContextCalls() []struct {
+	ContextMsg string
+} {
+	var calls []struct {
+		ContextMsg string
+	}
+	mock.lockDisplayContext.RLock()
+	calls = mock.calls.DisplayContext
+	mock.lockDisplayContext.RUnlock()
+	return calls
+}
+
+// StartSpinner calls StartSpinnerFunc.
+func (mock *UserInteractionMock) StartSpinner() {
+	if mock.StartSpinnerFunc == nil {
+		panic("UserInteractionMock.StartSpinnerFunc: method is nil but UserInteraction.StartSpinner was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockStartSpinner.Lock()
+	mock.calls.StartSpinner = append(mock.calls.StartSpinner, callInfo)
+	mock.lockStartSpinner.Unlock()
+	mock.StartSpinnerFunc()
+}
+
+// StartSpinnerCalls gets all the calls that were made to StartSpinner.
+// Check the length with:
+//
+//	len(mockedUserInteraction.StartSpinnerCalls())
+func (mock *UserInteractionMock) StartSpinnerCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockStartSpinner.RLock()
+	calls = mock.calls.StartSpinner
+	mock.lockStartSpinner.RUnlock()
+	return calls
+}
+
+// StopSpinner calls StopSpinnerFunc.
+func (mock *UserInteractionMock) StopSpinner() {
+	if mock.StopSpinnerFunc == nil {
+		panic("UserInteractionMock.StopSpinnerFunc: method is nil but UserInteraction.StopSpinner was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockStopSpinner.Lock()
+	mock.calls.StopSpinner = append(mock.calls.StopSpinner, callInfo)
+	mock.lockStopSpinner.Unlock()
+	mock.StopSpinnerFunc()
+}
+
+// StopSpinnerCalls gets all the calls that were made to StopSpinner.
+// Check the length with:
+//
+//	len(mockedUserInteraction.StopSpinnerCalls())
+func (mock *UserInteractionMock) StopSpinnerCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockStopSpinner.RLock()
+	calls = mock.calls.StopSpinner
+	mock.lockStopSpinner.RUnlock()
 	return calls
 }
