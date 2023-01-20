@@ -9,7 +9,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-func (n *Livelint) checkCanVisitPublicApp(namespace string, services []apiv1.Service) CheckResult {
+func (n *Livelint) CheckCanVisitPublicApp(namespace string, services []apiv1.Service) CheckResult {
 	ingresses, err := n.getIngressesFromServices(namespace, services)
 	if err != nil || len(ingresses) < 1 {
 		return CheckResult{
@@ -28,7 +28,7 @@ func (n *Livelint) checkCanVisitPublicApp(namespace string, services []apiv1.Ser
 			if err != nil {
 				log.Fatal(fmt.Errorf("error when creating http request for url %s: %w", url.String(), err))
 			}
-			resp, err := n.http.Do(req)
+			resp, err := n.HTTP.Do(req)
 			if err != nil {
 				return CheckResult{
 					HasFailed: true,

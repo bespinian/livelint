@@ -34,7 +34,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		// Are you hitting the ResourceQuota limits?
-		result = n.checkAreResourceQuotasHit(namespace, deploymentName)
+		result = n.CheckAreResourceQuotasHit(namespace, deploymentName)
 		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
@@ -47,14 +47,14 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Is the cluster full?
-		result = n.checkIsClusterFull(allPods)
+		result = n.CheckIsClusterFull(allPods)
 		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
 		}
 
 		// Are you mounting a PENDING PersistentVolumeClaim?
-		result = n.checkIsMountingPendingPVC(allPods, namespace)
+		result = n.CheckIsMountingPendingPVC(allPods, namespace)
 		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
@@ -68,7 +68,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	}
 
 	// Are any Pods restart cycling
-	result = n.checkAreThereRestartCyclingPods(allPods)
+	result = n.CheckAreThereRestartCyclingPods(allPods)
 	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		return nil
@@ -127,7 +127,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 					if result.HasFailed {
 
 						// Can you see the logs for the app?
-						result = n.checkContainerLogs(pod, nonRunningContainer.Name)
+						result = n.CheckContainerLogs(pod, nonRunningContainer.Name)
 						n.ui.DisplayCheckResult(result)
 						if !result.HasFailed {
 							return nil
@@ -153,7 +153,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 				}
 
 				// Are there failing volume mounts
-				result = n.checkFailedMount(pod)
+				result = n.CheckFailedMount(pod)
 				n.ui.DisplayCheckResult(result)
 
 				// Is there any container running?
@@ -171,7 +171,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	if result.HasFailed {
 
 		// Is the Readiness probe failing?
-		result = n.checkReadinessProbe(allPods)
+		result = n.CheckReadinessProbe(allPods)
 		n.ui.DisplayCheckResult(result)
 
 		return nil
@@ -211,7 +211,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	for _, service := range allServices {
 
 		// Can you see a list of endpoints?
-		result = n.checkCanSeeEndpoints(service.Name, namespace)
+		result = n.CheckCanSeeEndpoints(service.Name, namespace)
 		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			// Is the selector matching the right pod label?
@@ -262,7 +262,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	for _, ingress := range ingresses {
 		// Can you see a list of Backends?
-		result = n.checkCanSeeBackends(ingress, namespace)
+		result = n.CheckCanSeeBackends(ingress, namespace)
 		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
@@ -287,7 +287,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	n.ui.DisplayCheckStart("Checking App Connectivity")
 
 	// The app should be running. Can you visit it from the public internet?
-	result = n.checkCanVisitPublicApp(namespace, allServices)
+	result = n.CheckCanVisitPublicApp(namespace, allServices)
 	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		return nil

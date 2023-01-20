@@ -10,7 +10,7 @@ import (
 
 // getDeployment returns the deployment which is targeted.
 func (n *Livelint) getDeployment(namespace, deploymentName string) (*appsv1.Deployment, error) {
-	deployment, err := n.k8s.AppsV1().Deployments(namespace).Get(context.Background(), deploymentName, metav1.GetOptions{})
+	deployment, err := n.K8s.AppsV1().Deployments(namespace).Get(context.Background(), deploymentName, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting deployment %q in namespace %q: %w", deploymentName, namespace, err)
 	}

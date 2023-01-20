@@ -30,7 +30,7 @@ func (n *Livelint) getPods(namespace string, matchLabels map[string]string) ([]a
 	options := metav1.ListOptions{
 		LabelSelector: labels.Set(matchLabels).String(),
 	}
-	pods, err := n.k8s.CoreV1().Pods(namespace).List(context.Background(), options)
+	pods, err := n.K8s.CoreV1().Pods(namespace).List(context.Background(), options)
 	if err != nil {
 		return []apiv1.Pod{}, fmt.Errorf("error listing pods in namespace %s: %w", namespace, err)
 	}

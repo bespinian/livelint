@@ -9,8 +9,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkIsMountingPendingPVC(pods []apiv1.Pod, namespace string) CheckResult {
-	pvcs, err := n.k8s.CoreV1().PersistentVolumeClaims(namespace).List(context.Background(), metav1.ListOptions{})
+func (n *Livelint) CheckIsMountingPendingPVC(pods []apiv1.Pod, namespace string) CheckResult {
+	pvcs, err := n.K8s.CoreV1().PersistentVolumeClaims(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error listing PVCs for namespace %s: %w", namespace, err))
 	}

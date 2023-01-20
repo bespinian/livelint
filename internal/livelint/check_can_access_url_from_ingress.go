@@ -34,7 +34,7 @@ func (n *Livelint) checkCanAccessAppFromIngressControllerPod(ingressControllerPo
 		if url.Hostname() != "" && url.Hostname() != "localhost" {
 			req.Host = url.Hostname()
 		}
-		resp, err := n.http.Do(req)
+		resp, err := n.HTTP.Do(req)
 		statusString := fmt.Sprintf("HTTP status code %d", resp.StatusCode)
 		if err != nil || resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			resp.Body.Close()

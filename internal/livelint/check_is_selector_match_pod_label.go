@@ -11,7 +11,7 @@ import (
 
 // Check if service's selector is matching at least one pod's label.
 func (n *Livelint) checkIsSelectorMatchPodLabel(namespace, serviceName string, pods []apiv1.Pod) CheckResult {
-	service, err := n.k8s.CoreV1().Services(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
+	service, err := n.K8s.CoreV1().Services(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
 	if err != nil {
 		log.Fatal(fmt.Errorf("error getting service %s in namespace %s: %w", serviceName, namespace, err))
 	}

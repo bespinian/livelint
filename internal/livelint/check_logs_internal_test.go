@@ -1,4 +1,4 @@
-package livelint
+package livelint_test
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	apiv1 "k8s.io/api/core/v1"
 	typedapiv1 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -100,11 +101,11 @@ func TestCheckContainerLogs(t *testing.T) {
 
 			requestedPrevious := false
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				CoreV1Func: func() typedapiv1.CoreV1Interface {
-					return &apiv1InterfaceMock{
+					return &Apiv1InterfaceMock{
 						PodsFunc: func(namespace string) typedapiv1.PodInterface {
-							return &apiv1PodInterfaceMock{
+							return &Apiv1PodInterfaceMock{
 								GetLogsFunc: func(name string, opts *apiv1.PodLogOptions) *restclient.Request {
 									header := http.Header{}
 									header.Set("Content-Type", "text/plain")
@@ -134,10 +135,10 @@ func TestCheckContainerLogs(t *testing.T) {
 					}
 				},
 			}
-			ll := Livelint{
-				k8s: k8s,
+			ll := livelint.Livelint{
+				K8s: k8s,
 			}
-			result := ll.checkContainerLogs(tc.pod, "CONTAINER_NAME")
+			result := ll.CheckContainerLogs(tc.pod, "CONTAINER_NAME")
 
 			is.Equal(requestedPrevious, tc.expectRequestPrevious)
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed

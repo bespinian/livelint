@@ -38,7 +38,7 @@ func (n *Livelint) getServicesForPod(namespace string, pod apiv1.Pod) ([]apiv1.S
 // getServicesForSelector gets a list of all services which select pods with a given set of labels. It also returns
 // a list of all services which potentially match a superset of pods. This is useful for warning the user.
 func (n *Livelint) getServicesForSelector(namespace string, matchLabels map[string]string) ([]apiv1.Service, []apiv1.Service, error) {
-	allServices, err := n.k8s.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{})
+	allServices, err := n.K8s.CoreV1().Services(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, nil, fmt.Errorf("error listing services in namespace %q: %w", namespace, err)
 	}

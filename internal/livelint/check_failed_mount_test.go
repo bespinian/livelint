@@ -1,9 +1,10 @@
-package livelint
+package livelint_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -56,11 +57,11 @@ func TestCheckFailedMount(t *testing.T) {
 			t.Parallel()
 			is := is.New(t)
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				CoreV1Func: func() typedapiv1.CoreV1Interface {
-					return &apiv1InterfaceMock{
+					return &Apiv1InterfaceMock{
 						EventsFunc: func(namespace string) typedapiv1.EventInterface {
-							return &apiv1EventInterfaceMock{
+							return &Apiv1EventInterfaceMock{
 								ListFunc: func(ctx context.Context, opts metav1.ListOptions) (*apiv1.EventList, error) {
 									return &apiv1.EventList{Items: tc.podEvents}, nil
 								},
@@ -69,10 +70,10 @@ func TestCheckFailedMount(t *testing.T) {
 					}
 				},
 			}
-			ll := Livelint{
-				k8s: k8s,
+			ll := livelint.Livelint{
+				K8s: k8s,
 			}
-			result := ll.checkFailedMount(tc.pod)
+			result := ll.CheckFailedMount(tc.pod)
 
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 			is.Equal(result.Message, tc.expectedMessage)  // Message

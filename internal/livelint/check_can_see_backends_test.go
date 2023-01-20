@@ -1,9 +1,10 @@
-package livelint
+package livelint_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	apiv1 "k8s.io/api/core/v1"
 	netv1 "k8s.io/api/networking/v1"
@@ -190,11 +191,11 @@ func TestCheckCanSeeBackends(t *testing.T) {
 			t.Parallel()
 			is := is.New(t)
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				CoreV1Func: func() typedapiv1.CoreV1Interface {
-					return &apiv1InterfaceMock{
+					return &Apiv1InterfaceMock{
 						ServicesFunc: func(namespace string) typedapiv1.ServiceInterface {
-							return &apiv1ServiceInterfaceMock{
+							return &Apiv1ServiceInterfaceMock{
 								GetFunc: func(ctx context.Context, serviceName string, options metav1.GetOptions) (*apiv1.Service, error) {
 									for _, service := range tc.services {
 										if service.Name == serviceName {
@@ -206,7 +207,7 @@ func TestCheckCanSeeBackends(t *testing.T) {
 							}
 						},
 						EndpointsFunc: func(namespace string) typedapiv1.EndpointsInterface {
-							return &apiv1EndpointsInterfaceMock{
+							return &Apiv1EndpointsInterfaceMock{
 								GetFunc: func(ctx context.Context, name string, opts metav1.GetOptions) (*apiv1.Endpoints, error) {
 									for _, endpoint := range tc.endpoints {
 										if endpoint.Name == name {
@@ -220,10 +221,10 @@ func TestCheckCanSeeBackends(t *testing.T) {
 					}
 				},
 			}
-			ll := Livelint{
-				k8s: k8s,
+			ll := livelint.Livelint{
+				K8s: k8s,
 			}
-			result := ll.checkCanSeeBackends(tc.ingress, "NAMESPACE")
+			result := ll.CheckCanSeeBackends(tc.ingress, "NAMESPACE")
 
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 			is.Equal(result.Message, tc.expectedMessage)  // Message

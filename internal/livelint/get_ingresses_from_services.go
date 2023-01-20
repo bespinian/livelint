@@ -12,7 +12,7 @@ import (
 // getIngressesFromServices gets a list of all ingresses which have a backend with a servicename and
 // port matching one of the given services.
 func (n *Livelint) getIngressesFromServices(namespace string, services []apiv1.Service) ([]netv1.Ingress, error) {
-	ingresses, err := n.k8s.NetworkingV1().Ingresses(namespace).List(context.Background(), metav1.ListOptions{})
+	ingresses, err := n.K8s.NetworkingV1().Ingresses(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting ingresses in namespace %q: %w", namespace, err)
 	}

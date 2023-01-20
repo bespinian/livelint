@@ -10,7 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
+func (n *Livelint) CheckIsClusterFull(pods []apiv1.Pod) CheckResult {
 	var podWithInsufficientResources *apiv1.Pod
 	for i, pod := range pods {
 		if pod.Status.Phase == apiv1.PodPending &&
@@ -41,7 +41,7 @@ func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 
 	podCPURequests, podMemoryRequests := getPodResourceSummary(*podWithInsufficientResources)
 
-	nodes, err := n.k8s.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
+	nodes, err := n.K8s.CoreV1().Nodes().List(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return CheckResult{
 			HasFailed: true,
@@ -58,7 +58,7 @@ func (n *Livelint) checkIsClusterFull(pods []apiv1.Pod) CheckResult {
 		schedulableNodeCount++
 
 		listOptions := metav1.ListOptions{FieldSelector: fmt.Sprintf("status.phase!=Succeeded,status.phase!=Failed,spec.nodeName=%s", node.Name)}
-		nodePods, err := n.k8s.CoreV1().Pods("").List(context.Background(), listOptions)
+		nodePods, err := n.K8s.CoreV1().Pods("").List(context.Background(), listOptions)
 		if err != nil {
 			return CheckResult{
 				HasFailed: true,
