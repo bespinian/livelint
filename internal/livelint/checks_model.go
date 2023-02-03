@@ -293,6 +293,11 @@ func (m Model) assembleLists() string {
 			Foreground(bad).
 			PaddingRight(listItemPaddingLeft).
 			String()
+		warn    = lipgloss.AdaptiveColor{Light: "#EEAF00", Dark: "#E09800"}
+		warning = lipgloss.NewStyle().SetString("⚠").
+			Foreground(warn).
+			PaddingRight(listItemPaddingLeft).
+			String()
 
 		action     = lipgloss.AdaptiveColor{Light: "#FFBF00", Dark: "#FFEA00"}
 		arrowRight = lipgloss.NewStyle().SetString("⮕").
@@ -330,6 +335,11 @@ func (m Model) assembleLists() string {
 				listItemDetails(c) +
 				listItemInstructions(c)
 		}
+		listItemWarning = func(c CheckResult) string {
+			return listItem.Copy().Render(warning+c.Message) +
+				listItemDetails(c) +
+				listItemInstructions(c)
+		}
 	)
 
 	summary := []string{}
@@ -338,6 +348,9 @@ func (m Model) assembleLists() string {
 		summary = append(summary, mapStrings(check.checkResults, func(c CheckResult) string {
 			if c.HasFailed {
 				return listItemError(c)
+			}
+			if c.HasWarning {
+				return listItemWarning(c)
 			}
 			return listItemSuccess(c)
 		})...)
