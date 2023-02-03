@@ -6,7 +6,6 @@ import (
 
 	"github.com/matryer/is"
 	appsv1 "k8s.io/api/apps/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	typedappsv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 )
@@ -27,8 +26,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 		{
 			it: "succeeds, if the number of pods match the number of replicas in the deployment spec",
 			deployment: appsv1.Deployment{
-				TypeMeta:   metav1.TypeMeta{},
-				ObjectMeta: metav1.ObjectMeta{Name: "DEPLOYMENT"},
+				TypeMeta:   v1.TypeMeta{},
+				ObjectMeta: v1.ObjectMeta{Name: "DEPLOYMENT"},
 				Spec: appsv1.DeploymentSpec{
 					Replicas: &two,
 				},
@@ -38,8 +37,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 			},
 			replicaSets: []appsv1.ReplicaSet{
 				{
-					ObjectMeta: metav1.ObjectMeta{
-						OwnerReferences: []metav1.OwnerReference{
+					ObjectMeta: v1.ObjectMeta{
+						OwnerReferences: []v1.OwnerReference{
 							{
 								Kind: "Deployment",
 								Name: "DEPLOYMENT",
@@ -61,8 +60,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 		{
 			it: "fails, if the number of pods is lower than the number of replicas in the deployment spec",
 			deployment: appsv1.Deployment{
-				TypeMeta:   metav1.TypeMeta{},
-				ObjectMeta: metav1.ObjectMeta{Name: "DEPLOYMENT"},
+				TypeMeta:   v1.TypeMeta{},
+				ObjectMeta: v1.ObjectMeta{Name: "DEPLOYMENT"},
 				Spec: appsv1.DeploymentSpec{
 					Replicas: &two,
 				},
@@ -72,8 +71,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 			},
 			replicaSets: []appsv1.ReplicaSet{
 				{
-					ObjectMeta: metav1.ObjectMeta{
-						OwnerReferences: []metav1.OwnerReference{
+					ObjectMeta: v1.ObjectMeta{
+						OwnerReferences: []v1.OwnerReference{
 							{
 								Kind: "Deployment",
 								Name: "DEPLOYMENT",
@@ -95,8 +94,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 		{
 			it: "succeeds, if the number of pods is higher than the number of replicas in the deployment spec",
 			deployment: appsv1.Deployment{
-				TypeMeta:   metav1.TypeMeta{},
-				ObjectMeta: metav1.ObjectMeta{Name: "DEPLOYMENT"},
+				TypeMeta:   v1.TypeMeta{},
+				ObjectMeta: v1.ObjectMeta{Name: "DEPLOYMENT"},
 				Spec: appsv1.DeploymentSpec{
 					Replicas: &two,
 				},
@@ -106,8 +105,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 			},
 			replicaSets: []appsv1.ReplicaSet{
 				{
-					ObjectMeta: metav1.ObjectMeta{
-						OwnerReferences: []metav1.OwnerReference{
+					ObjectMeta: v1.ObjectMeta{
+						OwnerReferences: []v1.OwnerReference{
 							{
 								Kind: "Deployment",
 								Name: "DEPLOYMENT",
