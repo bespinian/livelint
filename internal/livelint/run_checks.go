@@ -20,7 +20,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 	// Is the number of running pods correct ?
 	result := n.CheckIsNumberOfPodsMatching(namespace, deploymentName)
 	n.ui.DisplayCheckResult(result)
-	if result.HasFailed {
+	if result.HasFailed || result.HasWarning {
 		// Are you hitting the ResourceQuota limits?
 		result = n.checkAreResourceQuotasHit(namespace, deploymentName)
 		n.ui.DisplayCheckResult(result)

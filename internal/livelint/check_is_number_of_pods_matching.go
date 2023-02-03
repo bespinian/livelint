@@ -20,7 +20,7 @@ func (n *Livelint) CheckIsNumberOfPodsMatching(namespace string, deploymentName 
 	}
 	for _, rs := range replicaSets.Items {
 		deploymentPodsReplicas := deployment.Spec.Replicas
-		definedReplicas := rs.Spec.Replicas
+		runningReplicas := rs.Status.Replicas
 		isPartOfDeployment := false
 
 		for _, ownerRef := range rs.ObjectMeta.OwnerReferences {
@@ -34,17 +34,23 @@ func (n *Livelint) CheckIsNumberOfPodsMatching(namespace string, deploymentName 
 			continue
 		}
 
-		if *deploymentPodsReplicas < *definedReplicas {
+		if *deploymentPodsReplicas > runningReplicas {
 			return CheckResult{
-				HasFailed: true,
-				Message:   "Number of pods is less then desired",
+				HasFailed:  true,
+				HasWarning: false,
+				Message:    "Number of pods is lower then expected",
 			}
-		} else if *deploymentPodsReplicas > *definedReplicas {
+		}
+
+		if *deploymentPodsReplicas < runningReplicas {
 			return CheckResult{
-				Message: "Number of pods is bigger the desired. Further checks will be run to find the issue.",
+				HasWarning: true,
+				HasFailed:  false,
+				Message:    "Number of pods is bigger the desired. Further checks will be run to find the issue.",
 			}
 		}
 	}
+
 	return CheckResult{
 		Message: "Desired number of pods is running",
 	}
