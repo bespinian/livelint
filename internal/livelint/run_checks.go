@@ -276,6 +276,19 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 			return nil
 		}
 
+		// allServices, partlyMatchingServices, err := n.getServices(namespace, deploymentName)
+		// if err != nil {
+		// 	log.Fatal(fmt.Errorf("error getting services in namespace %s: %w", namespace, err))
+		// }
+		// TODO fetch services from previous step
+		// allServices = append(allServices, partlyMatchingServices...)
+
+		// result = n.checkServiceNameAndPortAreMatching(ingress, allServices, namespace)
+		// n.ui.DisplayCheckResult(result)
+		// if result.HasFailed {
+		// 	return nil
+		// }
+
 		result = checkHasValidIngressClass(ingress, ingressClasses)
 		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
