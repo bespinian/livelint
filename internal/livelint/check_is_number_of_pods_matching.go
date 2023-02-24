@@ -36,17 +36,15 @@ func (n *Livelint) CheckIsNumberOfPodsMatching(namespace string, deploymentName 
 
 		if *deploymentPodsReplicas > runningReplicas {
 			return CheckResult{
-				HasFailed:  true,
-				HasWarning: false,
-				Message:    "Number of pods is lower then expected",
+				HasFailed: true,
+				Message:   "Number of pods is lower then expected",
 			}
 		}
 
 		if *deploymentPodsReplicas < runningReplicas {
 			return CheckResult{
-				HasWarning: true,
-				HasFailed:  false,
-				Message:    "Number of pods is bigger the desired. Further checks will be run to find the issue.",
+				HasFailed: true,
+				Message:   "Your cluster is in intermediary state. Number of pods is bigger then expected. Rerun livelint once cluster is in stable state.",
 			}
 		}
 	}
