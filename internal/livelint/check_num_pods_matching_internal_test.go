@@ -21,7 +21,6 @@ func TestCheckNumberOfPods(t *testing.T) {
 		replicaSets     []appsv1.ReplicaSet
 		expectedToFail  bool
 		expectedMessage string
-		expectedToWarn  bool
 	}{
 		{
 			it: "succeeds, if the number of pods match the number of replicas in the deployment spec",
@@ -55,7 +54,6 @@ func TestCheckNumberOfPods(t *testing.T) {
 			},
 			expectedToFail:  false,
 			expectedMessage: "Desired number of pods is running",
-			expectedToWarn:  false,
 		},
 		{
 			it: "fails, if the number of pods is lower than the number of replicas in the deployment spec",
@@ -89,7 +87,6 @@ func TestCheckNumberOfPods(t *testing.T) {
 			},
 			expectedToFail:  true,
 			expectedMessage: "Number of pods is lower then expected",
-			expectedToWarn:  false,
 		},
 		{
 			it: "succeeds, if the number of pods is higher than the number of replicas in the deployment spec",
@@ -121,9 +118,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 					},
 				},
 			},
-			expectedToFail:  false,
-			expectedMessage: "Number of pods is bigger the desired. Further checks will be run to find the issue.",
-			expectedToWarn:  true,
+			expectedToFail:  true,
+			expectedMessage: "Your cluster is in intermediary state. Number of pods is bigger then expected. Rerun livelint once cluster is in stable state.",
 		},
 	}
 
@@ -159,9 +155,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 			}
 			result := ll.CheckIsNumberOfPodsMatching("NAMESPACE", "DEPLOYMENT")
 
-			is.Equal(result.Message, tc.expectedMessage)   // Message
-			is.Equal(result.HasFailed, tc.expectedToFail)  // HasFailed
-			is.Equal(result.HasWarning, tc.expectedToWarn) // HasWarning
+			is.Equal(result.Message, tc.expectedMessage)  // Message
+			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed
 		})
 	}
 }
