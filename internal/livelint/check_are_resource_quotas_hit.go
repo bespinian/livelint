@@ -3,7 +3,6 @@ package livelint
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,7 +12,7 @@ import (
 func (n *Livelint) CheckAreResourceQuotasHit(namespace string, deploymentName string) CheckResult {
 	replicaSets, err := n.K8s.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error listing ReplicaSets for Namespace %s: %w", namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error listing ReplicaSets for Namespace %s: %w", namespace, err))
 	}
 
 	for _, rs := range replicaSets.Items {

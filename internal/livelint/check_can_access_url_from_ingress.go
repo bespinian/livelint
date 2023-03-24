@@ -3,7 +3,6 @@ package livelint
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 
@@ -29,7 +28,7 @@ func (n *Livelint) checkCanAccessAppFromIngressControllerPod(ingressControllerPo
 		localhostURL := getLocalhostURL(url, port)
 		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, localhostURL, nil)
 		if err != nil {
-			log.Fatal(fmt.Errorf("error creating HTTP GET request for URL %s: %w", localhostURL, err))
+			n.ui.DisplayError(fmt.Errorf("error creating HTTP GET request for URL %s: %w", localhostURL, err))
 		}
 		if url.Hostname() != "" && url.Hostname() != "localhost" {
 			req.Host = url.Hostname()

@@ -3,7 +3,6 @@ package livelint
 import (
 	"context"
 	"fmt"
-	"log"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -11,12 +10,12 @@ import (
 func (n *Livelint) CheckIsNumberOfPodsMatching(namespace string, deploymentName string) CheckResult {
 	deployment, err := n.getDeployment(namespace, deploymentName)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error getting deployment %s in namespace %s: %w", deploymentName, namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error getting deployment %s in namespace %s: %w", deploymentName, namespace, err))
 	}
 
 	replicaSets, err := n.K8s.AppsV1().ReplicaSets(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error listing ReplicaSets for Namespace %s: %w", namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error listing ReplicaSets for Namespace %s: %w", namespace, err))
 	}
 	for _, rs := range replicaSets.Items {
 		deploymentPodsReplicas := deployment.Spec.Replicas

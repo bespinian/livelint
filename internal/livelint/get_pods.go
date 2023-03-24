@@ -13,7 +13,7 @@ import (
 func (n *Livelint) getDeploymentPods(namespace, deploymentName string) ([]apiv1.Pod, error) {
 	deployment, err := n.getDeployment(namespace, deploymentName)
 	if err != nil {
-		return nil, fmt.Errorf("error getting deployment %s in namespace %s: %w", deploymentName, namespace, err)
+		return nil, fmt.Errorf("error getting pod deployments: %w", err)
 	}
 	matchLabels := deployment.Spec.Selector.MatchLabels
 	return n.getPods(namespace, matchLabels)

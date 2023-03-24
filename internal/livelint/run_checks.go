@@ -2,7 +2,6 @@ package livelint
 
 import (
 	"fmt"
-	"log"
 )
 
 // RunChecks checks for potential issues with a deployment.
@@ -20,7 +19,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	allPods, err := n.getDeploymentPods(namespace, deploymentName)
 	if err != nil {
-		return fmt.Errorf("error getting Deployment Pods: %w", err)
+		return fmt.Errorf("error running checks: %w", err)
 	}
 
 	// Is the number of running pods correct ?
@@ -188,7 +187,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	allServices, partlyMatchingServices, err := n.getServices(namespace, deploymentName)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error getting services in namespace %s: %w", namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error getting services in namespace %s: %w", namespace, err))
 	}
 
 	allServices = append(allServices, partlyMatchingServices...)
@@ -237,7 +236,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	ingresses, err := n.getIngressesFromServices(namespace, allServices)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error getting ingresses in namespace %s: %w", namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error getting ingresses in namespace %s: %w", namespace, err))
 	}
 
 	if len(ingresses) < 1 {
