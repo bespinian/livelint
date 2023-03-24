@@ -33,6 +33,9 @@ var _ livelint.UserInteraction = &UserInteractionMock{}
 //			DisplayContextFunc: func(contextMsg string)  {
 //				panic("mock out the DisplayContext method")
 //			},
+//			DisplayErrorFunc: func(errorMsg error)  {
+//				panic("mock out the DisplayError method")
+//			},
 //			StartSpinnerFunc: func()  {
 //				panic("mock out the StartSpinner method")
 //			},
@@ -60,6 +63,9 @@ type UserInteractionMock struct {
 
 	// DisplayContextFunc mocks the DisplayContext method.
 	DisplayContextFunc func(contextMsg string)
+
+	// DisplayErrorFunc mocks the DisplayError method.
+	DisplayErrorFunc func(errorMsg error)
 
 	// StartSpinnerFunc mocks the StartSpinner method.
 	StartSpinnerFunc func()
@@ -96,6 +102,11 @@ type UserInteractionMock struct {
 			// ContextMsg is the contextMsg argument value.
 			ContextMsg string
 		}
+		// DisplayError holds details about calls to the DisplayError method.
+		DisplayError []struct {
+			// ErrorMsg is the errorMsg argument value.
+			ErrorMsg error
+		}
 		// StartSpinner holds details about calls to the StartSpinner method.
 		StartSpinner []struct {
 		}
@@ -108,6 +119,7 @@ type UserInteractionMock struct {
 	lockDisplayCheckResult     sync.RWMutex
 	lockDisplayCheckStart      sync.RWMutex
 	lockDisplayContext         sync.RWMutex
+	lockDisplayError           sync.RWMutex
 	lockStartSpinner           sync.RWMutex
 	lockStopSpinner            sync.RWMutex
 }
@@ -273,6 +285,38 @@ func (mock *UserInteractionMock) DisplayContextCalls() []struct {
 	mock.lockDisplayContext.RLock()
 	calls = mock.calls.DisplayContext
 	mock.lockDisplayContext.RUnlock()
+	return calls
+}
+
+// DisplayError calls DisplayErrorFunc.
+func (mock *UserInteractionMock) DisplayError(errorMsg error) {
+	if mock.DisplayErrorFunc == nil {
+		panic("UserInteractionMock.DisplayErrorFunc: method is nil but UserInteraction.DisplayError was just called")
+	}
+	callInfo := struct {
+		ErrorMsg error
+	}{
+		ErrorMsg: errorMsg,
+	}
+	mock.lockDisplayError.Lock()
+	mock.calls.DisplayError = append(mock.calls.DisplayError, callInfo)
+	mock.lockDisplayError.Unlock()
+	mock.DisplayErrorFunc(errorMsg)
+}
+
+// DisplayErrorCalls gets all the calls that were made to DisplayError.
+// Check the length with:
+//
+//	len(mockedUserInteraction.DisplayErrorCalls())
+func (mock *UserInteractionMock) DisplayErrorCalls() []struct {
+	ErrorMsg error
+} {
+	var calls []struct {
+		ErrorMsg error
+	}
+	mock.lockDisplayError.RLock()
+	calls = mock.calls.DisplayError
+	mock.lockDisplayError.RUnlock()
 	return calls
 }
 
