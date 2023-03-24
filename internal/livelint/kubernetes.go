@@ -22,6 +22,9 @@ type Apiv1PVCInterface = apiv1.PersistentVolumeClaimInterface
 //go:generate moq -out mock_appsv1_test.go -pkg livelint_test . Appsv1Interface
 type Appsv1Interface = appsv1.AppsV1Interface
 
+//go:generate moq -out mock_appsv1_deployment_test.go -pkg livelint_test . DeploymentInterface
+type DeploymentInterface = appsv1.DeploymentInterface
+
 //go:generate moq -out mock_replicasets_test.go -pkg livelint_test . ReplicaSetInterface
 type ReplicaSetInterface = appsv1.ReplicaSetInterface
 

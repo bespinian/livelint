@@ -1,4 +1,4 @@
-package livelint
+package livelint_test
 
 import "net/http"
 
