@@ -7,7 +7,7 @@ import (
 // RunChecks checks for potential issues with a deployment.
 func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
 	if namespace == "" {
-		return errNamespaceUndefined
+		return fmt.Errorf("error running checks: %w", errNamespaceUndefined)
 	}
 	if deploymentName == "" {
 		return errDeploymentNameUndefined

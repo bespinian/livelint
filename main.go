@@ -17,16 +17,14 @@ import (
 
 var buildversion, builddate, githash string
 
-var (
-	stderr = os.Stderr
-)
+var errNoHome = errors.New("error finding your HOME directory")
 
 func main() {
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
 		home := homedir.HomeDir()
 		if home == "" {
-			exitWithErr(errors.New("error finding your HOME directory"))
+			exitWithErr(errNoHome)
 		}
 		kubeconfig = filepath.Join(home, clientcmd.RecommendedHomeDir, clientcmd.RecommendedFileName)
 	}
@@ -112,6 +110,6 @@ func main() {
 }
 
 func exitWithErr(err error) {
-	fmt.Fprintf(os.Stderr, "failed to start livelint: %w", err)
+	_, _ = fmt.Fprintf(os.Stderr, "failed to start livelint: %s", err)
 	os.Exit(1)
 }
