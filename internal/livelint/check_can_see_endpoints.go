@@ -3,7 +3,6 @@ package livelint
 import (
 	"context"
 	"fmt"
-	"log"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -11,7 +10,7 @@ import (
 func (n *Livelint) CheckCanSeeEndpoints(serviceName string, namespace string) CheckResult {
 	endpoint, err := n.K8s.CoreV1().Endpoints(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error getting endpoint %s in namespace %s: %w", serviceName, namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error getting endpoint %s in namespace %s: %w", serviceName, namespace, err))
 	}
 
 	if len(endpoint.Subsets) < 1 {

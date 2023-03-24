@@ -68,10 +68,13 @@ func (m Model) View() string {
 
 	doc := strings.Builder{}
 
+	if m.error != nil {
+		doc.WriteString(m.assembleError(m.error))
+		return doc.String()
+	}
 	if len(m.status.context) > 0 {
 		doc.WriteString(m.assembleHeaderBar())
 	}
-
 	doc.WriteString(m.assembleLists() + "\n")
 
 	if m.listVisible {
@@ -90,6 +93,7 @@ func (m Model) View() string {
 		spinnerStr := listStyle.Render(m.spinner.View())
 		doc.WriteString(spinnerStr + "\n")
 	}
+
 	return doc.String()
 }
 
@@ -350,28 +354,26 @@ func (m Model) assembleLists() string {
 }
 
 func (m Model) assembleHeaderBar() string {
-	var (
-		statusNugget = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Padding(0, 1)
+	statusNugget := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#FFFDF5")).
+		Padding(0, 1)
 
-		statusBarStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
-				Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"})
+	statusBarStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
+		Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"})
 
-		statusStyle = lipgloss.NewStyle().
-				Inherit(statusBarStyle).
-				Foreground(lipgloss.Color("#FFFDF5")).
-				Background(lipgloss.Color("#3273DC")).
-				Padding(0, 1).
-				MarginRight(1)
+	statusStyle := lipgloss.NewStyle().
+		Inherit(statusBarStyle).
+		Foreground(lipgloss.Color("#FFFDF5")).
+		Background(lipgloss.Color("#3273DC")).
+		Padding(0, 1).
+		MarginRight(1)
 
-		modeStyle = statusNugget.Copy().
-				Background(lipgloss.Color("#3273DC")).
-				Align(lipgloss.Right)
+	modeStyle := statusNugget.Copy().
+		Background(lipgloss.Color("#3273DC")).
+		Align(lipgloss.Right)
 
-		statusText = lipgloss.NewStyle().Inherit(statusBarStyle)
-	)
+	statusText := lipgloss.NewStyle().Inherit(statusBarStyle)
 
 	w := lipgloss.Width
 	statusKey := statusStyle.Render("livelint")
@@ -388,5 +390,26 @@ func (m Model) assembleHeaderBar() string {
 		statusKey,
 		statusVal,
 		encoding,
+	))
+}
+
+func (m Model) assembleError(baseErr error) string {
+	statusBarStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#FFFB00"})
+
+	statusStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#FF0000"))
+
+	statusText := lipgloss.NewStyle()
+
+	errors := strings.Split(baseErr.Error(), ": ")
+	statusVals := make([]string, 0, len(errors)+1)
+	statusVals = append(statusVals, statusStyle.Render("Fatal Error"))
+	for _, e := range errors {
+		statusVals = append(statusVals, statusText.Copy().Render(e))
+	}
+
+	return statusBarStyle.Width(width).Render(lipgloss.JoinVertical(lipgloss.Top,
+		statusVals...,
 	))
 }

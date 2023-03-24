@@ -3,7 +3,6 @@ package livelint
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	apiv1 "k8s.io/api/core/v1"
@@ -13,7 +12,7 @@ import (
 func (n *Livelint) checkTargetPortMatchesContainerPort(pods []apiv1.Pod, serviceName string, namespace string) CheckResult {
 	service, err := n.K8s.CoreV1().Services(namespace).Get(context.Background(), serviceName, metav1.GetOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error getting service %s in namespace %s: %w", serviceName, namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error getting service %s in namespace %s: %w", serviceName, namespace, err))
 	}
 
 	unexposedPorts := []string{}

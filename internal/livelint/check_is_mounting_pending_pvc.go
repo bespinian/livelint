@@ -3,7 +3,6 @@ package livelint
 import (
 	"context"
 	"fmt"
-	"log"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,7 +11,7 @@ import (
 func (n *Livelint) CheckIsMountingPendingPVC(pods []apiv1.Pod, namespace string) CheckResult {
 	pvcs, err := n.K8s.CoreV1().PersistentVolumeClaims(namespace).List(context.Background(), metav1.ListOptions{})
 	if err != nil {
-		log.Fatal(fmt.Errorf("error listing PVCs for namespace %s: %w", namespace, err))
+		n.ui.DisplayError(fmt.Errorf("error listing PVCs for namespace %s: %w", namespace, err))
 	}
 
 	for _, pod := range pods {

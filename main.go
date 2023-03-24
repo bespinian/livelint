@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -16,24 +17,28 @@ import (
 
 var buildversion, builddate, githash string
 
+var (
+	stderr = os.Stderr
+)
+
 func main() {
 	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
 		home := homedir.HomeDir()
 		if home == "" {
-			log.Fatal("error finding your HOME directory")
+			exitWithErr(errors.New("error finding your HOME directory"))
 		}
 		kubeconfig = filepath.Join(home, clientcmd.RecommendedHomeDir, clientcmd.RecommendedFileName)
 	}
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error building k8s config from flags: %w", err))
+		exitWithErr(fmt.Errorf("error building k8s config from flags: %w", err))
 	}
 
 	k8s, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Fatal(fmt.Errorf("error creating k8s client set: %w", err))
+		exitWithErr(fmt.Errorf("error creating k8s client set: %w", err))
 	}
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	configOverrides := &clientcmd.ConfigOverrides{}
@@ -41,11 +46,11 @@ func main() {
 
 	namespace, _, err := kubeConfig.Namespace()
 	if err != nil {
-		log.Fatal(fmt.Errorf("error getting namespace from k8s config: %w", err))
+		exitWithErr(fmt.Errorf("error getting namespace from k8s config: %w", err))
 	}
 
-	bubbletea := tea.NewProgram(livelint.InitialModel())
-	ll := livelint.New(k8s, config, livelint.NewBubbleTeaInterface(bubbletea))
+	bubbletea := livelint.NewBubbleTeaInterface(tea.NewProgram(livelint.InitialModel()))
+	ll := livelint.New(k8s, config, bubbletea)
 
 	app := &cli.App{
 		Name:    "livelint",
@@ -80,7 +85,7 @@ func main() {
 						defer bubbletea.Quit()
 						runErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
 						if runErr != nil {
-							log.Fatal(fmt.Errorf("error running checks: %w", err))
+							bubbletea.DisplayError(runErr)
 						}
 					}()
 
@@ -104,4 +109,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func exitWithErr(err error) {
+	fmt.Fprintf(os.Stderr, "failed to start livelint: %w", err)
+	os.Exit(1)
 }

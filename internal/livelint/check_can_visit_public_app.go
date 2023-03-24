@@ -3,7 +3,6 @@ package livelint
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	apiv1 "k8s.io/api/core/v1"
@@ -26,7 +25,7 @@ func (n *Livelint) CheckCanVisitPublicApp(namespace string, services []apiv1.Ser
 		for _, url := range urls {
 			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url.String(), nil)
 			if err != nil {
-				log.Fatal(fmt.Errorf("error when creating http request for url %s: %w", url.String(), err))
+				n.ui.DisplayError(fmt.Errorf("error when creating http request for url %s: %w", url.String(), err))
 			}
 			resp, err := n.HTTP.Do(req)
 			if err != nil {
