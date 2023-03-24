@@ -80,7 +80,7 @@ func TestCheckCanVisitPublicApp(t *testing.T) {
 	cases := []struct {
 		it              string
 		ingresses       []netv1.Ingress
-		roundTripFunc   livelint.RoundTripFunc
+		roundTripFunc   RoundTripFunc
 		expectedToFail  bool
 		expectedMessage string
 	}{
@@ -156,7 +156,7 @@ func TestCheckCanVisitPublicApp(t *testing.T) {
 			}
 			ll := livelint.Livelint{
 				K8s:  k8s,
-				HTTP: livelint.NewTestClient(tc.roundTripFunc),
+				HTTP: NewTestClient(tc.roundTripFunc),
 			}
 			result := ll.CheckCanVisitPublicApp("namespace", services)
 

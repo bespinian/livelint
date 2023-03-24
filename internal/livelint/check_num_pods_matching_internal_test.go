@@ -1,9 +1,10 @@
-package livelint
+package livelint_test
 
 import (
 	"context"
 	"testing"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"github.com/matryer/is"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -129,18 +130,18 @@ func TestCheckNumberOfPods(t *testing.T) {
 			t.Parallel()
 			is := is.New(t)
 
-			k8s := &kubernetesInterfaceMock{
+			k8s := &KubernetesInterfaceMock{
 				AppsV1Func: func() typedappsv1.AppsV1Interface {
-					return &appsv1InterfaceMock{
+					return &Appsv1InterfaceMock{
 						DeploymentsFunc: func(namespace string) typedappsv1.DeploymentInterface {
-							return &deploymentInterfaceMock{
+							return &DeploymentInterfaceMock{
 								GetFunc: func(ctx context.Context, name string, opts v1.GetOptions) (*appsv1.Deployment, error) {
 									return &tc.deployment, nil
 								},
 							}
 						},
 						ReplicaSetsFunc: func(namespace string) typedappsv1.ReplicaSetInterface {
-							return &replicaSetInterfaceMock{
+							return &ReplicaSetInterfaceMock{
 								ListFunc: func(ctx context.Context, opts v1.ListOptions) (*appsv1.ReplicaSetList, error) {
 									return &appsv1.ReplicaSetList{Items: tc.replicaSets}, nil
 								},
@@ -150,8 +151,8 @@ func TestCheckNumberOfPods(t *testing.T) {
 				},
 			}
 
-			ll := Livelint{
-				k8s: k8s,
+			ll := livelint.Livelint{
+				K8s: k8s,
 			}
 			result := ll.CheckIsNumberOfPodsMatching("NAMESPACE", "DEPLOYMENT")
 

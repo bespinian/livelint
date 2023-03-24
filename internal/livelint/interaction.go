@@ -27,9 +27,9 @@ type BubbleteaUI struct {
 
 var _ UserInteraction = &BubbleteaUI{}
 
-func (ui *BubbleteaUI) AskYesNo(quesiton string) bool {
+func (ui *BubbleteaUI) AskYesNo(question string) bool {
 	yesNoResponse := make(chan int)
-	ui.Send(yesNoInputMsg{question: quesiton, value: yesNoResponse})
+	ui.Send(yesNoInputMsg{question: question, value: yesNoResponse})
 	input := <-yesNoResponse
 
 	return input == 0
