@@ -1,14 +1,8 @@
 package livelint
 
 import (
-	"errors"
 	"fmt"
 	"log"
-)
-
-var (
-	errNamespaceUndefined      = errors.New("no namespace defined")
-	errDeploymentNameUndefined = errors.New("no deployment defined")
 )
 
 // RunChecks checks for potential issues with a deployment.
