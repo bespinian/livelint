@@ -69,7 +69,7 @@ func (m Model) View() string {
 	doc := strings.Builder{}
 
 	if m.error != nil {
-		doc.WriteString(m.assembleError(m.error))
+		doc.WriteString(m.assembleError(m.error) + "\n")
 		return doc.String()
 	}
 	if len(m.status.context) > 0 {
@@ -406,10 +406,8 @@ func (m Model) assembleError(baseErr error) string {
 	statusVals := make([]string, 0, len(errors)+1)
 	statusVals = append(statusVals, statusStyle.Render("Fatal Error"))
 	for _, e := range errors {
-		statusVals = append(statusVals, statusText.Copy().Render(e))
+		statusVals = append(statusVals, statusText.Render(e))
 	}
 
-	return statusBarStyle.Width(width).Render(lipgloss.JoinVertical(lipgloss.Top,
-		statusVals...,
-	))
+	return statusBarStyle.Width(width).Render(lipgloss.JoinVertical(lipgloss.Left, statusVals...))
 }
