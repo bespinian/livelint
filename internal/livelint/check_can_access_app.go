@@ -67,6 +67,8 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, checkFunc func(uint
 		panic(err)
 	}
 	path := fmt.Sprintf("/api/v1/namespaces/%s/pods/%s/portforward", pod.Namespace, pod.Name)
+
+	// Sus: Does this trim make sense?
 	hostIP := strings.TrimLeft(n.config.Host, "htps:/")
 	fmt.Println(hostIP)
 	serverURL := url.URL{Scheme: "https", Path: path, Host: hostIP}
