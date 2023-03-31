@@ -1,20 +1,16 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/urfave/cli/v2"
-
 	"github.com/bespinian/livelint/internal/app"
 	"github.com/bespinian/livelint/internal/livelint"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/urfave/cli/v2"
 )
 
 var buildversion, builddate, githash string
-
-var errNoHome = errors.New("error finding your HOME directory")
 
 func main() {
 	cli := &cli.App{
@@ -55,7 +51,10 @@ func main() {
 
 					go func() {
 						defer bubbletea.Quit()
-						app.Start()
+						err = app.Start()
+						if err != nil {
+							exitWithErr(err)
+						}
 					}()
 
 					_, err = ui.Run()

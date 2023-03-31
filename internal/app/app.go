@@ -6,12 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bespinian/livelint/internal/livelint"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
-
-	"github.com/bespinian/livelint/internal/livelint"
 )
 
 type App struct {
@@ -46,9 +45,9 @@ func New(namespace string, deploymentName string, ui livelint.UserInteraction) (
 	if app.namespace == "" {
 		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 		kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, nil)
-		kubeConfigNamespace, _, err := kubeConfig.Namespace()
-		if err != nil {
-			return nil, fmt.Errorf("error getting namespace from k8s config: %w", err)
+		kubeConfigNamespace, _, namespaceErr := kubeConfig.Namespace()
+		if namespaceErr != nil {
+			return nil, fmt.Errorf("error getting namespace from k8s config: %w", namespaceErr)
 		}
 		app.namespace = kubeConfigNamespace
 	}
