@@ -3,16 +3,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
-	"path/filepath"
 
-	"github.com/bespinian/livelint/internal/livelint"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/urfave/cli/v2"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
+
+	"github.com/bespinian/livelint/internal/app"
+	"github.com/bespinian/livelint/internal/livelint"
 )
 
 var buildversion, builddate, githash string
@@ -20,37 +17,7 @@ var buildversion, builddate, githash string
 var errNoHome = errors.New("error finding your HOME directory")
 
 func main() {
-	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
-	if kubeconfig == "" {
-		home := homedir.HomeDir()
-		if home == "" {
-			exitWithErr(errNoHome)
-		}
-		kubeconfig = filepath.Join(home, clientcmd.RecommendedHomeDir, clientcmd.RecommendedFileName)
-	}
-
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		exitWithErr(fmt.Errorf("error building k8s config from flags: %w", err))
-	}
-
-	k8s, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		exitWithErr(fmt.Errorf("error creating k8s client set: %w", err))
-	}
-	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	configOverrides := &clientcmd.ConfigOverrides{}
-	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
-
-	namespace, _, err := kubeConfig.Namespace()
-	if err != nil {
-		exitWithErr(fmt.Errorf("error getting namespace from k8s config: %w", err))
-	}
-
-	ui := livelint.NewBubbleTeaUI(tea.NewProgram(livelint.InitialModel()))
-	ll := livelint.New(k8s, config, ui)
-
-	app := &cli.App{
+	cli := &cli.App{
 		Name:    "livelint",
 		Usage:   "debug k8s workloads",
 		Version: buildversion,
@@ -65,7 +32,7 @@ func main() {
 					&cli.StringFlag{
 						Name:    "namespace",
 						Aliases: []string{"n"},
-						Value:   namespace,
+						Value:   "",
 						Usage:   "the source namespace",
 					},
 					&cli.BoolFlag{
@@ -77,14 +44,18 @@ func main() {
 				},
 
 				Action: func(c *cli.Context) error {
-					args := c.Args()
+					bubbletea := livelint.NewBubbleTeaInterface(tea.NewProgram(livelint.InitialModel()))
+					namespace := c.String("namespace")
+					args := c.Args().First()
+					fmt.Println(args)
+					app, err := app.New(namespace, c.Args().First(), bubbletea)
+					if err != nil {
+						exitWithErr(err)
+					}
 
 					go func() {
-						defer ui.Quit()
-						runErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
-						if runErr != nil {
-							ui.DisplayError(runErr)
-						}
+						defer bubbletea.Quit()
+						app.Start()
 					}()
 
 					_, err = ui.Run()
@@ -103,13 +74,13 @@ func main() {
 		},
 	}
 
-	err = app.Run(os.Args)
+	err := cli.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		exitWithErr(err)
 	}
 }
 
 func exitWithErr(err error) {
-	_, _ = fmt.Fprintf(os.Stderr, "failed to start livelint: %s", err)
+	_, _ = fmt.Fprintf(os.Stderr, "failed to start livelint: %s\n", err)
 	os.Exit(1)
 }
