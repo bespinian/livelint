@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/bespinian/livelint/internal/app"
@@ -20,9 +21,11 @@ func main() {
 
 		Commands: []*cli.Command{
 			{
-				Name:    "check",
-				Aliases: []string{"c"},
-				Usage:   "checks a Kubernetes deployment for issues",
+				Name:        "check",
+				Aliases:     []string{"c"},
+				Usage:       "livelint check/c [--namespace/-n <namespace>] <deployment name>",
+				UsageText:   "livelint check my-deployment\nlivelint check --namespace default my-deployment",
+				Description: "Checks a Kubernetes deployment for issues",
 
 				Flags: []cli.Flag{
 					&cli.StringFlag{
@@ -42,10 +45,11 @@ func main() {
 				Action: func(c *cli.Context) error {
 					bubbletea := livelint.NewBubbleTeaInterface(tea.NewProgram(livelint.InitialModel()))
 					namespace := c.String("namespace")
-					args := c.Args().First()
-					fmt.Println(args)
 					app, err := app.New(namespace, c.Args().First(), bubbletea)
 					if err != nil {
+						if err := cli.ShowSubcommandHelp(c) != nil; err {
+							log.Println(err)
+						}
 						exitWithErr(err)
 					}
 
@@ -64,6 +68,19 @@ func main() {
 
 					return nil
 				},
+
+				OnUsageError: func(c *cli.Context, err error, isSubcommand bool) error {
+					if isSubcommand {
+						if err := cli.ShowSubcommandHelp(c) != nil; err {
+							log.Println(err)
+						}
+					} else {
+						if err := cli.ShowAppHelp(c) != nil; err {
+							log.Println(err)
+						}
+					}
+					return err
+				},
 			},
 		},
 
@@ -80,6 +97,6 @@ func main() {
 }
 
 func exitWithErr(err error) {
-	_, _ = fmt.Fprintf(os.Stderr, "failed to start livelint: %s\n", err)
+	_, _ = fmt.Fprintf(os.Stderr, "\nfailed to start livelint: %s\n", err)
 	os.Exit(1)
 }
