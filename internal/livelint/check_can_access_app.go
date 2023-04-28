@@ -87,8 +87,8 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, checkFunc func(uint
 	}()
 
 	// wait for port forwarding to be ready
-	for range readyChan {
-	}
+	// for range readyChan {
+	// }
 
 	n.ui.StartSpinner()
 

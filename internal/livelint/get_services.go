@@ -44,8 +44,8 @@ func (n *Livelint) getServicesForSelector(namespace string, matchLabels map[stri
 	}
 	exactlyMatchingServices := []apiv1.Service{}
 	supersetMatchingServices := []apiv1.Service{}
-	serviceLabelsSubsetDeploymentLabels := false
-	deploymentLabelsSubsetServiceLabels := false
+	var serviceLabelsSubsetDeploymentLabels bool
+	var deploymentLabelsSubsetServiceLabels bool
 	for _, service := range allServices.Items {
 		serviceMatchLabels := service.Spec.Selector
 		deploymentLabelsSubsetServiceLabels = isSubmap(matchLabels, serviceMatchLabels)
