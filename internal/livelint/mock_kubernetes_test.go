@@ -7,12 +7,14 @@ import (
 	"github.com/bespinian/livelint/internal/livelint"
 	"k8s.io/client-go/discovery"
 	admissionregistrationv1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1"
+	admissionregistrationv1alpha1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1alpha1"
 	admissionregistrationv1beta1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1beta1"
 	apiserverinternalv1alpha1 "k8s.io/client-go/kubernetes/typed/apiserverinternal/v1alpha1"
 	appsv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	appsv1beta1 "k8s.io/client-go/kubernetes/typed/apps/v1beta1"
 	appsv1beta2 "k8s.io/client-go/kubernetes/typed/apps/v1beta2"
 	authenticationv1 "k8s.io/client-go/kubernetes/typed/authentication/v1"
+	authenticationv1alpha1 "k8s.io/client-go/kubernetes/typed/authentication/v1alpha1"
 	authenticationv1beta1 "k8s.io/client-go/kubernetes/typed/authentication/v1beta1"
 	authorizationv1 "k8s.io/client-go/kubernetes/typed/authorization/v1"
 	authorizationv1beta1 "k8s.io/client-go/kubernetes/typed/authorization/v1beta1"
@@ -23,6 +25,7 @@ import (
 	batchv1 "k8s.io/client-go/kubernetes/typed/batch/v1"
 	batchv1beta1 "k8s.io/client-go/kubernetes/typed/batch/v1beta1"
 	certificatesv1 "k8s.io/client-go/kubernetes/typed/certificates/v1"
+	certificatesv1alpha1 "k8s.io/client-go/kubernetes/typed/certificates/v1alpha1"
 	certificatesv1beta1 "k8s.io/client-go/kubernetes/typed/certificates/v1beta1"
 	coordinationv1 "k8s.io/client-go/kubernetes/typed/coordination/v1"
 	coordinationv1beta1 "k8s.io/client-go/kubernetes/typed/coordination/v1beta1"
@@ -35,6 +38,7 @@ import (
 	flowcontrolv1alpha1 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1alpha1"
 	flowcontrolv1beta1 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta1"
 	flowcontrolv1beta2 "k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta2"
+	"k8s.io/client-go/kubernetes/typed/flowcontrol/v1beta3"
 	netv1 "k8s.io/client-go/kubernetes/typed/networking/v1"
 	networkingv1alpha1 "k8s.io/client-go/kubernetes/typed/networking/v1alpha1"
 	networkingv1beta1 "k8s.io/client-go/kubernetes/typed/networking/v1beta1"
@@ -46,11 +50,12 @@ import (
 	rbacv1 "k8s.io/client-go/kubernetes/typed/rbac/v1"
 	rbacv1alpha1 "k8s.io/client-go/kubernetes/typed/rbac/v1alpha1"
 	rbacv1beta1 "k8s.io/client-go/kubernetes/typed/rbac/v1beta1"
+	"k8s.io/client-go/kubernetes/typed/resource/v1alpha2"
 	schedulingv1 "k8s.io/client-go/kubernetes/typed/scheduling/v1"
 	schedulingv1alpha1 "k8s.io/client-go/kubernetes/typed/scheduling/v1alpha1"
 	schedulingv1beta1 "k8s.io/client-go/kubernetes/typed/scheduling/v1beta1"
 	storagev1 "k8s.io/client-go/kubernetes/typed/storage/v1"
-	"k8s.io/client-go/kubernetes/typed/storage/v1alpha1"
+	storagev1alpha1 "k8s.io/client-go/kubernetes/typed/storage/v1alpha1"
 	"k8s.io/client-go/kubernetes/typed/storage/v1beta1"
 	"sync"
 )
@@ -68,6 +73,9 @@ var _ livelint.KubernetesInterface = &KubernetesInterfaceMock{}
 //			AdmissionregistrationV1Func: func() admissionregistrationv1.AdmissionregistrationV1Interface {
 //				panic("mock out the AdmissionregistrationV1 method")
 //			},
+//			AdmissionregistrationV1alpha1Func: func() admissionregistrationv1alpha1.AdmissionregistrationV1alpha1Interface {
+//				panic("mock out the AdmissionregistrationV1alpha1 method")
+//			},
 //			AdmissionregistrationV1beta1Func: func() admissionregistrationv1beta1.AdmissionregistrationV1beta1Interface {
 //				panic("mock out the AdmissionregistrationV1beta1 method")
 //			},
@@ -82,6 +90,9 @@ var _ livelint.KubernetesInterface = &KubernetesInterfaceMock{}
 //			},
 //			AuthenticationV1Func: func() authenticationv1.AuthenticationV1Interface {
 //				panic("mock out the AuthenticationV1 method")
+//			},
+//			AuthenticationV1alpha1Func: func() authenticationv1alpha1.AuthenticationV1alpha1Interface {
+//				panic("mock out the AuthenticationV1alpha1 method")
 //			},
 //			AuthenticationV1beta1Func: func() authenticationv1beta1.AuthenticationV1beta1Interface {
 //				panic("mock out the AuthenticationV1beta1 method")
@@ -112,6 +123,9 @@ var _ livelint.KubernetesInterface = &KubernetesInterfaceMock{}
 //			},
 //			CertificatesV1Func: func() certificatesv1.CertificatesV1Interface {
 //				panic("mock out the CertificatesV1 method")
+//			},
+//			CertificatesV1alpha1Func: func() certificatesv1alpha1.CertificatesV1alpha1Interface {
+//				panic("mock out the CertificatesV1alpha1 method")
 //			},
 //			CertificatesV1beta1Func: func() certificatesv1beta1.CertificatesV1beta1Interface {
 //				panic("mock out the CertificatesV1beta1 method")
@@ -152,6 +166,9 @@ var _ livelint.KubernetesInterface = &KubernetesInterfaceMock{}
 //			FlowcontrolV1beta2Func: func() flowcontrolv1beta2.FlowcontrolV1beta2Interface {
 //				panic("mock out the FlowcontrolV1beta2 method")
 //			},
+//			FlowcontrolV1beta3Func: func() v1beta3.FlowcontrolV1beta3Interface {
+//				panic("mock out the FlowcontrolV1beta3 method")
+//			},
 //			InternalV1alpha1Func: func() apiserverinternalv1alpha1.InternalV1alpha1Interface {
 //				panic("mock out the InternalV1alpha1 method")
 //			},
@@ -188,6 +205,9 @@ var _ livelint.KubernetesInterface = &KubernetesInterfaceMock{}
 //			RbacV1beta1Func: func() rbacv1beta1.RbacV1beta1Interface {
 //				panic("mock out the RbacV1beta1 method")
 //			},
+//			ResourceV1alpha2Func: func() v1alpha2.ResourceV1alpha2Interface {
+//				panic("mock out the ResourceV1alpha2 method")
+//			},
 //			SchedulingV1Func: func() schedulingv1.SchedulingV1Interface {
 //				panic("mock out the SchedulingV1 method")
 //			},
@@ -200,7 +220,7 @@ var _ livelint.KubernetesInterface = &KubernetesInterfaceMock{}
 //			StorageV1Func: func() storagev1.StorageV1Interface {
 //				panic("mock out the StorageV1 method")
 //			},
-//			StorageV1alpha1Func: func() v1alpha1.StorageV1alpha1Interface {
+//			StorageV1alpha1Func: func() storagev1alpha1.StorageV1alpha1Interface {
 //				panic("mock out the StorageV1alpha1 method")
 //			},
 //			StorageV1beta1Func: func() v1beta1.StorageV1beta1Interface {
@@ -216,6 +236,9 @@ type KubernetesInterfaceMock struct {
 	// AdmissionregistrationV1Func mocks the AdmissionregistrationV1 method.
 	AdmissionregistrationV1Func func() admissionregistrationv1.AdmissionregistrationV1Interface
 
+	// AdmissionregistrationV1alpha1Func mocks the AdmissionregistrationV1alpha1 method.
+	AdmissionregistrationV1alpha1Func func() admissionregistrationv1alpha1.AdmissionregistrationV1alpha1Interface
+
 	// AdmissionregistrationV1beta1Func mocks the AdmissionregistrationV1beta1 method.
 	AdmissionregistrationV1beta1Func func() admissionregistrationv1beta1.AdmissionregistrationV1beta1Interface
 
@@ -230,6 +253,9 @@ type KubernetesInterfaceMock struct {
 
 	// AuthenticationV1Func mocks the AuthenticationV1 method.
 	AuthenticationV1Func func() authenticationv1.AuthenticationV1Interface
+
+	// AuthenticationV1alpha1Func mocks the AuthenticationV1alpha1 method.
+	AuthenticationV1alpha1Func func() authenticationv1alpha1.AuthenticationV1alpha1Interface
 
 	// AuthenticationV1beta1Func mocks the AuthenticationV1beta1 method.
 	AuthenticationV1beta1Func func() authenticationv1beta1.AuthenticationV1beta1Interface
@@ -260,6 +286,9 @@ type KubernetesInterfaceMock struct {
 
 	// CertificatesV1Func mocks the CertificatesV1 method.
 	CertificatesV1Func func() certificatesv1.CertificatesV1Interface
+
+	// CertificatesV1alpha1Func mocks the CertificatesV1alpha1 method.
+	CertificatesV1alpha1Func func() certificatesv1alpha1.CertificatesV1alpha1Interface
 
 	// CertificatesV1beta1Func mocks the CertificatesV1beta1 method.
 	CertificatesV1beta1Func func() certificatesv1beta1.CertificatesV1beta1Interface
@@ -300,6 +329,9 @@ type KubernetesInterfaceMock struct {
 	// FlowcontrolV1beta2Func mocks the FlowcontrolV1beta2 method.
 	FlowcontrolV1beta2Func func() flowcontrolv1beta2.FlowcontrolV1beta2Interface
 
+	// FlowcontrolV1beta3Func mocks the FlowcontrolV1beta3 method.
+	FlowcontrolV1beta3Func func() v1beta3.FlowcontrolV1beta3Interface
+
 	// InternalV1alpha1Func mocks the InternalV1alpha1 method.
 	InternalV1alpha1Func func() apiserverinternalv1alpha1.InternalV1alpha1Interface
 
@@ -336,6 +368,9 @@ type KubernetesInterfaceMock struct {
 	// RbacV1beta1Func mocks the RbacV1beta1 method.
 	RbacV1beta1Func func() rbacv1beta1.RbacV1beta1Interface
 
+	// ResourceV1alpha2Func mocks the ResourceV1alpha2 method.
+	ResourceV1alpha2Func func() v1alpha2.ResourceV1alpha2Interface
+
 	// SchedulingV1Func mocks the SchedulingV1 method.
 	SchedulingV1Func func() schedulingv1.SchedulingV1Interface
 
@@ -349,7 +384,7 @@ type KubernetesInterfaceMock struct {
 	StorageV1Func func() storagev1.StorageV1Interface
 
 	// StorageV1alpha1Func mocks the StorageV1alpha1 method.
-	StorageV1alpha1Func func() v1alpha1.StorageV1alpha1Interface
+	StorageV1alpha1Func func() storagev1alpha1.StorageV1alpha1Interface
 
 	// StorageV1beta1Func mocks the StorageV1beta1 method.
 	StorageV1beta1Func func() v1beta1.StorageV1beta1Interface
@@ -358,6 +393,9 @@ type KubernetesInterfaceMock struct {
 	calls struct {
 		// AdmissionregistrationV1 holds details about calls to the AdmissionregistrationV1 method.
 		AdmissionregistrationV1 []struct {
+		}
+		// AdmissionregistrationV1alpha1 holds details about calls to the AdmissionregistrationV1alpha1 method.
+		AdmissionregistrationV1alpha1 []struct {
 		}
 		// AdmissionregistrationV1beta1 holds details about calls to the AdmissionregistrationV1beta1 method.
 		AdmissionregistrationV1beta1 []struct {
@@ -373,6 +411,9 @@ type KubernetesInterfaceMock struct {
 		}
 		// AuthenticationV1 holds details about calls to the AuthenticationV1 method.
 		AuthenticationV1 []struct {
+		}
+		// AuthenticationV1alpha1 holds details about calls to the AuthenticationV1alpha1 method.
+		AuthenticationV1alpha1 []struct {
 		}
 		// AuthenticationV1beta1 holds details about calls to the AuthenticationV1beta1 method.
 		AuthenticationV1beta1 []struct {
@@ -403,6 +444,9 @@ type KubernetesInterfaceMock struct {
 		}
 		// CertificatesV1 holds details about calls to the CertificatesV1 method.
 		CertificatesV1 []struct {
+		}
+		// CertificatesV1alpha1 holds details about calls to the CertificatesV1alpha1 method.
+		CertificatesV1alpha1 []struct {
 		}
 		// CertificatesV1beta1 holds details about calls to the CertificatesV1beta1 method.
 		CertificatesV1beta1 []struct {
@@ -443,6 +487,9 @@ type KubernetesInterfaceMock struct {
 		// FlowcontrolV1beta2 holds details about calls to the FlowcontrolV1beta2 method.
 		FlowcontrolV1beta2 []struct {
 		}
+		// FlowcontrolV1beta3 holds details about calls to the FlowcontrolV1beta3 method.
+		FlowcontrolV1beta3 []struct {
+		}
 		// InternalV1alpha1 holds details about calls to the InternalV1alpha1 method.
 		InternalV1alpha1 []struct {
 		}
@@ -479,6 +526,9 @@ type KubernetesInterfaceMock struct {
 		// RbacV1beta1 holds details about calls to the RbacV1beta1 method.
 		RbacV1beta1 []struct {
 		}
+		// ResourceV1alpha2 holds details about calls to the ResourceV1alpha2 method.
+		ResourceV1alpha2 []struct {
+		}
 		// SchedulingV1 holds details about calls to the SchedulingV1 method.
 		SchedulingV1 []struct {
 		}
@@ -498,53 +548,58 @@ type KubernetesInterfaceMock struct {
 		StorageV1beta1 []struct {
 		}
 	}
-	lockAdmissionregistrationV1      sync.RWMutex
-	lockAdmissionregistrationV1beta1 sync.RWMutex
-	lockAppsV1                       sync.RWMutex
-	lockAppsV1beta1                  sync.RWMutex
-	lockAppsV1beta2                  sync.RWMutex
-	lockAuthenticationV1             sync.RWMutex
-	lockAuthenticationV1beta1        sync.RWMutex
-	lockAuthorizationV1              sync.RWMutex
-	lockAuthorizationV1beta1         sync.RWMutex
-	lockAutoscalingV1                sync.RWMutex
-	lockAutoscalingV2                sync.RWMutex
-	lockAutoscalingV2beta1           sync.RWMutex
-	lockAutoscalingV2beta2           sync.RWMutex
-	lockBatchV1                      sync.RWMutex
-	lockBatchV1beta1                 sync.RWMutex
-	lockCertificatesV1               sync.RWMutex
-	lockCertificatesV1beta1          sync.RWMutex
-	lockCoordinationV1               sync.RWMutex
-	lockCoordinationV1beta1          sync.RWMutex
-	lockCoreV1                       sync.RWMutex
-	lockDiscovery                    sync.RWMutex
-	lockDiscoveryV1                  sync.RWMutex
-	lockDiscoveryV1beta1             sync.RWMutex
-	lockEventsV1                     sync.RWMutex
-	lockEventsV1beta1                sync.RWMutex
-	lockExtensionsV1beta1            sync.RWMutex
-	lockFlowcontrolV1alpha1          sync.RWMutex
-	lockFlowcontrolV1beta1           sync.RWMutex
-	lockFlowcontrolV1beta2           sync.RWMutex
-	lockInternalV1alpha1             sync.RWMutex
-	lockNetworkingV1                 sync.RWMutex
-	lockNetworkingV1alpha1           sync.RWMutex
-	lockNetworkingV1beta1            sync.RWMutex
-	lockNodeV1                       sync.RWMutex
-	lockNodeV1alpha1                 sync.RWMutex
-	lockNodeV1beta1                  sync.RWMutex
-	lockPolicyV1                     sync.RWMutex
-	lockPolicyV1beta1                sync.RWMutex
-	lockRbacV1                       sync.RWMutex
-	lockRbacV1alpha1                 sync.RWMutex
-	lockRbacV1beta1                  sync.RWMutex
-	lockSchedulingV1                 sync.RWMutex
-	lockSchedulingV1alpha1           sync.RWMutex
-	lockSchedulingV1beta1            sync.RWMutex
-	lockStorageV1                    sync.RWMutex
-	lockStorageV1alpha1              sync.RWMutex
-	lockStorageV1beta1               sync.RWMutex
+	lockAdmissionregistrationV1       sync.RWMutex
+	lockAdmissionregistrationV1alpha1 sync.RWMutex
+	lockAdmissionregistrationV1beta1  sync.RWMutex
+	lockAppsV1                        sync.RWMutex
+	lockAppsV1beta1                   sync.RWMutex
+	lockAppsV1beta2                   sync.RWMutex
+	lockAuthenticationV1              sync.RWMutex
+	lockAuthenticationV1alpha1        sync.RWMutex
+	lockAuthenticationV1beta1         sync.RWMutex
+	lockAuthorizationV1               sync.RWMutex
+	lockAuthorizationV1beta1          sync.RWMutex
+	lockAutoscalingV1                 sync.RWMutex
+	lockAutoscalingV2                 sync.RWMutex
+	lockAutoscalingV2beta1            sync.RWMutex
+	lockAutoscalingV2beta2            sync.RWMutex
+	lockBatchV1                       sync.RWMutex
+	lockBatchV1beta1                  sync.RWMutex
+	lockCertificatesV1                sync.RWMutex
+	lockCertificatesV1alpha1          sync.RWMutex
+	lockCertificatesV1beta1           sync.RWMutex
+	lockCoordinationV1                sync.RWMutex
+	lockCoordinationV1beta1           sync.RWMutex
+	lockCoreV1                        sync.RWMutex
+	lockDiscovery                     sync.RWMutex
+	lockDiscoveryV1                   sync.RWMutex
+	lockDiscoveryV1beta1              sync.RWMutex
+	lockEventsV1                      sync.RWMutex
+	lockEventsV1beta1                 sync.RWMutex
+	lockExtensionsV1beta1             sync.RWMutex
+	lockFlowcontrolV1alpha1           sync.RWMutex
+	lockFlowcontrolV1beta1            sync.RWMutex
+	lockFlowcontrolV1beta2            sync.RWMutex
+	lockFlowcontrolV1beta3            sync.RWMutex
+	lockInternalV1alpha1              sync.RWMutex
+	lockNetworkingV1                  sync.RWMutex
+	lockNetworkingV1alpha1            sync.RWMutex
+	lockNetworkingV1beta1             sync.RWMutex
+	lockNodeV1                        sync.RWMutex
+	lockNodeV1alpha1                  sync.RWMutex
+	lockNodeV1beta1                   sync.RWMutex
+	lockPolicyV1                      sync.RWMutex
+	lockPolicyV1beta1                 sync.RWMutex
+	lockRbacV1                        sync.RWMutex
+	lockRbacV1alpha1                  sync.RWMutex
+	lockRbacV1beta1                   sync.RWMutex
+	lockResourceV1alpha2              sync.RWMutex
+	lockSchedulingV1                  sync.RWMutex
+	lockSchedulingV1alpha1            sync.RWMutex
+	lockSchedulingV1beta1             sync.RWMutex
+	lockStorageV1                     sync.RWMutex
+	lockStorageV1alpha1               sync.RWMutex
+	lockStorageV1beta1                sync.RWMutex
 }
 
 // AdmissionregistrationV1 calls AdmissionregistrationV1Func.
@@ -571,6 +626,33 @@ func (mock *KubernetesInterfaceMock) AdmissionregistrationV1Calls() []struct {
 	mock.lockAdmissionregistrationV1.RLock()
 	calls = mock.calls.AdmissionregistrationV1
 	mock.lockAdmissionregistrationV1.RUnlock()
+	return calls
+}
+
+// AdmissionregistrationV1alpha1 calls AdmissionregistrationV1alpha1Func.
+func (mock *KubernetesInterfaceMock) AdmissionregistrationV1alpha1() admissionregistrationv1alpha1.AdmissionregistrationV1alpha1Interface {
+	if mock.AdmissionregistrationV1alpha1Func == nil {
+		panic("KubernetesInterfaceMock.AdmissionregistrationV1alpha1Func: method is nil but KubernetesInterface.AdmissionregistrationV1alpha1 was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockAdmissionregistrationV1alpha1.Lock()
+	mock.calls.AdmissionregistrationV1alpha1 = append(mock.calls.AdmissionregistrationV1alpha1, callInfo)
+	mock.lockAdmissionregistrationV1alpha1.Unlock()
+	return mock.AdmissionregistrationV1alpha1Func()
+}
+
+// AdmissionregistrationV1alpha1Calls gets all the calls that were made to AdmissionregistrationV1alpha1.
+// Check the length with:
+//
+//	len(mockedKubernetesInterface.AdmissionregistrationV1alpha1Calls())
+func (mock *KubernetesInterfaceMock) AdmissionregistrationV1alpha1Calls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockAdmissionregistrationV1alpha1.RLock()
+	calls = mock.calls.AdmissionregistrationV1alpha1
+	mock.lockAdmissionregistrationV1alpha1.RUnlock()
 	return calls
 }
 
@@ -706,6 +788,33 @@ func (mock *KubernetesInterfaceMock) AuthenticationV1Calls() []struct {
 	mock.lockAuthenticationV1.RLock()
 	calls = mock.calls.AuthenticationV1
 	mock.lockAuthenticationV1.RUnlock()
+	return calls
+}
+
+// AuthenticationV1alpha1 calls AuthenticationV1alpha1Func.
+func (mock *KubernetesInterfaceMock) AuthenticationV1alpha1() authenticationv1alpha1.AuthenticationV1alpha1Interface {
+	if mock.AuthenticationV1alpha1Func == nil {
+		panic("KubernetesInterfaceMock.AuthenticationV1alpha1Func: method is nil but KubernetesInterface.AuthenticationV1alpha1 was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockAuthenticationV1alpha1.Lock()
+	mock.calls.AuthenticationV1alpha1 = append(mock.calls.AuthenticationV1alpha1, callInfo)
+	mock.lockAuthenticationV1alpha1.Unlock()
+	return mock.AuthenticationV1alpha1Func()
+}
+
+// AuthenticationV1alpha1Calls gets all the calls that were made to AuthenticationV1alpha1.
+// Check the length with:
+//
+//	len(mockedKubernetesInterface.AuthenticationV1alpha1Calls())
+func (mock *KubernetesInterfaceMock) AuthenticationV1alpha1Calls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockAuthenticationV1alpha1.RLock()
+	calls = mock.calls.AuthenticationV1alpha1
+	mock.lockAuthenticationV1alpha1.RUnlock()
 	return calls
 }
 
@@ -976,6 +1085,33 @@ func (mock *KubernetesInterfaceMock) CertificatesV1Calls() []struct {
 	mock.lockCertificatesV1.RLock()
 	calls = mock.calls.CertificatesV1
 	mock.lockCertificatesV1.RUnlock()
+	return calls
+}
+
+// CertificatesV1alpha1 calls CertificatesV1alpha1Func.
+func (mock *KubernetesInterfaceMock) CertificatesV1alpha1() certificatesv1alpha1.CertificatesV1alpha1Interface {
+	if mock.CertificatesV1alpha1Func == nil {
+		panic("KubernetesInterfaceMock.CertificatesV1alpha1Func: method is nil but KubernetesInterface.CertificatesV1alpha1 was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockCertificatesV1alpha1.Lock()
+	mock.calls.CertificatesV1alpha1 = append(mock.calls.CertificatesV1alpha1, callInfo)
+	mock.lockCertificatesV1alpha1.Unlock()
+	return mock.CertificatesV1alpha1Func()
+}
+
+// CertificatesV1alpha1Calls gets all the calls that were made to CertificatesV1alpha1.
+// Check the length with:
+//
+//	len(mockedKubernetesInterface.CertificatesV1alpha1Calls())
+func (mock *KubernetesInterfaceMock) CertificatesV1alpha1Calls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockCertificatesV1alpha1.RLock()
+	calls = mock.calls.CertificatesV1alpha1
+	mock.lockCertificatesV1alpha1.RUnlock()
 	return calls
 }
 
@@ -1330,6 +1466,33 @@ func (mock *KubernetesInterfaceMock) FlowcontrolV1beta2Calls() []struct {
 	return calls
 }
 
+// FlowcontrolV1beta3 calls FlowcontrolV1beta3Func.
+func (mock *KubernetesInterfaceMock) FlowcontrolV1beta3() v1beta3.FlowcontrolV1beta3Interface {
+	if mock.FlowcontrolV1beta3Func == nil {
+		panic("KubernetesInterfaceMock.FlowcontrolV1beta3Func: method is nil but KubernetesInterface.FlowcontrolV1beta3 was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockFlowcontrolV1beta3.Lock()
+	mock.calls.FlowcontrolV1beta3 = append(mock.calls.FlowcontrolV1beta3, callInfo)
+	mock.lockFlowcontrolV1beta3.Unlock()
+	return mock.FlowcontrolV1beta3Func()
+}
+
+// FlowcontrolV1beta3Calls gets all the calls that were made to FlowcontrolV1beta3.
+// Check the length with:
+//
+//	len(mockedKubernetesInterface.FlowcontrolV1beta3Calls())
+func (mock *KubernetesInterfaceMock) FlowcontrolV1beta3Calls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockFlowcontrolV1beta3.RLock()
+	calls = mock.calls.FlowcontrolV1beta3
+	mock.lockFlowcontrolV1beta3.RUnlock()
+	return calls
+}
+
 // InternalV1alpha1 calls InternalV1alpha1Func.
 func (mock *KubernetesInterfaceMock) InternalV1alpha1() apiserverinternalv1alpha1.InternalV1alpha1Interface {
 	if mock.InternalV1alpha1Func == nil {
@@ -1654,6 +1817,33 @@ func (mock *KubernetesInterfaceMock) RbacV1beta1Calls() []struct {
 	return calls
 }
 
+// ResourceV1alpha2 calls ResourceV1alpha2Func.
+func (mock *KubernetesInterfaceMock) ResourceV1alpha2() v1alpha2.ResourceV1alpha2Interface {
+	if mock.ResourceV1alpha2Func == nil {
+		panic("KubernetesInterfaceMock.ResourceV1alpha2Func: method is nil but KubernetesInterface.ResourceV1alpha2 was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockResourceV1alpha2.Lock()
+	mock.calls.ResourceV1alpha2 = append(mock.calls.ResourceV1alpha2, callInfo)
+	mock.lockResourceV1alpha2.Unlock()
+	return mock.ResourceV1alpha2Func()
+}
+
+// ResourceV1alpha2Calls gets all the calls that were made to ResourceV1alpha2.
+// Check the length with:
+//
+//	len(mockedKubernetesInterface.ResourceV1alpha2Calls())
+func (mock *KubernetesInterfaceMock) ResourceV1alpha2Calls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockResourceV1alpha2.RLock()
+	calls = mock.calls.ResourceV1alpha2
+	mock.lockResourceV1alpha2.RUnlock()
+	return calls
+}
+
 // SchedulingV1 calls SchedulingV1Func.
 func (mock *KubernetesInterfaceMock) SchedulingV1() schedulingv1.SchedulingV1Interface {
 	if mock.SchedulingV1Func == nil {
@@ -1763,7 +1953,7 @@ func (mock *KubernetesInterfaceMock) StorageV1Calls() []struct {
 }
 
 // StorageV1alpha1 calls StorageV1alpha1Func.
-func (mock *KubernetesInterfaceMock) StorageV1alpha1() v1alpha1.StorageV1alpha1Interface {
+func (mock *KubernetesInterfaceMock) StorageV1alpha1() storagev1alpha1.StorageV1alpha1Interface {
 	if mock.StorageV1alpha1Func == nil {
 		panic("KubernetesInterfaceMock.StorageV1alpha1Func: method is nil but KubernetesInterface.StorageV1alpha1 was just called")
 	}
