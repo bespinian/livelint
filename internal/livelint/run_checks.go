@@ -15,7 +15,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 
 	// nolint:govet
 	n.ui.DisplayContext(fmt.Sprintf("Checking Deployment %q in Namespace %q", deploymentName, namespace))
-	n.ui.DisplayCheckStart("Checking Deployment Pods")
+	n.ui.DisplayCheckStart("Checking Pods")
 
 	allPods, err := n.getDeploymentPods(namespace, deploymentName)
 	if err != nil {
