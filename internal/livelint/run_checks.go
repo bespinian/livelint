@@ -5,7 +5,7 @@ import (
 )
 
 // RunChecks checks for potential issues with a deployment.
-func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) error {
+func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) error {
 	if namespace == "" {
 		return fmt.Errorf("error running checks: %w", errNamespaceUndefined)
 	}
@@ -13,8 +13,11 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, isVerbose bool) e
 		return errDeploymentNameUndefined
 	}
 
-	// nolint:govet
 	n.ui.DisplayContext(fmt.Sprintf("Checking Deployment %q in Namespace %q", deploymentName, namespace))
+	if verbose {
+		n.ui.SetVerbose()
+	}
+
 	n.ui.DisplayCheckStart("Checking Pods")
 
 	allPods, err := n.getDeploymentPods(namespace, deploymentName)

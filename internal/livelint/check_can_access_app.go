@@ -59,7 +59,6 @@ func (n *Livelint) canPortForward(pod apiv1.Pod, port int32, checkFunc func(uint
 	handleConnectionError := func(err error) {
 		connectionSuccessful = false
 	}
-	// nolint:reassign
 	runtime.ErrorHandlers = append(runtime.ErrorHandlers, handleConnectionError)
 
 	// prepare the port forwarding

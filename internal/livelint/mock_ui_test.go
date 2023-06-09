@@ -36,6 +36,9 @@ var _ livelint.UserInteraction = &UserInteractionMock{}
 //			DisplayErrorFunc: func(errorMsg error)  {
 //				panic("mock out the DisplayError method")
 //			},
+//			SetVerboseFunc: func()  {
+//				panic("mock out the SetVerbose method")
+//			},
 //			StartSpinnerFunc: func()  {
 //				panic("mock out the StartSpinner method")
 //			},
@@ -66,6 +69,9 @@ type UserInteractionMock struct {
 
 	// DisplayErrorFunc mocks the DisplayError method.
 	DisplayErrorFunc func(errorMsg error)
+
+	// SetVerboseFunc mocks the SetVerbose method.
+	SetVerboseFunc func()
 
 	// StartSpinnerFunc mocks the StartSpinner method.
 	StartSpinnerFunc func()
@@ -107,6 +113,9 @@ type UserInteractionMock struct {
 			// ErrorMsg is the errorMsg argument value.
 			ErrorMsg error
 		}
+		// SetVerbose holds details about calls to the SetVerbose method.
+		SetVerbose []struct {
+		}
 		// StartSpinner holds details about calls to the StartSpinner method.
 		StartSpinner []struct {
 		}
@@ -120,6 +129,7 @@ type UserInteractionMock struct {
 	lockDisplayCheckStart      sync.RWMutex
 	lockDisplayContext         sync.RWMutex
 	lockDisplayError           sync.RWMutex
+	lockSetVerbose             sync.RWMutex
 	lockStartSpinner           sync.RWMutex
 	lockStopSpinner            sync.RWMutex
 }
@@ -317,6 +327,33 @@ func (mock *UserInteractionMock) DisplayErrorCalls() []struct {
 	mock.lockDisplayError.RLock()
 	calls = mock.calls.DisplayError
 	mock.lockDisplayError.RUnlock()
+	return calls
+}
+
+// SetVerbose calls SetVerboseFunc.
+func (mock *UserInteractionMock) SetVerbose() {
+	if mock.SetVerboseFunc == nil {
+		panic("UserInteractionMock.SetVerboseFunc: method is nil but UserInteraction.SetVerbose was just called")
+	}
+	callInfo := struct {
+	}{}
+	mock.lockSetVerbose.Lock()
+	mock.calls.SetVerbose = append(mock.calls.SetVerbose, callInfo)
+	mock.lockSetVerbose.Unlock()
+	mock.SetVerboseFunc()
+}
+
+// SetVerboseCalls gets all the calls that were made to SetVerbose.
+// Check the length with:
+//
+//	len(mockedUserInteraction.SetVerboseCalls())
+func (mock *UserInteractionMock) SetVerboseCalls() []struct {
+} {
+	var calls []struct {
+	}
+	mock.lockSetVerbose.RLock()
+	calls = mock.calls.SetVerbose
+	mock.lockSetVerbose.RUnlock()
 	return calls
 }
 
