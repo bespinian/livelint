@@ -47,8 +47,8 @@ func main() {
 		exitWithErr(fmt.Errorf("error getting namespace from k8s config: %w", err))
 	}
 
-	bubbletea := livelint.NewBubbleTeaInterface(tea.NewProgram(livelint.InitialModel()))
-	ll := livelint.New(k8s, config, bubbletea)
+	ui := livelint.NewBubbleTeaUI(tea.NewProgram(livelint.InitialModel()))
+	ll := livelint.New(k8s, config, ui)
 
 	app := &cli.App{
 		Name:    "livelint",
@@ -80,14 +80,14 @@ func main() {
 					args := c.Args()
 
 					go func() {
-						defer bubbletea.Quit()
+						defer ui.Quit()
 						runErr := ll.RunChecks(c.String("namespace"), args.Get(0), c.Bool("verbose"))
 						if runErr != nil {
-							bubbletea.DisplayError(runErr)
+							ui.DisplayError(runErr)
 						}
 					}()
 
-					_, err = bubbletea.Run()
+					_, err = ui.Run()
 					if err != nil {
 						return fmt.Errorf("failed to start UI: %w", err)
 					}

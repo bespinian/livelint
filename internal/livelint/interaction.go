@@ -13,11 +13,12 @@ type UserInteraction interface {
 	DisplayCheckCompletion(completionMsg string, kind SummaryType)
 	DisplayError(errorMsg error)
 	AskYesNo(question string) bool
+	SetVerbose()
 	StartSpinner()
 	StopSpinner()
 }
 
-func NewBubbleTeaInterface(program *tea.Program) *BubbleteaUI {
+func NewBubbleTeaUI(program *tea.Program) *BubbleteaUI {
 	return &BubbleteaUI{program, statusMsg{}}
 }
 
@@ -37,7 +38,7 @@ func (ui *BubbleteaUI) AskYesNo(question string) bool {
 }
 
 func (ui *BubbleteaUI) DisplayContext(contextMsg string) {
-	ui.statusMsg = initalizeStatus(contextMsg)
+	ui.statusMsg = initializeStatus(contextMsg)
 	ui.Send(ui.statusMsg)
 }
 
@@ -58,6 +59,10 @@ func (ui *BubbleteaUI) DisplayCheckCompletion(completionMsg string, kind Summary
 
 func (ui *BubbleteaUI) DisplayError(errorMsg error) {
 	ui.Send(errMsg{err: errorMsg})
+}
+
+func (ui *BubbleteaUI) SetVerbose() {
+	ui.Send(verboseMsg{verbose: true})
 }
 
 func (ui *BubbleteaUI) StartSpinner() {

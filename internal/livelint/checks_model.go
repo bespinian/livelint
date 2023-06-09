@@ -97,7 +97,6 @@ func (m Model) View() string {
 	return doc.String()
 }
 
-// nolint:ireturn
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -224,7 +223,7 @@ type check struct {
 	outcome      summaryMsg
 }
 
-func initalizeStatus(context string) statusMsg {
+func initializeStatus(context string) statusMsg {
 	return statusMsg{context: context, checks: []check{}}
 }
 
