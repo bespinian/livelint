@@ -29,7 +29,7 @@ func TestCheckAreThereRunningContainers(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "There are RUNNING containers",
+			expectedMessage: "There are running containers",
 		},
 		{
 			it: "fails if no container is running",
@@ -43,7 +43,7 @@ func TestCheckAreThereRunningContainers(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There are no RUNNING containers",
+			expectedMessage: "There are no running containers",
 		},
 	}
 

@@ -33,13 +33,13 @@ func TestCheckAreAllPodsRunning(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "All Pods are RUNNING",
+			expectedMessage: "All Pods are running",
 		},
 		{
 			it:              "succeeds if there are no pods",
 			pods:            []apiv1.Pod{},
 			expectedToFail:  false,
-			expectedMessage: "All Pods are RUNNING",
+			expectedMessage: "All Pods are running",
 		},
 		{
 			it: "fails if there are non-running pods",
@@ -51,7 +51,7 @@ func TestCheckAreAllPodsRunning(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There is 1 Pod that is not RUNNING",
+			expectedMessage: "There is 1 Pod that is not running",
 		},
 		{
 			it: "fails if there are pods with non-running containers",
@@ -63,6 +63,9 @@ func TestCheckAreAllPodsRunning(t *testing.T) {
 							{
 								State: apiv1.ContainerState{
 									Running: nil,
+									Waiting: &apiv1.ContainerStateWaiting{
+										Reason: "ContainerCreating",
+									},
 								},
 							},
 						},
@@ -70,7 +73,7 @@ func TestCheckAreAllPodsRunning(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There is 1 Pod that is not RUNNING",
+			expectedMessage: "There is 1 Pod that is not running",
 		},
 	}
 

@@ -143,7 +143,7 @@ func TestCheckInvalidImageName(t *testing.T) {
 				Image: "image1",
 			},
 			expectedToFail:  true,
-			expectedMessage: "A Pod is in status InvalidImageName",
+			expectedMessage: "The image name \"image1\" is invalid",
 		},
 	}
 

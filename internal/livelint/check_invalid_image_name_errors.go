@@ -16,9 +16,9 @@ func checkInvalidImageName(pod apiv1.Pod, container apiv1.Container) CheckResult
 			containerStatus.State.Waiting.Reason == "InvalidImageName" {
 			return CheckResult{
 				HasFailed:    true,
-				Message:      fmt.Sprintf("A Pod is in status %s", containerStatus.State.Waiting.Reason),
+				Message:      fmt.Sprintf("The image name %q is invalid", container.Image),
 				Details:      []string{containerStatus.State.Waiting.Message},
-				Instructions: fmt.Sprintf("Fix the invalid image name %s", container.Image),
+				Instructions: "Fix the image",
 			}
 		}
 	}

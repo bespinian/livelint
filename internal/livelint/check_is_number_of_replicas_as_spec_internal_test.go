@@ -11,7 +11,7 @@ import (
 	typedappsv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 )
 
-func TestCheckNumberOfPods(t *testing.T) {
+func TestIsNumberOfReplicasAsCorrect(t *testing.T) {
 	t.Parallel()
 
 	two := int32(2)
@@ -24,7 +24,7 @@ func TestCheckNumberOfPods(t *testing.T) {
 		expectedMessage string
 	}{
 		{
-			it: "succeeds, if the number of pods match the number of replicas in the deployment spec",
+			it: "succeeds, if the number of replicas match the number in the deployment spec",
 			deployment: appsv1.Deployment{
 				TypeMeta:   v1.TypeMeta{},
 				ObjectMeta: v1.ObjectMeta{Name: "DEPLOYMENT"},
@@ -54,10 +54,10 @@ func TestCheckNumberOfPods(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "Desired number of pods is running",
+			expectedMessage: "Number of replicas is as desired",
 		},
 		{
-			it: "fails, if the number of pods is lower than the number of replicas in the deployment spec",
+			it: "fails, if the number of replicas is lower than the number of replicas in the deployment spec",
 			deployment: appsv1.Deployment{
 				TypeMeta:   v1.TypeMeta{},
 				ObjectMeta: v1.ObjectMeta{Name: "DEPLOYMENT"},
@@ -87,10 +87,10 @@ func TestCheckNumberOfPods(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "Number of pods is lower then expected",
+			expectedMessage: "Number of replicas is lower than desired",
 		},
 		{
-			it: "succeeds, if the number of pods is higher than the number of replicas in the deployment spec",
+			it: "succeeds, if the number of replicas is higher than the one in the deployment spec",
 			deployment: appsv1.Deployment{
 				TypeMeta:   v1.TypeMeta{},
 				ObjectMeta: v1.ObjectMeta{Name: "DEPLOYMENT"},
@@ -120,7 +120,7 @@ func TestCheckNumberOfPods(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "Your cluster is in intermediary state. Number of pods is bigger then expected. Rerun livelint once cluster is in stable state.",
+			expectedMessage: "Cluster in intermediary state. Number of replicas is larger than desired. Re-run livelint once cluster is in stable state.",
 		},
 	}
 
@@ -154,7 +154,7 @@ func TestCheckNumberOfPods(t *testing.T) {
 			ll := livelint.Livelint{
 				K8s: k8s,
 			}
-			result := ll.CheckIsNumberOfPodsMatching("NAMESPACE", "DEPLOYMENT")
+			result := ll.CheckIsNumberOfReplicasCorrect("NAMESPACE", "DEPLOYMENT")
 
 			is.Equal(result.Message, tc.expectedMessage)  // Message
 			is.Equal(result.HasFailed, tc.expectedToFail) // HasFailed

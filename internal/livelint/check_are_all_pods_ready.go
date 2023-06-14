@@ -27,7 +27,7 @@ func checkAreAllPodsReady(pods []apiv1.Pod) CheckResult {
 	if len(nonReadyPods) > 0 {
 		nonReadyPodNames := make([]string, 0, len(nonReadyPods))
 		for _, pod := range nonReadyPods {
-			nonReadyPodNames = append(nonReadyPodNames, pod.ObjectMeta.Name)
+			nonReadyPodNames = append(nonReadyPodNames, pod.Name)
 		}
 
 		msgTemplate := "There are %v Pods that are not READY"

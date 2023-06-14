@@ -15,11 +15,12 @@ func checkCrashLoopBackOff(pod apiv1.Pod, containerName string) CheckResult {
 			return CheckResult{
 				HasFailed: true,
 				Message:   "The Pod status is CrashLoopBackOff",
+				Details:   []string{cs.State.Waiting.Message},
 			}
 		}
 	}
 
 	return CheckResult{
-		Message: "The Pod status is not CrashLoopBackOff",
+		Message: "The Pod is not in a crash loop",
 	}
 }

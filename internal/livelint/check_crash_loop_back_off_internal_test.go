@@ -31,7 +31,7 @@ func TestCheckCrashLoopBackOff(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "The Pod status is not CrashLoopBackOff",
+			expectedMessage: "The Pod is not in a crash loop",
 		},
 		{
 			it:            "succeeds if there is only another container waiting with reason CrashLoopBackOff",
@@ -51,7 +51,7 @@ func TestCheckCrashLoopBackOff(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "The Pod status is not CrashLoopBackOff",
+			expectedMessage: "The Pod is not in a crash loop",
 		},
 		{
 			it:            "fails if the specified container is waiting with reason CrashLoopBackOff",

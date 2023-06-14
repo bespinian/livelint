@@ -8,7 +8,7 @@ func checkAreThereRunningContainers(pod apiv1.Pod) CheckResult {
 	for _, pod := range append(pod.Status.ContainerStatuses, pod.Status.InitContainerStatuses...) {
 		if pod.State.Running != nil {
 			return CheckResult{
-				Message:      "There are RUNNING containers",
+				Message:      "There are running containers",
 				Instructions: "The issue is with the node-lifecycle controller",
 			}
 		}
@@ -16,7 +16,7 @@ func checkAreThereRunningContainers(pod apiv1.Pod) CheckResult {
 
 	return CheckResult{
 		HasFailed:    true,
-		Message:      "There are no RUNNING containers",
+		Message:      "There are no running containers",
 		Instructions: "Give it some more time or consult StackOverflow",
 	}
 }

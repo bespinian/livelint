@@ -20,8 +20,9 @@ func (n *Livelint) checkDoesImageTagExist(container apiv1.Container) CheckResult
 	if !yes {
 		return CheckResult{
 			HasFailed:    true,
-			Message:      fmt.Sprintf("The tag %s for the image %s does not exist", tag, image),
-			Instructions: fmt.Sprintf("Fix the configured tag %s of the image %s to the correct value", tag, image),
+			Message:      fmt.Sprintf("The tag %q for the image %q does not exist", tag, image),
+			Details:      []string{fmt.Sprintf("Container %q with image %q uses incorrect tag %q", container.Name, image, tag)},
+			Instructions: "Fix the tag",
 		}
 	}
 

@@ -14,6 +14,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 	}
 
 	n.ui.DisplayContext(fmt.Sprintf("Checking Deployment %q in Namespace %q", deploymentName, namespace))
+
 	if verbose {
 		n.ui.SetVerbose()
 	}
@@ -25,17 +26,9 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 		return fmt.Errorf("error running checks: %w", err)
 	}
 
-	// Is the number of running pods correct ?
-	result := n.CheckIsNumberOfPodsMatching(namespace, deploymentName)
+	// Is the number of replicas as specified?
+	result := n.CheckIsNumberOfReplicasCorrect(namespace, deploymentName)
 	n.ui.DisplayCheckResult(result)
-	if result.HasFailed {
-		// Are you hitting the ResourceQuota limits?
-		result = n.CheckAreResourceQuotasHit(namespace, deploymentName)
-		n.ui.DisplayCheckResult(result)
-		if result.HasFailed {
-			return nil
-		}
-	}
 
 	// Is there any PENDING Pod?
 	result = checkAreTherePendingPods(allPods)
@@ -44,6 +37,13 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 
 		// Is the cluster full?
 		result = n.CheckIsClusterFull(allPods)
+		n.ui.DisplayCheckResult(result)
+		if result.HasFailed {
+			return nil
+		}
+
+		// Are you hitting the ResourceQuota limits?
+		result = n.CheckAreResourceQuotasHit(namespace, deploymentName)
 		n.ui.DisplayCheckResult(result)
 		if result.HasFailed {
 			return nil
@@ -63,57 +63,55 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 		return nil
 	}
 
-	// Are any Pods restart cycling
-	result = n.CheckAreThereRestartCyclingPods(allPods)
-	n.ui.DisplayCheckResult(result)
-	if result.HasFailed {
-		return nil
-	}
-
 	// Are the Pods RUNNING?
 	result = checkAreAllPodsRunning(allPods)
 	n.ui.DisplayCheckResult(result)
 	if result.HasFailed {
 		for _, pod := range allPods {
 			nonRunningContainers := getNonRunningContainers(pod)
-			if len(nonRunningContainers) > 0 {
-				nonRunningContainer := nonRunningContainers[0]
+			for _, container := range nonRunningContainers {
 
 				// Is the Pod status InvalidImageName?
-				result = checkInvalidImageName(pod, nonRunningContainer)
+				result = checkInvalidImageName(pod, container)
 				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
 					return nil
 				}
 
 				// Is the Pod status ImagePullBackOff?
-				result = checkImagePullErrors(pod, nonRunningContainer)
+				result = checkImagePullErrors(pod, container)
 				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
 
 					// Is the name of the image correct?
-					result = n.checkIsImageNameCorrect(nonRunningContainer)
+					result = n.checkIsImageNameCorrect(container)
 					n.ui.DisplayCheckResult(result)
 					if result.HasFailed {
 						return nil
 					}
 
 					// Is the image tag valid? Does it exist?
-					result = n.checkDoesImageTagExist(nonRunningContainer)
+					result = n.checkDoesImageTagExist(container)
 					n.ui.DisplayCheckResult(result)
 					if result.HasFailed {
 						return nil
 					}
 
 					// Are you pulling images from a private registry?
-					result = n.checkIsPullingFromPrivateRegistry(nonRunningContainer.Image)
+					result = n.checkIsPullingFromPrivateRegistry(container.Image)
 					n.ui.DisplayCheckResult(result)
 
 					return nil
 				}
 
+				result = checkCreateContainerConfigErrors(pod, container)
+				n.ui.DisplayCheckResult(result)
+				if result.HasFailed {
+					return nil
+				}
+
 				// Is the Pod status CrashLoopBackOff?
-				result = checkCrashLoopBackOff(pod, nonRunningContainer.Name)
+				result = checkCrashLoopBackOff(pod, container.Name)
 				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
 
@@ -123,7 +121,7 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 					if result.HasFailed {
 
 						// Can you see the logs for the app?
-						result = n.CheckContainerLogs(pod, nonRunningContainer.Name)
+						result = n.CheckContainerLogs(pod, container.Name)
 						n.ui.DisplayCheckResult(result)
 						if !result.HasFailed {
 							return nil
@@ -131,8 +129,15 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 					}
 
 					// Did you forget the CMD instruction in the Dockerfile?
-					result = n.CheckForgottenCMDInDockerfile(nonRunningContainer)
+					result = n.CheckForgottenCMDInDockerfile(container)
 					n.ui.DisplayCheckResult(result)
+
+					// Is the Pod restart cycling frequently?
+					result = n.CheckAreThereRestartCyclingPods(allPods)
+					n.ui.DisplayCheckResult(result)
+					if result.HasFailed {
+						return nil
+					}
 
 					return nil
 				}
@@ -141,6 +146,13 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 				result = checkIsContainerCreating(pod)
 				n.ui.DisplayCheckResult(result)
 				if result.HasFailed {
+
+					// Are volumes with inexistent sources being mounted?
+					result = n.checkIsMountingInexistentVolumeSrc(pod, namespace)
+					n.ui.DisplayCheckResult(result)
+					if result.HasFailed {
+						return nil
+					}
 
 					// Is there any container running?
 					result = checkAreThereRunningContainers(pod)
@@ -188,12 +200,12 @@ func (n *Livelint) RunChecks(namespace, deploymentName string, verbose bool) err
 
 	n.ui.DisplayCheckStart("Checking Services")
 
-	allServices, partlyMatchingServices, err := n.getServices(namespace, deploymentName)
+	allServices, partiallyMatchingServices, err := n.getServices(namespace, deploymentName)
 	if err != nil {
 		n.ui.DisplayError(fmt.Errorf("error getting services in namespace %s: %w", namespace, err))
 	}
 
-	allServices = append(allServices, partlyMatchingServices...)
+	allServices = append(allServices, partiallyMatchingServices...)
 
 	if len(allServices) < 1 {
 		result = CheckResult{
