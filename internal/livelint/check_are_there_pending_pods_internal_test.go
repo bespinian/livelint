@@ -29,13 +29,13 @@ func TestCheckAreTherePendingPods(t *testing.T) {
 				},
 			},
 			expectedToFail:  false,
-			expectedMessage: "There are no PENDING Pods",
+			expectedMessage: "There are no pending Pods",
 		},
 		{
 			it:              "succeeds if there are no pods",
 			pods:            []apiv1.Pod{},
 			expectedToFail:  false,
-			expectedMessage: "There are no PENDING Pods",
+			expectedMessage: "There are no pending Pods",
 		},
 		{
 			it: "fails if there are pending pods",
@@ -47,7 +47,7 @@ func TestCheckAreTherePendingPods(t *testing.T) {
 				},
 			},
 			expectedToFail:  true,
-			expectedMessage: "There is 1 PENDING Pod",
+			expectedMessage: "There is 1 pending Pod",
 		},
 	}
 

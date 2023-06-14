@@ -91,6 +91,6 @@ func (n *Livelint) CheckIsClusterFull(pods []apiv1.Pod) CheckResult {
 		HasFailed:    true,
 		Message:      "The cluster is full",
 		Details:      []string{fmt.Sprintf("Checked %d schedulable nodes and found none with sufficient CPU and memory.", schedulableNodeCount)},
-		Instructions: "Provision a bigger cluster",
+		Instructions: "Provision a bigger cluster or reduce some apps' resource requests",
 	}
 }

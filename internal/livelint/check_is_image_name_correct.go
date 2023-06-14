@@ -12,17 +12,18 @@ func (n *Livelint) checkIsImageNameCorrect(container apiv1.Container) CheckResul
 
 	image := parts[0]
 
-	yes := n.ui.AskYesNo(fmt.Sprintf("Is the name of the image %q correct for the container %q?", image, container.Name))
+	yes := n.ui.AskYesNo(fmt.Sprintf("Is image name %q correct for the %q container?", image, container.Name))
 
 	if !yes {
 		return CheckResult{
 			HasFailed:    true,
-			Message:      fmt.Sprintf("The name of the image %s is not correct for the container %s", image, container.Name),
-			Instructions: fmt.Sprintf("Fix the image name %s", image),
+			Message:      fmt.Sprintf("The image name %q is not correct", image),
+			Details:      []string{fmt.Sprintf("Container %q uses incorrect image name %q", container.Name, image)},
+			Instructions: "Fix the image name",
 		}
 	}
 
 	return CheckResult{
-		Message: "The name of the image is correct",
+		Message: "The image name is correct",
 	}
 }

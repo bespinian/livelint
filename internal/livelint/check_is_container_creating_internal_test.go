@@ -34,7 +34,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  true,
-			expectedMessage: "Container TESTCONTAINER of Pod TESTPOD is in state ContainerCreating",
+			expectedMessage: "There is 1 container still being created",
 		},
 		{
 			it: "returns a non failing result if the pod has a container with status waiting and reason ContainerCreating but is not pending",
@@ -52,7 +52,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  false,
-			expectedMessage: "No Container is in state ContainerCreating",
+			expectedMessage: "No Container is still being created",
 		},
 		{
 			it: "returns a failing result if the pod has an init container with status waiting and reason ContainerCreating",
@@ -70,7 +70,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  true,
-			expectedMessage: "Container TESTCONTAINER of Pod TESTPOD is in state ContainerCreating",
+			expectedMessage: "There is 1 container still being created",
 		},
 		{
 			it: "returns a failing result if the pod has one of many containers with status waiting and reason ContainerCreating",
@@ -96,7 +96,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  true,
-			expectedMessage: "Container TESTCONTAINER of Pod TESTPOD is in state ContainerCreating",
+			expectedMessage: "There is 1 container still being created",
 		},
 		{
 			it: "returns a non-failing result if the pod has a container with status waiting and reason != ContainerCreating",
@@ -113,7 +113,7 @@ func TestCheckIsContainerCreating(t *testing.T) {
 			},
 
 			expectedToFail:  false,
-			expectedMessage: "No Container is in state ContainerCreating",
+			expectedMessage: "No Container is still being created",
 		},
 	}
 

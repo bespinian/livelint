@@ -13,7 +13,9 @@ func (n *Livelint) checkIsPullingFromPrivateRegistry(image string) CheckResult {
 	}
 
 	return CheckResult{
+		HasFailed:    true,
 		Message:      "You are pulling from a private image registry",
+		Details:      []string{fmt.Sprintf("Registry for image %q requires an image pull secret", image)},
 		Instructions: "Configure pulling images from a private registry",
 	}
 }
