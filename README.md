@@ -4,6 +4,8 @@ A CLI linting tool for live Kubernetes deployments
 
 Livelint is based on [the A visual guide on troubleshooting Kubernetes deployments blog post](https://learnk8s.io/troubleshooting-deployments) by Daniele Polencic.
 
+![Screenshot](https://raw.githubusercontent.com/bespinian/livelint/main/screenshot.png)
+
 ## Installation
 
 ```shell
